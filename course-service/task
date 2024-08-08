@@ -1,0 +1,2 @@
+в create course проблема -> 2024-08-08T00:31:16.446+03:00  WARN 24120 --- [course-service] [nio-8081-exec-2] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpMediaTypeNotSupportedException: Content-Type 'application/octet-stream' is not supported]
+w
