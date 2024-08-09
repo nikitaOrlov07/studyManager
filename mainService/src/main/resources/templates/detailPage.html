@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="${course.title + ' - Course Details'}">Course Details</title>
+    <style>
+        .course-detail {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .section-title {
+            color: #007bff;
+            margin-top: 20px;
+        }
+        .tag {
+            display: inline-block;
+            background-color: #e9ecef;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="body">
+    <div class="container py-5">
+        <div class="course-detail">
+            <h1 th:text="${course.title}">Course Title</h1>
+            <p><strong>Description:</strong> <span th:text="${course.description != null ? course.description : 'Not specified'}">Description</span></p>
+            <p><strong>Price:</strong> <span th:text="${course.price != null ? '$' + course.price : 'Not specified'}">Price</span></p>
+            <p><strong>Language:</strong> <span th:text="${course.language != null ? course.language : 'Not specified'}">Language</span></p>
+            <p><strong>Format:</strong> <span th:text="${course.format != null ? course.format : 'Not specified'}">Format</span></p>
+            <p><strong>Creation Date:</strong> <span th:text="${course.creationDate != null ? course.creationDate : 'Not specified'}">Creation Date</span></p>
+            <p><strong>End Date:</strong> <span th:text="${course.endDate != null ? course.endDate : 'Not specified'}">End Date</span></p>
+
+            <div th:if="${course.tags != null and !course.tags.empty}">
+                <h3 class="section-title">Tags</h3>
+                <div th:each="tag : ${course.tags}" class="tag" th:text="${tag}">Tag</div>
+            </div>
+
+            <div th:if="${course.attachment != null and !course.attachment.empty}">
+                <h3 class="section-title">Attachments</h3>
+                <ul>
+                    <li th:each="attach : ${course.attachment}" th:text="${attach.name}">Attachment</li>
+                </ul>
+            </div>
+
+            <div th:if="${course.userEntities != null and !course.userEntities.empty}">
+                <h3 class="section-title">Confirmed Users</h3>
+                <ul>
+                    <li th:each="user : ${course.userEntities}" th:text="${user.name}">User</li>
+                </ul>
+            </div>
+
+            <div th:if="${course.instructor != null and !course.instructor.empty}">
+                <h3 class="section-title">Instructors</h3>
+                <ul>
+                    <li th:each="instructor : ${course.instructor}" th:text="${instructor.name}">Instructor</li>
+                </ul>
+            </div>
+
+            <div th:if="${course.userRequests != null and !course.userRequests.empty}">
+                <h3 class="section-title">User Requests</h3>
+                <ul>
+                    <li th:each="request : ${course.userRequests}" th:text="${request.name}">Request</li>
+                </ul>
+            </div>
+
+            <p><strong>Chat ID:</strong> <span th:text="${course.chatId != null ? course.chatId : 'Not specified'}">Chat ID</span></p>
+            <div>
+                <h5>Attachment</h5>
+                <div class="row" style="margin-right: 5px">
+                    <div th:if="${course != null and course.attachment.isEmpty()}" class="alert alert-primary" style="margin-top: 5px;margin-left: 5px">
+                        No attachment available
+                    </div>
+                    <div th:if="${course.attachment != null and !course.attachment.isEmpty()}" th:each="file : ${course.attachment}" class="col-md-6 mb-3">
+                        <div class="card h-100 shadow-sm">
+                            <div th:if="${file != null}">
+                                <img th:if="${file.fileType.startsWith('image/')}" th:src="${file.viewUrl}" class="card-img-top" th:alt="${file.fileName}" style="object-fit: cover; height: 500px;">
+                                <div class="card-body" th:unless="${file.fileType.startsWith('image/')}">
+                                    <h5 class="card-title" th:text="${file.fileName}"></h5>
+                                    <p class="card-text">Creator: <span th:text="${file.creator}"></span></p>
+                                    <p class="card-text">Time: <small class="text-muted" th:text="${file.timestamp}"></small></p>
+                                </div>
+                                <div class="card-footer">
+                                    <a th:href="@{/files/view/{fileId}(fileId=${file.id})}" class="btn btn-primary detail-btn" style="width:100px; height: 35px">View</a>
+                                    <a th:href="@{/files/download/{fileId}(fileId=${file.id})}" class="btn btn-primary detail-btn" style="width:100px; height: 35px">Download</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

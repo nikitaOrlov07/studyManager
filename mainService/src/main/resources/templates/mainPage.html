@@ -1,10 +1,89 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www/thymeleaf.org"
+      layout:decorate="~{layout}"
+      xmlns="http://www.w3.org/1999/html">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Main Page - Courses</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .card-text {
+            color: #555;
+        }
+        .card-footer {
+            background-color: #fff;
+            border-top: 1px solid #eee;
+            padding: 1rem;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+    </style>
 </head>
-<body>
-
+<body layout:fragment="body" >
+<div>
+    <div class="container px-5 py-5">
+        <h1 class="mb-4">Available Courses</h1>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <div class="col" th:each="course : ${courses}">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${course.title}">Course Title</h5>
+                        <!--
+                        <p class="card-text">
+                            <strong>Category:</strong> <span th:text="${course.category}">Category</span>
+                        </p>
+                        -->
+                        <p class="card-text">
+                            <strong>Created:</strong> <span th:text="${course.creationDate}">Creation Date</span>
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <a th:href="@{/courses/{id}(id=${course.id})}" class="btn btn-primary">Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

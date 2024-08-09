@@ -23,7 +23,15 @@ public class Course {
 
     private String title;
     private String description;
+    private Double price;
+    private String language;
+    @ElementCollection
+    private List<String> tags;
+    private String format;
+
+    // Dates
     private String creationDate;
+    private String endDate;
 
     @OneToMany(mappedBy = "course", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
@@ -31,7 +39,9 @@ public class Course {
     private List<Attachment> attachments = new ArrayList<>(); // for attachments (foto or videos)
 
     @ElementCollection
-    private List<Long> involvedUserIds = new ArrayList<>(); // for users
+    private List<Long> involvedUserIds = new ArrayList<>();   // for users
+    @ElementCollection
+    private List<Long> requestedUsers = new ArrayList<>();  // for requested users
 
     private Long chatId; // for course main chat
 }
