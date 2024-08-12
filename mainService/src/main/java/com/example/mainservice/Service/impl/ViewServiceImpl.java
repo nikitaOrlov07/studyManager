@@ -5,12 +5,13 @@ import com.example.mainservice.Service.ViewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import java.util.Arrays;
 import java.util.List;
 @Service
 @RequiredArgsConstructor
@@ -53,5 +54,32 @@ public class ViewServiceImpl implements ViewService {
             throw new RuntimeException("Error fetching course", e);
         }
     }
+
+
+
+        /// For files
+
+        // download file
+        @Override
+        public ResponseEntity<Resource> getDownloadLink(Long fileId) {
+            log.info("getDownloadLing service method is working");
+            return webClientBuilder.build()
+                    .get()
+                    .uri("http://course-service/files/download/{fileId}", fileId)
+                    .retrieve()
+                    .toEntity(Resource.class)
+                    .block();
+        }
+        // view file
+        @Override
+        public ResponseEntity<Resource> getFileView(Long fileId) {
+            return webClientBuilder.build()
+                    .get()
+                    .uri("http://course-service/files/view/{fileId}", fileId)
+                    .retrieve()
+                    .toEntity(Resource.class)
+                    .block();
+        }
+
 
 }

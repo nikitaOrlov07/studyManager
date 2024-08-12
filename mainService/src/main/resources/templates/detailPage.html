@@ -41,13 +41,6 @@
                 <div th:each="tag : ${course.tags}" class="tag" th:text="${tag}">Tag</div>
             </div>
 
-            <div th:if="${course.attachment != null and !course.attachment.empty}">
-                <h3 class="section-title">Attachments</h3>
-                <ul>
-                    <li th:each="attach : ${course.attachment}" th:text="${attach.name}">Attachment</li>
-                </ul>
-            </div>
-
             <div th:if="${course.userEntities != null and !course.userEntities.empty}">
                 <h3 class="section-title">Confirmed Users</h3>
                 <ul>
@@ -73,10 +66,10 @@
             <div>
                 <h5>Attachment</h5>
                 <div class="row" style="margin-right: 5px">
-                    <div th:if="${course != null and course.attachment.isEmpty()}" class="alert alert-primary" style="margin-top: 5px;margin-left: 5px">
+                    <div th:if="${course != null and course.getAttachments.isEmpty()}" class="alert alert-primary" style="margin-top: 5px;margin-left: 5px">
                         No attachment available
                     </div>
-                    <div th:if="${course.attachment != null and !course.attachment.isEmpty()}" th:each="file : ${course.attachment}" class="col-md-6 mb-3">
+                    <div th:if="${course.getAttachments != null and !course.getAttachments.isEmpty()}" th:each="file : ${course.getAttachments}" class="col-md-6 mb-3">
                         <div class="card h-100 shadow-sm">
                             <div th:if="${file != null}">
                                 <img th:if="${file.fileType.startsWith('image/')}" th:src="${file.viewUrl}" class="card-img-top" th:alt="${file.fileName}" style="object-fit: cover; height: 500px;">

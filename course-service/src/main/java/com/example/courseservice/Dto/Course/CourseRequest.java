@@ -1,4 +1,4 @@
-package com.example.courseservice.Dto;
+package com.example.courseservice.Dto.Course;
 
 import com.example.courseservice.Model.Attachment;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -19,5 +19,5 @@ import java.util.List;
 public class CourseRequest {
     private String title;
     private String description;
-    List<MultipartFile> files;
+    private List<MultipartFile> files;
 }

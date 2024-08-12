@@ -1,4 +1,4 @@
-package com.example.courseservice.Dto;
+package com.example.courseservice.Dto.Course;
 
 import com.example.courseservice.Model.Attachment;
 import lombok.AllArgsConstructor;

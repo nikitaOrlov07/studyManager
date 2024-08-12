@@ -1,2 +1,2 @@
-в create course проблема -> 2024-08-08T00:31:16.446+03:00  WARN 24120 --- [course-service] [nio-8081-exec-2] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpMediaTypeNotSupportedException: Content-Type 'application/octet-stream' is not supported]
-w
+для createHomework валидация не срабатывает
+в getHomework проблема -> 2024-08-12T15:02:31.031+03:00  WARN 4148 --- [nio-8081-exec-4] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.http.converter.HttpMessageNotWritableException: Could not write JSON: Unable to access lob stream]

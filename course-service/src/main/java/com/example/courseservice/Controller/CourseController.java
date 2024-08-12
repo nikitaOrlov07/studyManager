@@ -1,21 +1,18 @@
 package com.example.courseservice.Controller;
 
 import com.example.courseservice.Config.ResourceNotFoundException;
-import com.example.courseservice.Dto.CourseRequest;
-import com.example.courseservice.Dto.CourseResponse;
+import com.example.courseservice.Dto.Course.CourseRequest;
+import com.example.courseservice.Dto.Course.CourseResponse;
 import com.example.courseservice.Model.Course;
 import com.example.courseservice.Service.CourseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Controller
 @RestController
@@ -41,6 +38,7 @@ public class CourseController {
     {
 
         log.info("createCourse Controller method is working");
+
         Course course = courseService.createCourse(request);
         // file saving
         if(request.getFiles() != null) {

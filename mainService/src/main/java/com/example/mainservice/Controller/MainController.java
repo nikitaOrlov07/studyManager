@@ -31,6 +31,7 @@ public class MainController {
         Course course = viewService.findCourse(courseId);
         model.addAttribute("course", course);
         log.info("Detail Page Main controller method is working");
+        System.out.println(course.getAttachments().isEmpty());
         return "detailPage";
     }
 

@@ -1,5 +1,6 @@
-package com.example.courseservice.Dto;
+package com.example.courseservice.Dto.Chat;
 
+import com.example.courseservice.Dto.UserEntity;
 import com.example.courseservice.Model.Course;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;

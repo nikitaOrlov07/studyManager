@@ -25,7 +25,7 @@ public class Course {
 
 
     // can be some file
-    private List<Attachment> attachment = new ArrayList<>() ;
+    private List<Attachment> attachments = new ArrayList<>() ;
 
     // users
     private  List<UserEntity> userEntities = new ArrayList<>();    // confirmed users

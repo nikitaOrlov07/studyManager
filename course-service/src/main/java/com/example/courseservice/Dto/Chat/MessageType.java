@@ -1,4 +1,4 @@
-package com.example.courseservice.Dto;
+package com.example.courseservice.Dto.Chat;
 
 public enum MessageType {
     CHAT,

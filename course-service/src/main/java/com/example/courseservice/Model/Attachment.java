@@ -1,6 +1,7 @@
 package com.example.courseservice.Model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,6 +26,7 @@ public class Attachment {
     // that a class property must be mapped to a larger object in the database.
     @Lob
     @Column(columnDefinition = "oid")
+    @JsonIgnore
     private byte[] data;
 
     public Attachment(String fileName, String fileType, byte[] data, String downloadUrl ,String viewUrl) {
@@ -39,5 +41,11 @@ public class Attachment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", referencedColumnName = "id")
     private Course course;
+
+    @ToString.Exclude
+    @JsonBackReference // to eliminate recursion
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "homework_id", referencedColumnName = "id")
+    private Homework homework;
 
 }

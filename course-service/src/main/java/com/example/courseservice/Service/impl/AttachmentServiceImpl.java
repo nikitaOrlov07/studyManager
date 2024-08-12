@@ -3,11 +3,13 @@ package com.example.courseservice.Service.impl;
 import com.example.courseservice.Dto.UserEntity;
 import com.example.courseservice.Model.Attachment;
 import com.example.courseservice.Model.Course;
+import com.example.courseservice.Model.Homework;
 import com.example.courseservice.Repository.AttachmentRepository;
 import com.example.courseservice.Service.AttachmentService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,16 +19,18 @@ import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AttachmentServiceImpl implements AttachmentService {
     private final AttachmentRepository attachmentRepository;
     @Override
-    public Attachment saveAttachment(MultipartFile file, Course course, UserEntity user) throws Exception {
+    public Attachment saveAttachment(MultipartFile file, Course course,Homework homework ,UserEntity user) throws Exception {
+
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         try {
             if(fileName.contains("..")) {
                 throw new Exception("Filename contains invalid path sequence" + fileName);
             }
-
+            log.info("Saving attachment method is working");
             Attachment attachment = new Attachment(fileName,
                     file.getContentType(),
                     file.getBytes(),
@@ -34,13 +38,18 @@ public class AttachmentServiceImpl implements AttachmentService {
                     null
             );
             attachment.setCreator(user.getUsername());
-            attachment.setCourse(course);
+
+            if(course != null)
+                attachment.setCourse(course);
+            if(homework != null)
+                attachment.setHomework(homework);
 
             LocalDateTime currentDateTime = LocalDateTime.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             attachment.setTimestamp(currentDateTime.format(formatter));
 
             return attachmentRepository.save(attachment);
+
         } catch (Exception exception) {
             exception.printStackTrace();
             throw new Exception("Could not save File: "+fileName);
@@ -63,4 +72,5 @@ public class AttachmentServiceImpl implements AttachmentService {
         return attachmentRepository.findById(fileId).orElseThrow(()-> new Exception("File not found with id "+ fileId));
 
     }
+
 }

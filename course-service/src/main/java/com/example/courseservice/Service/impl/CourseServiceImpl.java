@@ -1,8 +1,8 @@
 package com.example.courseservice.Service.impl;
 
 import com.example.courseservice.Config.ResourceNotFoundException;
-import com.example.courseservice.Dto.CourseRequest;
-import com.example.courseservice.Dto.CourseResponse;
+import com.example.courseservice.Dto.Course.CourseRequest;
+import com.example.courseservice.Dto.Course.CourseResponse;
 import com.example.courseservice.Dto.UserEntity;
 import com.example.courseservice.Model.Attachment;
 import com.example.courseservice.Model.Course;
@@ -21,7 +21,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @Slf4j
@@ -93,7 +92,7 @@ public class CourseServiceImpl implements CourseService {
         if(user == null || course == null) {
            return "error";
         }
-        Attachment attachment = attachmentService.saveAttachment(file, course, user);
+        Attachment attachment = attachmentService.saveAttachment(file, course,null,user); // upload course attachments
 
         String downloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/files/download/")

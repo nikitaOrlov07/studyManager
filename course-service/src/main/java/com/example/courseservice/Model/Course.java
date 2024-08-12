@@ -1,8 +1,5 @@
 package com.example.courseservice.Model;
 
-import com.example.courseservice.Dto.Chat;
-import com.example.courseservice.Dto.UserEntity;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -44,4 +41,7 @@ public class Course {
     private List<Long> requestedUsers = new ArrayList<>();  // for requested users
 
     private Long chatId; // for course main chat
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Homework> homeworks = new ArrayList<>(); // for homeworks
 }
