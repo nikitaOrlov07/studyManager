@@ -1,6 +1,6 @@
 package com.example.courseservice.Dto.Chat;
 
-import com.example.courseservice.Dto.UserEntity;
+import com.example.courseservice.Dto.UserEntityDto;
 import com.example.courseservice.Model.Course;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 public class Chat {
     private Long id;
-    private List<UserEntity> participants= new ArrayList<UserEntity>();
+    private List<UserEntityDto> participants= new ArrayList<UserEntityDto>();
     private List<Message> messages = new ArrayList<Message>();
 
     @OneToOne

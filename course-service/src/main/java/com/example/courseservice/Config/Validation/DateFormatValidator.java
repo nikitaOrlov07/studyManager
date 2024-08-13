@@ -49,7 +49,7 @@ public class DateFormatValidator implements ConstraintValidator<ValidDateFormat,
             return false;
         }
         log.error("Invalid date format: "+dateStr);
-        // Проверка на соответствие формату дд-мм-гггг
+        // Check if the date formate is dd-mm-yyyy
         if (!dateStr.matches(DATE_REGEX)) {
             return false;
         }

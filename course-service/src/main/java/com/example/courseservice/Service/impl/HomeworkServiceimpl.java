@@ -1,8 +1,9 @@
 package com.example.courseservice.Service.impl;
 
 import com.example.courseservice.Dto.Homework.HomeworkRequest;
+import com.example.courseservice.Dto.Homework.HomeworkResponse;
 import com.example.courseservice.Model.StudentHomeworkAttachment;
-import com.example.courseservice.Dto.UserEntity;
+import com.example.courseservice.Dto.UserEntityDto;
 import com.example.courseservice.Mappers.HomeworkMapper;
 import com.example.courseservice.Model.Attachment;
 import com.example.courseservice.Model.Homework;
@@ -23,6 +24,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +43,7 @@ public class HomeworkServiceimpl implements HomeworkService {
         Homework homework = HomeworkMapper.homeworkRequestToHomework(request);
         System.out.println(homework);
         // HTTP request to get User author
-        UserEntity author = UserEntity.builder()
+        UserEntityDto author = UserEntityDto.builder()
                 .id(2L)
                 .username("username")
                 .password("password")
@@ -51,7 +53,7 @@ public class HomeworkServiceimpl implements HomeworkService {
                 .chats(new ArrayList<>())
                 .build(); // temporary
         // HTTP request to user service to find users in the group
-        UserEntity user = UserEntity.builder()
+        UserEntityDto user = UserEntityDto.builder()
                 .id(1L)
                 .username("username")
                 .password("password")
@@ -74,7 +76,7 @@ public class HomeworkServiceimpl implements HomeworkService {
         Homework homework = homeworkRepository.findById(courseId).get();
         // Find User sending HTTP request to users service
 
-        UserEntity user = UserEntity.builder()
+        UserEntityDto user = UserEntityDto.builder()
                 .id(1L)
                 .username("username")
                 .password("password")
@@ -110,7 +112,7 @@ public class HomeworkServiceimpl implements HomeworkService {
                 .orElseThrow(() -> new Exception("Homework not found"));
 
         // HTTP request to userService to find user by userId
-        UserEntity student = UserEntity.builder()
+        UserEntityDto student = UserEntityDto.builder()
                 .id(studentId)
                 .username("username")
                 .password("password")
@@ -178,7 +180,7 @@ public class HomeworkServiceimpl implements HomeworkService {
         Homework homework = studentHomeworkAttachment.getHomework();
 
         // HTTP request to take current user and compare  him to authorId
-        UserEntity author = UserEntity.builder()
+        UserEntityDto author = UserEntityDto.builder()
                 .id(2L)
                 .username("username")
                 .password("password")
@@ -193,7 +195,7 @@ public class HomeworkServiceimpl implements HomeworkService {
         }
          */
         // HTTP request to take user who complete his homework
-        UserEntity student = UserEntity.builder()
+        UserEntityDto student = UserEntityDto.builder()
                 .id(studentHomeworkAttachment.getStudentId())
                 .username("username")
                 .password("password")
@@ -216,9 +218,13 @@ public class HomeworkServiceimpl implements HomeworkService {
         return "homework was successfully checked";
     }
 
+    @Transactional
     @Override
-    public List<Homework> getAllHomeworks(Long studentId) {
-        return homeworkRepository.findAllByStudentId(studentId);
+    public List<HomeworkResponse> getAllHomeworks(Long studentId) {
+        List<Homework> homeworks = homeworkRepository.findAllByStudentId(studentId);
+        return homeworks.stream()
+                .map(homework -> HomeworkMapper.homeworkToHomeworkResponse(homework)) // Apply the transformation to each element
+                .collect(Collectors.toList());
     }
 
     private String getCurrentDate()

@@ -13,6 +13,7 @@
         <module>mainService</module>
         <module>course-service</module>
         <module>discovery-server</module>
+        <module>user-service</module>
     </modules>
     <groupId>com.example</groupId>
     <artifactId>studyManager</artifactId>

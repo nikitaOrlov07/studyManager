@@ -3,7 +3,8 @@ package com.example.courseservice.Service.impl;
 import com.example.courseservice.Config.ResourceNotFoundException;
 import com.example.courseservice.Dto.Course.CourseRequest;
 import com.example.courseservice.Dto.Course.CourseResponse;
-import com.example.courseservice.Dto.UserEntity;
+import com.example.courseservice.Dto.UserEntity.UserEntityResponse;
+import com.example.courseservice.Dto.UserEntityDto;
 import com.example.courseservice.Model.Attachment;
 import com.example.courseservice.Model.Course;
 import com.example.courseservice.Repository.CourseRepository;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.format.DateTimeFormatter;
@@ -29,6 +31,7 @@ public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
     private final AttachmentService attachmentService;
+    private final WebClient.Builder webClientBuilder; // for HTTP requests
 
     @Override
     public List<Course> getAllCourses() {
@@ -42,14 +45,22 @@ public class CourseServiceImpl implements CourseService {
         LocalDate currentDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MM yyyy");
         String formattedDate = currentDate.format(formatter);
-
+        // Http request to userService to find a current user
+        UserEntityResponse userEntityResponse = webClientBuilder.build()
+                .get()
+                .uri("http://user-service/users/getCurrent")
+                .retrieve().bodyToMono(UserEntityResponse.class)
+                .block();
+        System.out.println(userEntityResponse);
         // Http request to Chat service to create a new chat for current course
         // Chat chat =
+
         Course course = Course.builder()
                 .title(courseRequest.getTitle())
                 .description(courseRequest.getDescription())
        //       .chatId(chat.getId())
                 .creationDate(formattedDate)
+                .authorId(userEntityResponse.getId())
                 .build();
         Course savedCourse = courseRepository.save(course);
 
@@ -79,19 +90,16 @@ public class CourseServiceImpl implements CourseService {
     public String  uploadFile(MultipartFile file, Long courseId) throws Exception {
         Course course = courseRepository.findById(courseId).get();
         // Find User sending HTTP request to users service
+        UserEntityResponse userEntityResponse = webClientBuilder.build()
+                .get()
+                .uri("http://user-service/users/getCurrent")
+                .retrieve().bodyToMono(UserEntityResponse.class)
+                .block(); //  if will be null -> program wont stop ?
 
-        UserEntity user = UserEntity.builder()
-                .id(1L)
-                .username("username")
-                .password("password")
-                .email("sdsdsd")
-                .role("user")
-                .chats(new ArrayList<>())
-                .currentCourses(Arrays.asList(course))
-                .build(); // temporary
-        if(user == null || course == null) {
+        if(userEntityResponse == null || course == null) {
            return "error";
         }
+
         Attachment attachment = attachmentService.saveAttachment(file, course,null,user); // upload course attachments
 
         String downloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()

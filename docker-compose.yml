@@ -1,0 +1,30 @@
+# Zookeeper configuration (нужен для управления кластерами кафка)
+zookeeper:
+  image: confluentinc/cp-zookeeper:7.0.1
+  container_name: zookeeper
+  ports:
+    - "2181:2181"
+  environment:
+    ZOOKEEPER_CLIENT_PORT: 2181 #  Устанавливает порт, на котором Zookeeper слушает клиентские подключения (по умолчанию 2181)
+    ZOOKEEPER_TICK_TIME: 2000   # Определяет интервал в миллисекундах, который Zookeeper использует для внутренних таймеров (2000 мс).tickTime — это базовый интервал времени (в миллисекундах)
+    #, который используется Zookeeper для различных внутренних операций, таких как отправка heartbeat сообщений между Zookeeper серверами и клиентами, а также для управления сессиями и выбора лидера.
+    #Session Timeout (maxClientCnxns) -  Время, через которое сессия клиента считается недействительной, если клиент не отправил heartbeat сообщения. Это значение рассчитывается как множитель tickTime.
+    # Например, если tickTime установлено на 2000 мс, и sessionTimeout установлен на 10 tickTime, то клиентская сессия истечет через 20 секунд без heartbeat сообщений.
+# Apache kafka broker
+broker:
+  image: confluentinc/cp-kafka:7.0.1
+  container_name: broker
+  ports:
+    - "9092:9092"
+  depends_on:
+    - zookeeper # указывает что кафка брокер должен запустится после zookeeper
+  environment:
+    KAFKA_BROKER_ID: 1
+    +KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181' # адресс zookeepeer к которому подключается kafka
+    KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT    #  Определяет протоколы безопасности для слушателей Kafka. В данном случае используются PLAINTEXT и PLAINTEXT_INTERNAL.
+    KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092  #  это конфигурационный параметр Kafka, который определяет, как и на каких адресах Kafka брокер будет сообщать
+    # другим системам о своих слушателях. Эти слушатели могут быть использованы для подключения клиентов и других брокеров.
+    # bottom all values =1 , because we use single node
+    KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1                                                 #  Устанавливает фактор репликации для темы смещений (offsets). Значение 1 означает, что данные не реплицируются, что может быть приемлемо только для тестирован
+    KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1                                                    #  Устанавливает минимальное количество реплик, которые должны быть в состоянии "выполняют запрос" для записи транзакций.
+    KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1                                         #  Устанавливает фактор репликации для логов состояния транзакций. Значение 1 означает, что логи не реплицируются.

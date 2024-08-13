@@ -1,25 +1,18 @@
 package com.example.courseservice.Controller;
 
-import com.example.courseservice.Dto.UserEntity;
+import com.example.courseservice.Dto.UserEntityDto;
 import com.example.courseservice.Model.Attachment;
-import com.example.courseservice.Model.Course;
 import com.example.courseservice.Service.AttachmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 @Controller
 @RequestMapping("/files")
@@ -35,13 +28,12 @@ public class AttachmentController {
     {
         Attachment attachment = attachmentService.getAttachment(fileId);
         // will be HTTP request to userService
-        UserEntity currentUser = UserEntity.builder()
+        UserEntityDto currentUser = UserEntityDto.builder()
                 .id(1L)
                 .username("username")
                 .password("password")
                 .email("sdsdsd")
                 .role("user")
-                .chats(new ArrayList<>())
                 .build(); // temporary
         if(currentUser == null)
         {
@@ -65,13 +57,12 @@ public class AttachmentController {
     @GetMapping("/view/{fileId}")
     public ResponseEntity<Resource> viewFile(@PathVariable("fileId") Long fileId) throws Exception {
         // Will be HTTP response to userService to find currentUser by userName
-        UserEntity currentUser = UserEntity.builder()
+        UserEntityDto currentUser = UserEntityDto.builder()
                 .id(1L)
                 .username("username")
                 .password("password")
                 .email("sdsdsd")
                 .role("user")
-                .chats(new ArrayList<>())
                 .build(); // temporary
 
         if(currentUser == null )

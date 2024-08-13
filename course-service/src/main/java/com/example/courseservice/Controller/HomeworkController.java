@@ -1,6 +1,7 @@
 package com.example.courseservice.Controller;
 
 import com.example.courseservice.Dto.Homework.HomeworkRequest;
+import com.example.courseservice.Dto.Homework.HomeworkResponse;
 import com.example.courseservice.Dto.Homework.HomeworkStatus;
 import com.example.courseservice.Model.StudentHomeworkAttachment;
 import com.example.courseservice.Model.Homework;
@@ -83,7 +84,7 @@ public class HomeworkController {
     }
     // Get all homework
     @GetMapping
-    public List<Homework> getAllHomeworks(@RequestParam Long studentId)
+    public List<HomeworkResponse> getAllHomeworks(@RequestParam Long studentId)
     {
         return homeworkService.getAllHomeworks(studentId);
     }

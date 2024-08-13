@@ -1,10 +1,12 @@
 package com.example.courseservice.Model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,15 +36,18 @@ public class Homework {
     // Homework Attachments
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "homework_id") // This will create a foreign key in the Attachment table
+    @JsonIgnore
     private List<Attachment> attachmentList = new ArrayList<>();
 
     // Student Attachments
     @OneToMany(mappedBy = "homework", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<StudentHomeworkAttachment> studentAttachments = new ArrayList<>();
 
     // Relationship with Course
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id") // This will create a foreign key in the Homework table
+    @JsonIgnore
     private Course course;
 
     private Long authorId;

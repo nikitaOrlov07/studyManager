@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @Builder
-public class UserEntity {
+public class UserEntityDto {
 
     private Long id;
     private String username;
@@ -31,7 +31,8 @@ public class UserEntity {
     // created courses
     private List<Course> courses = new ArrayList<>();
 
-    private List<Course> currentCourses  = new ArrayList<>();
+    //     // User is participant in this courses
+    private List<Course> participatingCourses  = new ArrayList<>();
 
     List<Chat> chats = new ArrayList<>();
 

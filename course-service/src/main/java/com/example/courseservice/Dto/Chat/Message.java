@@ -1,6 +1,6 @@
 package com.example.courseservice.Dto.Chat;
 
-import com.example.courseservice.Dto.UserEntity;
+import com.example.courseservice.Dto.UserEntityDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,5 +15,5 @@ public class Message {
     private String pubDate;
     private MessageType type;
     private Chat chat;
-    private UserEntity user;
+    private UserEntityDto user;
 }
