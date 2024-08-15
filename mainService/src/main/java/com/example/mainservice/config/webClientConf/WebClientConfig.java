@@ -1,4 +1,4 @@
-package com.example.mainservice.webClientConf;
+package com.example.mainservice.config.webClientConf;
 
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;

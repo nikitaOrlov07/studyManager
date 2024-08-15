@@ -1,1 +1,2 @@
 
+проблема : 2024-08-15T23:41:38.817+03:00  WARN 6508 --- [nio-8081-exec-1] o.s.web.servlet.PageNotFound             : No mapping for GET /actuator/prometheus

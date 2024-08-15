@@ -1,5 +1,6 @@
 package com.example.userservice.Controller;
 
+import com.example.userservice.Dto.Registration.RegistrationDto;
 import com.example.userservice.Dto.UserEntityDto;
 import com.example.userservice.Mapper.UserEntityMapper;
 import com.example.userservice.Model.UserEntity;
@@ -41,19 +42,22 @@ public class Controller {
 
     // registry
     @PostMapping("/save")
-    public String saveUser(@ModelAttribute UserEntityDto userEntityDto)
+    public String saveUser(@ModelAttribute RegistrationDto registrationDto)
     {
+        log.info("UserService \"saveUser\" controller method is working");
         // check existing email
-        UserEntity existingUserByEmail = userService.findByEmail(userEntityDto.getEmail());
+        UserEntity existingUserByEmail = userService.findByEmail(registrationDto.getEmail());
         if(existingUserByEmail != null && existingUserByEmail.getEmail() != null && !existingUserByEmail.getEmail().isEmpty()) {
             return "user with this email is already exists";
         }
+        System.out.println(registrationDto);
         // check existing username
-        UserEntity existingUserByUsername = userService.findUserByUsername(userEntityDto.getUsername());
+        UserEntity existingUserByUsername = userService.findUserByUsername(registrationDto.getUsername());
         if(existingUserByUsername != null && existingUserByUsername.getUsername() != null && !existingUserByUsername.getUsername().isEmpty()) {
             return "user with this username is already exists";
         }
-        userService.save(userEntityDto);
+
+        userService.save(UserEntityMapper.registrationDtoToUserEntityDto(registrationDto));
         return "User was successfully saved";
     }
 

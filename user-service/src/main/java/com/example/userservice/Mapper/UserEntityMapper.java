@@ -1,8 +1,11 @@
 package com.example.userservice.Mapper;
 
+import com.example.userservice.Dto.Registration.RegistrationDto;
 import com.example.userservice.Dto.UserEntityDto;
 import com.example.userservice.Model.UserEntity;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
 
 @Slf4j
 public class UserEntityMapper {
@@ -41,5 +44,22 @@ public class UserEntityMapper {
                 .createdHomeworksIds(userEntityDto.getCreatedHomeworksIds())
                 .build();
     }
+    public static UserEntityDto registrationDtoToUserEntityDto(RegistrationDto registrationDto) {
+        return UserEntityDto.builder()
+                .username(registrationDto.getUsername())
+                .email(registrationDto.getEmail())
+                .password(registrationDto.getPassword())
+                .town(registrationDto.getTown())
+                .phoneNumber(registrationDto.getPhoneNumber())
+                .age(null)
+                .role(null)
+                .createdCoursesIds(new ArrayList<>())
+                .participatingCourses(new ArrayList<>())
+                .chatsIds(new ArrayList<>())
+                .completedHomeworksIds(new ArrayList<>())
+                .createdHomeworksIds(new ArrayList<>())
+                .build();
+    }
+
 }
 
