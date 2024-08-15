@@ -23,8 +23,7 @@ public class UserEntityMapper {
                 .createdHomeworksIds(userEntity.getCreatedHomeworksIds())
                 .build();
     }
-
-    // Преобразование из UserEntityDto в UserEntity
+    
     public static UserEntity userEntityDtoToUserEntity(UserEntityDto userEntityDto) {
         return UserEntity.builder()
                 .id(userEntityDto.getId())

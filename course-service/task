@@ -1,6 +1,1 @@
 
-в getHomework проблема -> 2024-08-12T15:02:31.031+03:00  WARN 4148 --- [nio-8081-exec-4] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.http.converter.HttpMessageNotWritableException: Could not write JSON: Unable to access lob stream]
-решение : нужно создать одельный Dto для того чтобы вернуть дзшки -> метод контроллеа будет возвращать List<HomeworkDto>
-
-в CourseServiceimpl с userService приходит UserRespnse а в attachmentService буду передавать UserDto -> доделаь маппер , в котором из id будет
-находится соответствующие курсы и homeworks

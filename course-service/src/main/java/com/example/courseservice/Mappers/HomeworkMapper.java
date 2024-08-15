@@ -24,30 +24,33 @@ public class HomeworkMapper {
                 .build();
         return  homework;
     }
-    public static HomeworkResponse homeworkToHomeworkResponse(Homework homework) {
-        log.info("Homework response mapper is working");
-        List<AttachmentDto> attachmentDtos = homework.getAttachmentList().stream()
+    public static HomeworkResponse convertToHomeworkResponse(Homework homework) {
+        HomeworkResponse response = new HomeworkResponse();
+        response.setId(homework.getId());
+        response.setTitle(homework.getTitle());
+        response.setDescription(homework.getDescription());
+        response.setStartDate(homework.getStartDate());
+        response.setEndDate(homework.getEndDate());
+        response.setUserEntitiesId(new ArrayList<>(homework.getUserEntitiesId()));
+        response.setAuthorId(homework.getAuthorId());
+
+        // Map each Attachment to AttachmentDto objects
+        response.setAttachmentList(homework.getAttachmentList().stream()
                 .map(attachment -> new AttachmentDto(
+                        attachment.getId(),
+                        attachment.getFileName(),
+                        attachment.getFileType(),
                         attachment.getDownloadUrl(),
                         attachment.getViewUrl()
                 ))
-                .collect(Collectors.toList());
-        List<StudentHomeworkAttachmentDto> studentHomeworkAttachmentDtos = homework.getStudentAttachments().stream()
-                .map(HomeworkMapper::studentHomeworkAttachmentToDto)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
 
-        HomeworkResponse homeworkResponse = HomeworkResponse.builder()
-                .id(homework.getId())
-                .title(homework.getTitle())
-                .description(homework.getDescription())
-                .startDate(homework.getStartDate())
-                .endDate(homework.getEndDate())
-                .userEntitiesId(new ArrayList<>(homework.getUserEntitiesId()))
-                .attachmentList(attachmentDtos)
-                .studentAttachments(studentHomeworkAttachmentDtos)
-                .authorId(homework.getAuthorId())
-                .build();
-        return homeworkResponse;
+        // Map each  StudentAttachments object to StudentAttachmentsDtoObject
+        response.setStudentAttachments(homework.getStudentAttachments().stream()
+                 .map(HomeworkMapper::studentHomeworkAttachmentToDto)
+                 .collect(Collectors.toList()));
+
+        return response;
     }
     public static StudentHomeworkAttachmentDto studentHomeworkAttachmentToDto(StudentHomeworkAttachment studentHomeworkAttachment)
     {
@@ -55,13 +58,23 @@ public class HomeworkMapper {
                 .id(studentHomeworkAttachment.getId())
                 .homework(studentHomeworkAttachment.getHomework())
                 .studentId(studentHomeworkAttachment.getStudentId())
-                .attachments(studentHomeworkAttachment.getAttachments())
                 .uploadedDate(studentHomeworkAttachment.getUploadedDate())
                 .status(studentHomeworkAttachment.getStatus())
                 .mark(studentHomeworkAttachment.getMark())
                 .message(studentHomeworkAttachment.getMessage())
                 .checkedDate(studentHomeworkAttachment.getCheckedDate())
                 .build();
+
+        studentHomeworkAttachmentDto.setAttachments(studentHomeworkAttachment.getAttachments().stream()
+                .map(attachment -> new AttachmentDto(
+                        attachment.getId(),
+                        attachment.getFileName(),
+                        attachment.getFileType(),
+                        attachment.getDownloadUrl(),
+                        attachment.getViewUrl()
+                ))
+                .collect(Collectors.toList()));
+
         return studentHomeworkAttachmentDto;
     }
 }

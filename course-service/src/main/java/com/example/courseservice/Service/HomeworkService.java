@@ -3,6 +3,7 @@ package com.example.courseservice.Service;
 import com.example.courseservice.Dto.Homework.HomeworkRequest;
 import com.example.courseservice.Dto.Homework.HomeworkResponse;
 import com.example.courseservice.Dto.Homework.HomeworkStatus;
+import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentHomeworkAttachmentDto;
 import com.example.courseservice.Model.Homework;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,4 +19,8 @@ public interface HomeworkService {
     String checkHomework(Long studentHomeworkAttachmentId, HomeworkStatus homeworkStatus, String message, Integer mark) throws Exception;
 
     List<HomeworkResponse> getAllHomeworks(Long studentId);
+
+    List<StudentHomeworkAttachmentDto> findHomeworkAttachmentsByIds(List<Long> studentAttachmentsIds);
+
+    List<HomeworkResponse> getCreatedHomeworksByIds(List<Long> homeworksIds);
 }

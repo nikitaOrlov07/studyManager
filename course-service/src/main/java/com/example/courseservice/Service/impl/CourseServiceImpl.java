@@ -4,7 +4,7 @@ import com.example.courseservice.Config.ResourceNotFoundException;
 import com.example.courseservice.Dto.Course.CourseRequest;
 import com.example.courseservice.Dto.Course.CourseResponse;
 import com.example.courseservice.Dto.UserEntity.UserEntityResponse;
-import com.example.courseservice.Dto.UserEntityDto;
+import com.example.courseservice.Mappers.UsersMapper;
 import com.example.courseservice.Model.Attachment;
 import com.example.courseservice.Model.Course;
 import com.example.courseservice.Repository.CourseRepository;
@@ -20,9 +20,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -72,7 +72,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseResponse getCourse(Long courseId) {
+    public CourseResponse getCourseResponse(Long courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Course with ID " + courseId + " not found."));
 
@@ -96,11 +96,12 @@ public class CourseServiceImpl implements CourseService {
                 .retrieve().bodyToMono(UserEntityResponse.class)
                 .block(); //  if will be null -> program wont stop ?
 
+        System.out.println("Ids: "+ userEntityResponse.getCreatedCoursesIds());
         if(userEntityResponse == null || course == null) {
            return "error";
         }
 
-        Attachment attachment = attachmentService.saveAttachment(file, course,null,user); // upload course attachments
+      Attachment attachment = attachmentService.saveAttachment(file, course,null, UsersMapper.responseToDto(userEntityResponse)); // upload course attachments
 
         String downloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/files/download/")
@@ -114,7 +115,11 @@ public class CourseServiceImpl implements CourseService {
         log.info("Download URL: " + downloadUrl);
         log.info("View URL: " + viewUrl);
 
+
+
         attachmentService.updateAttachmentUrls(attachment.getId(), downloadUrl, viewUrl);
+
+
         return "file successfully uploaded";
     }
 
@@ -125,6 +130,14 @@ public class CourseServiceImpl implements CourseService {
         if(course == null)
             throw new ResourceNotFoundException("Course with ID " + courseId + " not found.");
         courseRepository.delete(course);
+    }
+
+    @Override
+    public List<Course> getCourseByIds(List<Long> courseIds) {
+        List<Course> courses = courseIds.stream()
+                .map(id -> courseRepository.findById(id).get())
+                .collect(Collectors.toList());
+        return  courses;
     }
 
 

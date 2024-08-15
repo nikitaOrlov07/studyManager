@@ -1,0 +1,50 @@
+apiVersion: 1
+
+datasources: # конфигурация для источников grafana
+  # Prometheus для метриков
+  - name: Prometheus
+    type: prometheus # Указывает, что это источник данных Prometheus.
+    access: proxy  # Доступ через прокси-сервер
+    url: http://prometheus:9090 # URL-адрес Prometheus сервера
+    editable: false #  Источник данных не редактируемый
+    jsonData:  # Дополнительные настройки в формате JSON
+      httpMethod: POST # Метод HTTP для запросов к Prometheus
+      exemplarTraceIdDestinations: # Указывает, как следует обрабатывать идентификаторы трассировки (trace IDs)
+        - name: trace_id # Имя для идентификатора трассировки
+          datasourceUid: tempo # UID источника данных Tempo для связки с идентификатором трассировки
+  # Tempo для трейсинга
+  - name: Tempo
+    type: tempo
+    access: proxy # Доступ через прокси-сервер
+    orgId: 1 # ID организации в Grafana
+    url: http://tempo:3200 # URL-адрес Tempo сервера
+    basicAuth: false # Основная аутентификация не используется
+    isDefault: true  # Этот источник данных установлен как основной (default) для текущего контекста.
+    version: 1       # Версия источника данных
+    editable: false  # Источник данных не редактируемый
+    apiVersion: 1
+    uid: tempo       # Уникальный идентификатор источника данных Tempo
+    jsonData:
+      httpMethod: GET # Метод HTTP для запросов к Tempo
+      tracesToLogs:
+        datasourceUid: 'loki' # 'loki' — UID источника данных Loki, который используется для связки трассировок с логами
+      nodeGraph: # дополнительные настройки графиков узлов
+        enabled: true # Включает возможность отображения графиков узлов
+  # Loki для логирования
+  - name: Loki
+    type: loki # Указывает, что это источник данных Loki
+    uid: loki  # Уникальный идентификатор источника данных Loki
+    access: proxy #  Доступ через прокси-сервер
+    orgId: 1 # ID организации в Grafana
+    url: http://loki:3100 # URL-адрес Loki сервера
+    basicAuth: false # Основная аутентификация не используется
+    isDefault: false # Этот источник данных не установлен как основной
+    version: 1
+    editable: false
+    apiVersion: 1
+    jsonData:
+      derivedFields: #  Настройки для вывода полей, извлеченных из логов
+        -   datasourceUid: tempo # UID источника данных Tempo, используемого для извлечения информации
+            matcherRegex: \[.+,(.+?), # Регулярное выражение для извлечения идентификаторов трассировки из логов.
+            name: TraceID # Имя для идентификатора трассировки
+            url: $${__value.raw} # URL для извлечения данных, связанного с TraceID

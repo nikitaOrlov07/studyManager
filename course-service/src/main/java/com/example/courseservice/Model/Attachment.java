@@ -38,13 +38,13 @@ public class Attachment {
     }
     @ToString.Exclude
     @JsonBackReference // to eliminate recursion
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "course_id", referencedColumnName = "id")
     private Course course;
 
     @ToString.Exclude
     @JsonBackReference // to eliminate recursion
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "homework_id", referencedColumnName = "id")
     private Homework homework;
 

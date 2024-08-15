@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 @RestController
 @RequestMapping("/users")
 @Slf4j
@@ -18,7 +21,15 @@ public class Controller {
     @GetMapping("/getCurrent")
     public UserEntityDto getCurrentUser()
     {
-        UserEntity userEntity = userService.findUserByUsername(SecurityUtil.getSessionUser());
+        // UserEntity userEntity = userService.findUserByUsername(SecurityUtil.getSessionUser());
+        UserEntity userEntity = UserEntity.builder()
+                .id(1L)
+                .username("sdsdsdsd")
+                .password("sdsdsds")
+                .age("15")
+                .email("sdsdsds")
+                .createdCoursesIds(Arrays.asList(5L))
+                .build();
         return UserEntityMapper.userEntityToUserEntityDto(userEntity);
     }
 
@@ -39,7 +50,7 @@ public class Controller {
         }
         // check existing username
         UserEntity existingUserByUsername = userService.findUserByUsername(userEntityDto.getUsername());
-        if(existingUserByUsername != null && existingUserByUsername.getUsername() != null && !existingUserByEmail.getUsername().isEmpty()) {
+        if(existingUserByUsername != null && existingUserByUsername.getUsername() != null && !existingUserByUsername.getUsername().isEmpty()) {
             return "user with this username is already exists";
         }
         userService.save(userEntityDto);

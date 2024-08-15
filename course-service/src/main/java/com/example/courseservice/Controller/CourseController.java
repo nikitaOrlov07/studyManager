@@ -63,7 +63,7 @@ public class CourseController {
     @ResponseStatus(HttpStatus.OK)
     public CourseResponse findCourse(@PathVariable Long courseId) {
         log.info("findCourse Controller method is working");
-        CourseResponse courseResponse = courseService.getCourse(courseId);
+        CourseResponse courseResponse = courseService.getCourseResponse(courseId);
         if (courseResponse == null) {
             throw new ResourceNotFoundException("Course with ID " + courseId + " not found.");
         }

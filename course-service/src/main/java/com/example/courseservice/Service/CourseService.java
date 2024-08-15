@@ -12,9 +12,12 @@ public interface CourseService {
 
     Course createCourse(CourseRequest courseRequest);
 
-    CourseResponse getCourse(Long courseId);
+    CourseResponse getCourseResponse(Long courseId);
 
     String uploadFile(MultipartFile file, Long id) throws Exception;
 
     void deleteCourse(Long courseId);
+
+
+    List<Course> getCourseByIds(List<Long> courseIds);
 }

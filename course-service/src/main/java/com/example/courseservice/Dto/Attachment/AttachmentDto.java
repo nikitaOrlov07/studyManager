@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AttachmentDto {
+    private Long id;
+    private String fileName;
+    private String fileType;
     private String downloadUrl;
     private String viewUrl;
 }

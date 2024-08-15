@@ -2,6 +2,7 @@ package com.example.courseservice.Service.impl;
 
 import com.example.courseservice.Dto.Homework.HomeworkRequest;
 import com.example.courseservice.Dto.Homework.HomeworkResponse;
+import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentHomeworkAttachmentDto;
 import com.example.courseservice.Model.StudentHomeworkAttachment;
 import com.example.courseservice.Dto.UserEntityDto;
 import com.example.courseservice.Mappers.HomeworkMapper;
@@ -11,7 +12,7 @@ import com.example.courseservice.Repository.HomeworkRepository;
 import com.example.courseservice.Repository.StudentHomeworkRepository;
 import com.example.courseservice.Service.AttachmentService;
 import com.example.courseservice.Service.HomeworkService;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -49,7 +50,7 @@ public class HomeworkServiceimpl implements HomeworkService {
                 .password("password")
                 .email("sdsdsd")
                 .role("user")
-                .createdHomeworks(Arrays.asList(homework))
+                .createdHomeworks(Arrays.asList(HomeworkMapper.convertToHomeworkResponse(homework)))
                 .chats(new ArrayList<>())
                 .build(); // temporary
         // HTTP request to user service to find users in the group
@@ -134,9 +135,6 @@ public class HomeworkServiceimpl implements HomeworkService {
         if (homeworkAlreadySubmitted) {
             throw new Exception("Homework has already been submitted by this student");
         }
-
-
-
        StudentHomeworkAttachment studentHomework = StudentHomeworkAttachment.builder()
                 .homework(homework)
                 .studentId(studentId)
@@ -166,7 +164,7 @@ public class HomeworkServiceimpl implements HomeworkService {
         }
 
         studentHomework.setAttachments(attachments);
-        student.getCompletedHomeworks().add(studentHomework);
+        student.getCompletedHomeworks().add(HomeworkMapper.studentHomeworkAttachmentToDto(studentHomework));
 
         studentHomeworkRepository.save(studentHomework);
         // Http request to update user (student)
@@ -186,7 +184,7 @@ public class HomeworkServiceimpl implements HomeworkService {
                 .password("password")
                 .email("sdsdsd")
                 .role("user")
-                .createdHomeworks(Arrays.asList(homework))
+                .createdHomeworks(Arrays.asList(HomeworkMapper.convertToHomeworkResponse(homework)))
                 .chats(new ArrayList<>())
                 .build(); // temporary
         /*if(!author.getId().equals(homework.getAuthorId()))
@@ -218,19 +216,38 @@ public class HomeworkServiceimpl implements HomeworkService {
         return "homework was successfully checked";
     }
 
-    @Transactional
     @Override
+    @Transactional(readOnly = true) // readOnly means that the annotated method will only perform a read operation
     public List<HomeworkResponse> getAllHomeworks(Long studentId) {
-        List<Homework> homeworks = homeworkRepository.findAllByStudentId(studentId);
+        List<Homework> homeworks = homeworkRepository.findAllByUserEntitiesIdContaining(studentId);
         return homeworks.stream()
-                .map(homework -> HomeworkMapper.homeworkToHomeworkResponse(homework)) // Apply the transformation to each element
+                .map(HomeworkMapper::convertToHomeworkResponse)
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<StudentHomeworkAttachmentDto> findHomeworkAttachmentsByIds(List<Long> studentAttachmentsIds) {
+        List<StudentHomeworkAttachmentDto> studentHomeworkAttachmentsDtos = studentAttachmentsIds.stream()
+                .map(id -> HomeworkMapper.studentHomeworkAttachmentToDto(studentHomeworkRepository.findById(id).get()))
+                .collect(Collectors.toList());
+
+        return studentHomeworkAttachmentsDtos;
+    }
+
+    @Override
+    public List<HomeworkResponse> getCreatedHomeworksByIds(List<Long> homeworksIds)
+    {
+        List<HomeworkResponse> homeworkResponses = homeworksIds.stream()
+                .map(id -> HomeworkMapper.convertToHomeworkResponse(homeworkRepository.findById(id).get()))
+                .collect(Collectors.toList());
+
+        return homeworkResponses;
+    }
     private String getCurrentDate()
     {
         LocalDate today = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MM yyyy");
         return today.format(formatter);
     }
+
 }

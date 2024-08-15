@@ -1,30 +1,80 @@
-# Zookeeper configuration (нужен для управления кластерами кафка)
-zookeeper:
-  image: confluentinc/cp-zookeeper:7.0.1
-  container_name: zookeeper
-  ports:
-    - "2181:2181"
-  environment:
-    ZOOKEEPER_CLIENT_PORT: 2181 #  Устанавливает порт, на котором Zookeeper слушает клиентские подключения (по умолчанию 2181)
-    ZOOKEEPER_TICK_TIME: 2000   # Определяет интервал в миллисекундах, который Zookeeper использует для внутренних таймеров (2000 мс).tickTime — это базовый интервал времени (в миллисекундах)
-    #, который используется Zookeeper для различных внутренних операций, таких как отправка heartbeat сообщений между Zookeeper серверами и клиентами, а также для управления сессиями и выбора лидера.
-    #Session Timeout (maxClientCnxns) -  Время, через которое сессия клиента считается недействительной, если клиент не отправил heartbeat сообщения. Это значение рассчитывается как множитель tickTime.
-    # Например, если tickTime установлено на 2000 мс, и sessionTimeout установлен на 10 tickTime, то клиентская сессия истечет через 20 секунд без heartbeat сообщений.
-# Apache kafka broker
-broker:
-  image: confluentinc/cp-kafka:7.0.1
-  container_name: broker
-  ports:
-    - "9092:9092"
-  depends_on:
-    - zookeeper # указывает что кафка брокер должен запустится после zookeeper
-  environment:
-    KAFKA_BROKER_ID: 1
-    +KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181' # адресс zookeepeer к которому подключается kafka
-    KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT    #  Определяет протоколы безопасности для слушателей Kafka. В данном случае используются PLAINTEXT и PLAINTEXT_INTERNAL.
-    KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092  #  это конфигурационный параметр Kafka, который определяет, как и на каких адресах Kafka брокер будет сообщать
-    # другим системам о своих слушателях. Эти слушатели могут быть использованы для подключения клиентов и других брокеров.
-    # bottom all values =1 , because we use single node
-    KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1                                                 #  Устанавливает фактор репликации для темы смещений (offsets). Значение 1 означает, что данные не реплицируются, что может быть приемлемо только для тестирован
-    KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1                                                    #  Устанавливает минимальное количество реплик, которые должны быть в состоянии "выполняют запрос" для записи транзакций.
-    KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1                                         #  Устанавливает фактор репликации для логов состояния транзакций. Значение 1 означает, что логи не реплицируются.
+version: '3.8'
+
+services:
+
+  ### collection, storage and visualization of various information
+
+  # Grafana Tempo (tracing)
+  tempo:
+    image: grafana/tempo:2.2.2
+    command:
+      - --config.file=/etc/tempo-config.yaml
+      - --log.level=debug
+    volumes:
+      - D:/Programing/GithubRepos/shoppingManager/docker/tempo/tempo.yaml:/etc/tempo-config.yaml:ro
+      - D:/Programing/GithubRepos/shoppingManager/docker/tempo/tempo-data:/tmp/tempo
+    ports:
+      - "3110:3100"
+      - "9411:9411"
+
+  # Grafana Loki (logging)
+  loki:
+    image: grafana/loki:main
+    command: [ "-config.file=/etc/loki/local-config.yaml" ]
+    ports:
+      - "3100:3100"
+
+  # Metrics(JVM statistic , Thread Count , Heap memory , Statistics …)
+  prometheus:
+    image: prom/prometheus:v2.46.0
+    command:
+      - --enable-feature=exemplar-storage
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+
+  # Collect and display all information
+  grafana:
+    image: grafana/grafana:10.1.0
+    volumes:
+      - ./docker/grafana:/etc/grafana/provisioning/datasources:ro
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    ports:
+      - "3000:3000"
+
+  # Zookeeper configuration (needed for managing Kafka clusters)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181  # Port on which Zookeeper listens for client connections (default 2181)
+      ZOOKEEPER_TICK_TIME: 2000    # Interval in milliseconds used by Zookeeper for internal timers (2000 ms)
+      # tickTime is the basic unit of time in milliseconds used by Zookeeper for various internal operations
+      # like sending heartbeat messages between Zookeeper servers and clients, session management, and leader election.
+      # Session Timeout (maxClientCnxns) - Time after which a client session is considered invalid if the client does not send heartbeat messages.
+      # For example, with tickTime set to 2000 ms and sessionTimeout set to 10 tickTime, the client session will expire after 20 seconds without heartbeat messages.
+
+  # Kafka broker configuration
+  broker:
+    image: confluentinc/cp-kafka:7.0.1
+    container_name: broker
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper  # Indicates that the Kafka broker should start after Zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'  # Address of the Zookeeper to which Kafka connects
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT  # Defines security protocols for Kafka listeners; in this case, PLAINTEXT and PLAINTEXT_INTERNAL.
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092  # Configuration parameter defining how Kafka broker advertises its listeners to other systems.
+      # This setting helps clients and other brokers to connect to the Kafka broker.
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1  # Sets the replication factor for the offsets topic. Value 1 means no replication, acceptable for testing only.
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1  # Sets the minimum number of in-sync replicas required for transaction logs.
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1  # Sets the replication factor for transaction state logs. Value 1 means no replication.

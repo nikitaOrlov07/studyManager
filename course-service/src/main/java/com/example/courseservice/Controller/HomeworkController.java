@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -84,6 +85,7 @@ public class HomeworkController {
     }
     // Get all homework
     @GetMapping
+    @Transactional(readOnly = true) // readOnly means that the annotated method will only perform a read operation
     public List<HomeworkResponse> getAllHomeworks(@RequestParam Long studentId)
     {
         return homeworkService.getAllHomeworks(studentId);

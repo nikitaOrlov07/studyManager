@@ -6,6 +6,7 @@ import com.example.userservice.Model.UserEntity;
 import com.example.userservice.Repositories.UserEntityRepository;
 import com.example.userservice.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 
@@ -13,7 +14,9 @@ import org.springframework.stereotype.Service;
 public class UserServiceimpl implements UserService {
 
     @Autowired
-    UserEntityRepository userRepository;
+    private UserEntityRepository userRepository;
+    @Autowired
+    private KafkaTemplate<String,UserEntityDto> kafkaTemplate;
 
 
     @Override
@@ -33,6 +36,7 @@ public class UserServiceimpl implements UserService {
     public void save(UserEntityDto userEntityDto) {
         UserEntity userEntity = UserEntityMapper.userEntityDtoToUserEntity(userEntityDto);
         userRepository.save(userEntity);
+        kafkaTemplate.send("notificationTopic",UserEntityMapper.userEntityToUserEntityDto(userEntity));
     }
 
     @Override

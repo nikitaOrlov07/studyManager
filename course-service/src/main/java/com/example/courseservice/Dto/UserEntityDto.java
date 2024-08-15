@@ -1,6 +1,8 @@
 package com.example.courseservice.Dto;
 
 import com.example.courseservice.Dto.Chat.Chat;
+import com.example.courseservice.Dto.Homework.HomeworkResponse;
+import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentHomeworkAttachmentDto;
 import com.example.courseservice.Model.Course;
 import com.example.courseservice.Model.Homework;
 import com.example.courseservice.Model.StudentHomeworkAttachment;
@@ -37,11 +39,11 @@ public class UserEntityDto {
     List<Chat> chats = new ArrayList<>();
 
     // homework
-    private List<Homework>  homeworks = new ArrayList<>();
+    private List<HomeworkResponse>  homeworks = new ArrayList<>();
 
     // completed homeworks
-    private List<StudentHomeworkAttachment> completedHomeworks = new ArrayList<>();
+    private List<StudentHomeworkAttachmentDto> completedHomeworks = new ArrayList<>();
 
     // created homeworks
-    private List<Homework> createdHomeworks = new ArrayList<>();
+    private List<HomeworkResponse> createdHomeworks = new ArrayList<>();
 }
