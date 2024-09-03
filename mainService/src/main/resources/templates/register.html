@@ -57,7 +57,7 @@
                         This username has already been registered
                     </div>
                     <div class="login-form" style="width: 15000px">
-                        <form method="post" th:action="@{/register/save}" th:object="${user}">
+                        <form method="post" th:action="@{/register/save}" th:object="${registrationDto}">
                             <div class="form-group" >
                                 <label>Username</label>
                                 <input

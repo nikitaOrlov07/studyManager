@@ -70,7 +70,37 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Override
     public Attachment getAttachment(Long fileId) throws Exception {
         return attachmentRepository.findById(fileId).orElseThrow(()-> new Exception("File not found with id "+ fileId));
-
     }
+    @Override
+    public boolean canMakeOperationsWithAttachment(UserEntityDto userEntityDto, Attachment attachment) {
+        // Check if the user is authorized (assuming you have a method to check authorization)
+        if(userEntityDto == null)
+        { return false;}
+        // Check if the user is the creator of the attachment
+        if (userEntityDto.getUsername().equals(attachment.getCreator())) {
+            return true;
+        }
+
+        // Check if the user is involved in the course
+        Course course = attachment.getCourse();
+        if (course != null && course.getInvolvedUserIds().contains(userEntityDto.getId())) {
+            return true;
+        }
+
+        // Check if the user is in homework.getUserEntities
+        Homework homework = attachment.getHomework();
+        if (homework != null && homework.getUserEntitiesId().contains(userEntityDto.getId())) {
+            return true;
+        }
+
+        // Check if the user is the author of the homework
+        if (homework != null && homework.getAuthorId().equals(userEntityDto.getId())) {
+            return true;
+        }
+
+        // If none of the conditions are met, return false
+        return false;
+    }
+
 
 }

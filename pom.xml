@@ -15,6 +15,7 @@
         <module>discovery-server</module>
         <module>user-service</module>
         <module>notification-service</module>
+        <module>AuthenticationService</module>
     </modules>
     <groupId>com.example</groupId>
     <artifactId>studyManager</artifactId>

@@ -1,13 +1,26 @@
 package com.example.userservice.Controller;
 
+import com.example.userservice.Dto.Login.LoginRequestDto;
 import com.example.userservice.Dto.Registration.RegistrationDto;
 import com.example.userservice.Dto.UserEntityDto;
+import com.example.userservice.JwtTokenConf.JwtTokenProvider;
 import com.example.userservice.Mapper.UserEntityMapper;
 import com.example.userservice.Model.UserEntity;
 import com.example.userservice.Security.SecurityUtil;
 import com.example.userservice.Service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -19,19 +32,17 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class Controller {
     private final UserService userService;
-    @GetMapping("/getCurrent")
-    public UserEntityDto getCurrentUser()
-    {
-        // UserEntity userEntity = userService.findUserByUsername(SecurityUtil.getSessionUser());
-        UserEntity userEntity = UserEntity.builder()
-                .id(1L)
-                .username("sdsdsdsd")
-                .password("sdsdsds")
-                .age("15")
-                .email("sdsdsds")
-                .createdCoursesIds(Arrays.asList(5L))
-                .build();
-        return UserEntityMapper.userEntityToUserEntityDto(userEntity);
+    private final PasswordEncoder passwordEncoder;
+
+    @GetMapping("/getCurrentUser")
+    public ResponseEntity<?> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String currentUserName = authentication.getName();
+            // Здесь вы можете получить дополнительную информацию о пользователе
+            return ResponseEntity.ok(currentUserName);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
     }
 
     @GetMapping("/get") // working
@@ -40,7 +51,7 @@ public class Controller {
          return  userService.findUserById(userId);
     }
 
-    // registry
+    // registration
     @PostMapping("/save")
     public String saveUser(@ModelAttribute RegistrationDto registrationDto)
     {
@@ -59,6 +70,26 @@ public class Controller {
 
         userService.save(UserEntityMapper.registrationDtoToUserEntityDto(registrationDto));
         return "User was successfully saved";
+    }
+
+    // Method to verify the passed login and password with Authentication Service
+
+    @PostMapping("/checkAuthentication")
+    public Boolean checkLoginData(@ModelAttribute LoginRequestDto loginRequestDto) {
+        UserEntity user = userService.findUserByUsername(loginRequestDto.getUsername());
+        if (user == null) {
+            return false;
+        }
+        return passwordEncoder.matches(loginRequestDto.getPassword(), user.getPassword());
+    }
+
+    @GetMapping("/{username}")
+    public UserEntityDto getUserByUsername(@PathVariable String username) {
+        UserEntity user = userService.findUserByUsername(username);
+        if (user == null) {
+            return null;
+        }
+        return UserEntityMapper.userEntityToUserEntityDto(user);
     }
 
 }

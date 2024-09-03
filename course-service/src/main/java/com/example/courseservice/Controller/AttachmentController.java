@@ -9,6 +9,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -21,67 +22,57 @@ import java.util.ArrayList;
 public class AttachmentController {
 
     private final AttachmentService attachmentService;
+    private final WebClient.Builder webClientBuilder; // for http requests
 
     // download file
     @GetMapping("/download/{fileId}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable("fileId") Long fileId) throws Exception // method will return file content and file metadata
+    public ResponseEntity<?> downloadFile(@PathVariable("fileId") Long fileId) throws Exception // method will return file content and file metadata
     {
         Attachment attachment = attachmentService.getAttachment(fileId);
-        // will be HTTP request to userService
-        UserEntityDto currentUser = UserEntityDto.builder()
-                .id(1L)
-                .username("username")
-                .password("password")
-                .email("sdsdsd")
-                .role("user")
-                .build(); // temporary
-        if(currentUser == null)
+        // HTTP request to userService to find new user
+        UserEntityDto currentUser = webClientBuilder.build()
+                .get()
+                .uri("")
+                .retrieve()
+                .bodyToMono(UserEntityDto.class)
+                .block();
+
+        if(attachmentService.canMakeOperationsWithAttachment(currentUser,attachment)) // user can`t download file if he is not involved into this course
         {
-            String redirectUrl = "/home";
-            URI location = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path(redirectUrl)
-                    .queryParam("operationError")
-                    .build()
-                    .toUri();
-            return ResponseEntity.status(HttpStatus.FOUND)
-                    .location(location)
-                    .build();
+            return ResponseEntity.ok() // request was successful
+                    .contentType(MediaType.parseMediaType(attachment.getFileType())) // This sets the Content-Type of the file using the fileType stored in the attachment object. MediaType.parseMediaType() converts the string representation of the file type into a MediaType object.
+                    .header(HttpHeaders.CONTENT_DISPOSITION ,
+                            "attachment;filename=\"" + attachment.getFileName()+"\"") // Sets the Content-Disposition header. The value "attachment;filename=\"" indicates to the browser that the file should be displayed as an attachment and not opened in the browser. attachment.getFileName() is used to set the file name.
+                    .body( new ByteArrayResource(attachment.getData())); // we return the contents of the file as a resource of type ByteArrayResource. This allows Spring to treat the byte array as a data stream for the HTTP response.
         }
-        return ResponseEntity.ok() // request was successful
-                .contentType(MediaType.parseMediaType(attachment.getFileType())) // This sets the Content-Type of the file using the fileType stored in the attachment object. MediaType.parseMediaType() converts the string representation of the file type into a MediaType object.
-                .header(HttpHeaders.CONTENT_DISPOSITION ,
-                        "attachment;filename=\"" + attachment.getFileName()+"\"") // Sets the Content-Disposition header. The value "attachment;filename=\"" indicates to the browser that the file should be displayed as an attachment and not opened in the browser. attachment.getFileName() is used to set the file name.
-                .body( new ByteArrayResource(attachment.getData())); // we return the contents of the file as a resource of type ByteArrayResource. This allows Spring to treat the byte array as a data stream for the HTTP response.
+        // Return a 403 Forbidden response with a message
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body("Not allowed to make operations");
+
     }
     // Display file contents
     @GetMapping("/view/{fileId}")
-    public ResponseEntity<Resource> viewFile(@PathVariable("fileId") Long fileId) throws Exception {
-        // Will be HTTP response to userService to find currentUser by userName
-        UserEntityDto currentUser = UserEntityDto.builder()
-                .id(1L)
-                .username("username")
-                .password("password")
-                .email("sdsdsd")
-                .role("user")
-                .build(); // temporary
-
-        if(currentUser == null )
-        {
-            String redirectUrl = "/home";
-            URI location = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path(redirectUrl)
-                    .queryParam("operationError")
-                    .build()
-                    .toUri();
-            return ResponseEntity.status(HttpStatus.FOUND)
-                    .location(location)
-                    .build();
-        }
+    public ResponseEntity<?> viewFile(@PathVariable("fileId") Long fileId) throws Exception {
+        // HTTP request to userService to find new user
+        UserEntityDto currentUser = webClientBuilder.build()
+                .get()
+                .uri("")
+                .retrieve()
+                .bodyToMono(UserEntityDto.class)
+                .block();
         Attachment attachment = attachmentService.getAttachment(fileId);
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(attachment.getFileType())) // ->  converts a string representation of a file type to a MediaType object
-                .body(new ByteArrayResource(attachment.getData()));
+        if(attachmentService.canMakeOperationsWithAttachment(currentUser,attachment))
+        {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(attachment.getFileType())) // ->  converts a string representation of a file type to a MediaType object
+                    .body(new ByteArrayResource(attachment.getData()));
+        }
+        // Return a 403 Forbidden response with a message
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body("Not allowed to make operations");
+
     }
+
 
 
 }

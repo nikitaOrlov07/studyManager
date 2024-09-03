@@ -7,6 +7,7 @@ import com.example.userservice.Repositories.UserEntityRepository;
 import com.example.userservice.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -17,7 +18,8 @@ public class UserServiceimpl implements UserService {
     private UserEntityRepository userRepository;
     @Autowired
     private KafkaTemplate<String,UserEntityDto> kafkaTemplate;
-
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public UserEntityDto findUserById(Long userId) {
@@ -35,6 +37,10 @@ public class UserServiceimpl implements UserService {
     @Override
     public void save(UserEntityDto userEntityDto) {
         UserEntity userEntity = UserEntityMapper.userEntityDtoToUserEntity(userEntityDto);
+
+        userEntity.setPassword(passwordEncoder.encode(userEntityDto.getPassword()));
+
+
         userRepository.save(userEntity);
         kafkaTemplate.send("notificationTopic",UserEntityMapper.userEntityToUserEntityDto(userEntity));
     }

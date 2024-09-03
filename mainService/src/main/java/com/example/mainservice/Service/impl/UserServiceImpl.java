@@ -1,11 +1,19 @@
 package com.example.mainservice.Service.impl;
 
+import com.example.mainservice.Dto.LoginRequest;
 import com.example.mainservice.Dto.RegistrationDto;
-import com.example.mainservice.Model.UserEntity;
+import com.example.mainservice.Dto.UserEntityDto;
 import com.example.mainservice.Service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -16,6 +24,7 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private WebClient.Builder webClientBuilder; // for HTTP requests
+
     @Override
     public String saveUser(RegistrationDto registrationDto) {
 
@@ -39,6 +48,17 @@ public class UserServiceImpl implements UserService {
         log.info("Received response: {}", result);
 
         return result;
+    }
+
+    @Override
+    public String loginUser(LoginRequest loginRequest) {
+
+        return "Login failed";
+    }
+
+    @Override
+    public UserEntityDto getCurrentUserFromUserService() {
+        return  null;
     }
 
 }

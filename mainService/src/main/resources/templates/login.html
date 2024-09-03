@@ -67,8 +67,11 @@
             <div th:if="${loginError}" class="alert alert-info">
                 <span th:text="${loginError}"></span>
             </div>
+            <div th:if="${param.successfullyRegistered}" class="alert alert-success">
+                You successfully registered
+            </div>
             <div class="login-form">
-                <form role = "form" method="post" th:action="@{/login}">
+                <form role = "form" method="post" th:action="@{/users/login}">
                     <div class="form-group">
                         <label>Username</label>
                         <input

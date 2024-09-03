@@ -17,7 +17,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class ViewServiceImpl implements ViewService {
+
     private final WebClient.Builder webClientBuilder; // for http request
+
     @Override
     public List<Course> getCourses() {
         log.info("ViewService getCourses method is working");
@@ -30,6 +32,9 @@ public class ViewServiceImpl implements ViewService {
                 .uri("http://course-service/courses")
                 .retrieve()
                 .bodyToMono(typeReference)
+                .doOnSubscribe(s -> log.info("Sending request to course service"))    // Performs an action when a subscription to a reactive stream begins.
+                .doOnError(e -> log.error("Error occurred: ", e))                     // Performs an action when an error occurs during stream processing.
+                .doOnSuccess(r -> log.info("Received response from course service"))  // This method is called after successful processing, but before the result is passed to the subscriber.
                 .block();
 
         log.info("Courses count: " + (courses != null ? courses.size() : 0));

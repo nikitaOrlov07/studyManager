@@ -78,3 +78,11 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1  # Sets the replication factor for the offsets topic. Value 1 means no replication, acceptable for testing only.
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1  # Sets the minimum number of in-sync replicas required for transaction logs.
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1  # Sets the replication factor for transaction state logs. Value 1 means no replication.
+
+  ### Redis configuration (Redis - for centralized session storage)
+  redis:
+    image: redis:latest
+    container_name: my-redis
+    ports:
+      - "6379:6379"
+    restart: always

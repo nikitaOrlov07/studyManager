@@ -1,34 +1,39 @@
 package com.example.mainservice.Controller;
 
+import com.example.mainservice.Dto.LoginRequest;
 import com.example.mainservice.Dto.RegistrationDto;
 import com.example.mainservice.Service.UserService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @Slf4j
 public class AuthController {
     private UserService userService;
 
+
     @Autowired
     public AuthController(UserService userService) {
         this.userService = userService;
     }
+
 
     // For registration
     @GetMapping("/register")
     public String getRegisterForm(Model model)
     {
         RegistrationDto user = new RegistrationDto();
-        model.addAttribute("user", user); // we add empty object into a View ,
-        // but if we don`t do it --> we will get an error
+        model.addAttribute("registrationDto", user);
         return"register";
     }
     @PostMapping("/register/save")
@@ -39,7 +44,7 @@ public class AuthController {
         if(bindingResult.hasErrors())
         {
             log.error("There are binding errors: {}", bindingResult.getAllErrors());
-            model.addAttribute("user", user);
+            model.addAttribute("registrationDto", user);
             return "register";
         }
         String userSavingStatus = userService.saveUser(user);
@@ -56,12 +61,18 @@ public class AuthController {
         }
         else
         {
-            return "redirect:/login&successfullyRegistered";
+            return "redirect:/login?successfullyRegistered";
         }
     }
     @GetMapping("/login")
     public String loginPage()
     {
         return "login";
+    }
+    @PostMapping ("/users/login")
+    public String loginUser(@ModelAttribute LoginRequest loginRequest) // Spring will automatically bind the fields from the html file to the LoginRequest object because of the @ModelAttribute annotation
+    {
+
+       return null;
     }
 }
