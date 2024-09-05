@@ -2,17 +2,18 @@ package com.example.mainservice.Controller;
 
 import com.example.mainservice.Dto.UserEntityDto;
 import com.example.mainservice.Model.Course;
+import com.example.mainservice.Security.SecurityUtil;
+import com.example.mainservice.Service.AuthService;
 import com.example.mainservice.Service.UserService;
 import com.example.mainservice.Service.ViewService;
+import com.example.mainservice.Service.impl.JwtDecoderImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 
@@ -23,19 +24,23 @@ public class MainController {
 
     final private ViewService viewService;
     final private UserService userService;
+    final private AuthService authService;
+    final private JwtDecoderImpl jwtDecoder;
 
 
     @GetMapping("/home")
-    public String mainPage(Model model)
+    public String mainPage(Model model, HttpServletRequest request)
     {
+        // Get client IP address
+        String ipAddress = request.getRemoteAddr();
+
         log.info("mainPage controller is working");
         List<Course> courses = viewService.getCourses();
-        UserEntityDto userEntityDto = userService.getCurrentUserFromUserService();
+        if(SecurityUtil.getSessionUser() != null && !SecurityUtil.getSessionUser().isEmpty()) {
+           UserEntityDto userEntityDto = jwtDecoder.decodeToken(authService.getUserTokenByIpAdressAndUsername(ipAddress,SecurityUtil.getSessionUser()).getToken());
+           System.out.println(userEntityDto.getUsername());
+        }
 
-        if(userEntityDto != null)
-            System.out.println(userEntityDto.getUsername());
-        if(userEntityDto == null)
-            System.out.println("userEntityDto is null");
         model.addAttribute("courses", courses);
         return "mainPage";
     }

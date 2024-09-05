@@ -3,7 +3,6 @@ package com.example.userservice.Controller;
 import com.example.userservice.Dto.Login.LoginRequestDto;
 import com.example.userservice.Dto.Registration.RegistrationDto;
 import com.example.userservice.Dto.UserEntityDto;
-import com.example.userservice.JwtTokenConf.JwtTokenProvider;
 import com.example.userservice.Mapper.UserEntityMapper;
 import com.example.userservice.Model.UserEntity;
 import com.example.userservice.Security.SecurityUtil;
@@ -43,7 +42,7 @@ public class Controller {
             return ResponseEntity.ok(currentUserName);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
-    }
+    } //возможно не нужен
 
     @GetMapping("/get") // working
     public UserEntityDto getUserByUserId(@RequestParam Long userId)

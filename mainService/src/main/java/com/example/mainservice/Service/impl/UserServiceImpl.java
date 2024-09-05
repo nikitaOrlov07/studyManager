@@ -51,14 +51,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String loginUser(LoginRequest loginRequest) {
+    public UserEntityDto findUserByUsername(String username) {
+        log.info("MainService \"findUserByUsername \" service method is working");
+        UserEntityDto userEntityDto = webClientBuilder.build()
+                .get()
+                .uri("http://user-service/users/"+username)
+                .retrieve()
+                .bodyToMono(UserEntityDto.class)
+                .block();
 
-        return "Login failed";
-    }
+        return userEntityDto;
 
-    @Override
-    public UserEntityDto getCurrentUserFromUserService() {
-        return  null;
     }
 
 }

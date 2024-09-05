@@ -7,8 +7,5 @@ import com.example.mainservice.Dto.UserEntityDto;
 public interface UserService {
     String saveUser(RegistrationDto registrationDto);
 
-    String loginUser(LoginRequest loginRequest);
-
-
-    UserEntityDto getCurrentUserFromUserService();
+    UserEntityDto findUserByUsername(String sessionUser);
 }

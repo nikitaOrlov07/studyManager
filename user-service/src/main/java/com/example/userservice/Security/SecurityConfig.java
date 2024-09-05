@@ -1,6 +1,4 @@
 package com.example.userservice.Security;
-import com.example.userservice.JwtTokenConf.JwtAuthenticationFilter;
-import com.example.userservice.JwtTokenConf.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,8 +21,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private JwtTokenProvider tokenProvider;
 
     @Autowired
     private CustomUserDetailsService userDetailsService;
@@ -38,8 +34,7 @@ public class SecurityConfig {
                         .requestMatchers("/users/checkAuthentication","/users/{username}", "/users/save", "/users/getCurrent", "/static/**", "/assets/**", "/css/**", "/js/**", "/error").permitAll()
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults())  // Добавляем базовую аутентификацию
-                .addFilterBefore(new JwtAuthenticationFilter(tokenProvider, userDetailsService), UsernamePasswordAuthenticationFilter.class);
+                .httpBasic(Customizer.withDefaults()) ;// Добавляем базовую аутентификацию
 
         return http.build();
     }
