@@ -33,16 +33,6 @@ public class Controller {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
-    @GetMapping("/getCurrentUser")
-    public ResponseEntity<?> getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            String currentUserName = authentication.getName();
-            // Здесь вы можете получить дополнительную информацию о пользователе
-            return ResponseEntity.ok(currentUserName);
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
-    } //возможно не нужен
 
     @GetMapping("/get") // working
     public UserEntityDto getUserByUserId(@RequestParam Long userId)

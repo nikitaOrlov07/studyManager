@@ -1,6 +1,6 @@
 package com.example.courseservice.Dto.Chat;
 
-import com.example.courseservice.Dto.UserEntityDto;
+import com.example.courseservice.Dto.UserEntity.UserEntityDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

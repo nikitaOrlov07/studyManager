@@ -22,15 +22,20 @@ public class UserToken {
     @Column(nullable = false)
     private String username;
 
-    @Column(nullable = false, unique = true, columnDefinition = "TEXT")
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String token;
 
     @Column(nullable = false)
     private LocalDateTime expirationTime;
 
-    private String location;       // city where user was logged to account
     private String ipAddress;
 
     @Column(nullable = false)
-    private String deviceType;     // New field to store device type
+    private String deviceType;
+
+    @Column(nullable = false)
+    private Integer sessionCount;
+
+    @Column(nullable = false)
+    private LocalDateTime lastLoginTime;
 }

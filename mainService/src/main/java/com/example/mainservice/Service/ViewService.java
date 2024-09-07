@@ -17,4 +17,5 @@ public interface ViewService {
     ResponseEntity<Resource> getFileView(Long fileId);
 
 
+    List<Course> searchCourses(String type, String searchBar);
 }

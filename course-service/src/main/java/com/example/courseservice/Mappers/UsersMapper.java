@@ -2,9 +2,8 @@ package com.example.courseservice.Mappers;
 
 import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentHomeworkAttachmentDto;
 import com.example.courseservice.Dto.UserEntity.UserEntityResponse;
-import com.example.courseservice.Dto.UserEntityDto;
+import com.example.courseservice.Dto.UserEntity.UserEntityDto;
 import com.example.courseservice.Model.Course;
-import com.example.courseservice.Model.StudentHomeworkAttachment;
 import com.example.courseservice.Service.CourseService;
 import com.example.courseservice.Service.HomeworkService;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 import com.example.courseservice.Dto.Homework.HomeworkResponse;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j

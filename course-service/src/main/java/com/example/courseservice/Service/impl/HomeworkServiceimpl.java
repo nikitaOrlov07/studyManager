@@ -4,7 +4,7 @@ import com.example.courseservice.Dto.Homework.HomeworkRequest;
 import com.example.courseservice.Dto.Homework.HomeworkResponse;
 import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentHomeworkAttachmentDto;
 import com.example.courseservice.Model.StudentHomeworkAttachment;
-import com.example.courseservice.Dto.UserEntityDto;
+import com.example.courseservice.Dto.UserEntity.UserEntityDto;
 import com.example.courseservice.Mappers.HomeworkMapper;
 import com.example.courseservice.Model.Attachment;
 import com.example.courseservice.Model.Homework;

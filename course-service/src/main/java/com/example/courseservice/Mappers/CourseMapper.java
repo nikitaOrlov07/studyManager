@@ -1,0 +1,25 @@
+package com.example.courseservice.Mappers;
+
+import com.example.courseservice.Dto.Course.CourseResponse;
+import com.example.courseservice.Model.Course;
+
+public class CourseMapper {
+    public static CourseResponse getCourseResponseFromCourse(Course course)
+    {
+        return CourseResponse.builder()
+                .title(course.getTitle())
+                .description(course.getDescription())
+                .price(course.getPrice())
+                .language(course.getLanguage())
+                .tags(String.join(", ", course.getTags()))
+                .format(course.getFormat())
+                .endDate(course.getEndDate())
+                .attachments(course.getAttachments())
+                .involvedUserIds(course.getInvolvedUserIds())
+                .chatId(course.getChatId())
+                .courseType(course.getCourseType())
+                .coursePassword(course.getCoursePassword())
+                .author(course.getAuthorId() != null ? course.getAuthorId().toString() : null)
+                .build();
+    }
+}

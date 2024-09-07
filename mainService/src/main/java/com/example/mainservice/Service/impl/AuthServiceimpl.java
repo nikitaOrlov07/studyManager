@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -17,6 +18,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -57,27 +59,30 @@ public class AuthServiceimpl implements AuthService {
         String token = jsonNode.get("token").asText();
 
          // Check if token already exists for this user and device type
-         UserToken existingToken = userTokenRepository.findByUsernameAndDeviceTypeAndIpAddress(loginRequest.getUsername(), loginRequest.getDeviceType(), loginRequest.getIpAddress());
+        UserToken userToken = userTokenRepository.findByUsernameAndDeviceTypeAndIpAddress(
+                loginRequest.getUsername(), loginRequest.getDeviceType(), loginRequest.getIpAddress());
 
-        if (existingToken != null) {
+        if (userToken != null) {
             // Update existing token
-            existingToken.setToken(token);
-            existingToken.setExpirationTime(LocalDateTime.now().plusHours(1));
-            existingToken.setIpAddress(loginRequest.getIpAddress()); // Assume this is added to LoginRequest
-            userTokenRepository.save(existingToken);
-            log.info("Updated token for user: {} on device: {}", loginRequest.getUsername(), loginRequest.getDeviceType());
+            userToken.setToken(token);
+            userToken.setExpirationTime(LocalDateTime.now().plusHours(1));
+            userToken.setSessionCount(userToken.getSessionCount() + 1);
+            userToken.setLastLoginTime(LocalDateTime.now());
         } else {
             // Create new token entry
-            UserToken userToken = UserToken.builder()
+            userToken = UserToken.builder()
                     .token(token)
                     .username(loginRequest.getUsername())
                     .expirationTime(LocalDateTime.now().plusHours(1))
                     .ipAddress(loginRequest.getIpAddress())
                     .deviceType(loginRequest.getDeviceType())
+                    .sessionCount(1)
+                    .lastLoginTime(LocalDateTime.now())
                     .build();
-            userTokenRepository.save(userToken);
-            log.info("New token saved for user: {} on device: {}", loginRequest.getUsername(), loginRequest.getDeviceType());
         }
+        userTokenRepository.save(userToken);
+        log.info("Token updated for user: {} on device: {}. Active sessions: {}",
+                loginRequest.getUsername(), loginRequest.getDeviceType(), userToken.getSessionCount());
 
         return token;
     }
@@ -89,8 +94,27 @@ public class AuthServiceimpl implements AuthService {
 
     @Override
     public void deleteUserToken(String username, String remoteAddr) {
-      UserToken userToken = getUserTokenByIpAdressAndUsername(username, remoteAddr);
-      userTokenRepository.delete(userToken);
+        UserToken userToken = getUserTokenByIpAdressAndUsername(remoteAddr, username);
+        if (userToken != null) {
+            userToken.setSessionCount(userToken.getSessionCount() - 1);
+            if (userToken.getSessionCount() <= 0) {
+                userTokenRepository.delete(userToken);
+                log.info("User token deleted for user: {} from IP: {}", username, remoteAddr);
+            } else {
+                userTokenRepository.save(userToken);
+                log.info("Session count decremented for user: {} from IP: {}. Remaining sessions: {}",
+                        username, remoteAddr, userToken.getSessionCount());
+            }
+        } else {
+            log.warn("No token found for username: {} and IP: {}", username, remoteAddr);
+        }
+    }
+    @Scheduled(fixedRate = 3600000) // Run every hour
+    public void cleanupExpiredTokens() {
+        LocalDateTime now = LocalDateTime.now();
+        List<UserToken> expiredTokens = userTokenRepository.findByExpirationTimeBefore(now);
+        userTokenRepository.deleteAll(expiredTokens);
+        log.info("Cleaned up {} expired tokens", expiredTokens.size());
     }
 
 

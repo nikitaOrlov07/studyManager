@@ -1,8 +1,10 @@
 package com.example.courseservice.Controller;
 
-import com.example.courseservice.Config.ResourceNotFoundException;
-import com.example.courseservice.Dto.Course.CourseRequest;
+import com.example.courseservice.Config.exceptions.CourseCreationException;
+import com.example.courseservice.Config.exceptions.ResourceNotFoundException;
+import com.example.courseservice.Dto.Course.CourseCreationRequest;
 import com.example.courseservice.Dto.Course.CourseResponse;
+import com.example.courseservice.Mappers.CourseMapper;
 import com.example.courseservice.Model.Course;
 import com.example.courseservice.Service.CourseService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RestController
@@ -26,26 +29,33 @@ public class CourseController {
     // For Main Page working
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Course> getCourseList()
+    public List<CourseResponse> getCourseList()
     {
         log.info("getCourseList Controller method is working");
-        return courseService.getAllCourses();
+        return courseService.getAllCourses().stream()
+                .map(CourseMapper::getCourseResponseFromCourse)
+                .collect(Collectors.toList());
     }
     // For Course Creation working
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public String createCourse(@ModelAttribute CourseRequest request)
+    public String createCourse(@RequestPart("courseData") CourseCreationRequest request,
+                               @RequestPart(value = "files", required = false) List<MultipartFile> files)
     {
 
         log.info("createCourse Controller method is working");
-
-        Course course = courseService.createCourse(request);
+        Course course;
+        try{course = courseService.createCourse(request);}
+        catch (CourseCreationException e)
+        {
+            return e.getMessage();
+        }
         // file saving
-        if(request.getFiles() != null) {
-            for (MultipartFile file : request.getFiles()) {
+        if(files != null) {
+            for (MultipartFile file : files ) {
                 if (!file.isEmpty()) {
                     try {
-                        courseService.uploadFile(file, course.getId());
+                        courseService.uploadFile(file, course.getId(),request.getAuthor());
                     } catch (Exception e) {
                         log.error("Error uploading file", e);
                     }
@@ -61,7 +71,7 @@ public class CourseController {
     // For Detail page working
     @GetMapping("/{courseId}")
     @ResponseStatus(HttpStatus.OK)
-    public CourseResponse findCourse(@PathVariable Long courseId) {
+    public CourseResponse courseDetail(@PathVariable Long courseId) {
         log.info("findCourse Controller method is working");
         CourseResponse courseResponse = courseService.getCourseResponse(courseId);
         if (courseResponse == null) {
@@ -80,6 +90,15 @@ public class CourseController {
          */
         courseService.deleteCourse(courseId);
       return "course was successfully deleted";
+    }
+    //  Search logic
+    @GetMapping ("/search")
+    public List<CourseResponse> searchCourse(@RequestParam String type,
+                                             @RequestParam String searchBar)
+    {
+        log.info("Course controller \"search method\" is working \n");
+        log.info("Type: "+type + '\n' + "Query: "+ searchBar);
+        return courseService.findCourses(type,searchBar);
     }
 
 

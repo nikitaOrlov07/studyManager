@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -38,9 +39,8 @@ public class MainController {
         List<Course> courses = viewService.getCourses();
         if(SecurityUtil.getSessionUser() != null && !SecurityUtil.getSessionUser().isEmpty()) {
            UserEntityDto userEntityDto = jwtDecoder.decodeToken(authService.getUserTokenByIpAdressAndUsername(ipAddress,SecurityUtil.getSessionUser()).getToken());
-           System.out.println(userEntityDto.getUsername());
+           log.info("User: "+ userEntityDto.getUsername()+ " was logged in");
         }
-
         model.addAttribute("courses", courses);
         return "mainPage";
     }
@@ -52,6 +52,21 @@ public class MainController {
         log.info("Detail Page Main controller method is working");
         System.out.println(course.getAttachments().isEmpty());
         return "detailPage";
+    }
+
+    // Search logic for courses by logic or by course id
+    @GetMapping("/courses/findCourses")
+    public String findCourses(@RequestParam(required = false) String type,
+                              @RequestParam(required = false) String searchBar,
+                              Model model) {
+        if (searchBar == null || searchBar.trim().isEmpty()) {
+            return "redirect:/home";
+        }
+
+        List<Course> coursesList = viewService.searchCourses(type, searchBar);
+        coursesList.forEach(System.out::println);
+        model.addAttribute("courses", coursesList);
+        return "mainPage";
     }
 
 

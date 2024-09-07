@@ -112,10 +112,6 @@ public class AuthController {
         String deviceInfo = String.format("%s %s (%s, %s)", deviceBrand, deviceName, operatingSystem, browserName);
         loginRequest.setDeviceType(deviceInfo);
 
-        System.out.println("Username: " + loginRequest.getUsername());
-        System.out.println("IP Address: " + loginRequest.getIpAddress());
-        System.out.println("Device Info: " + loginRequest.getDeviceType());
-
         String token = authService.login(loginRequest);
         if (token != null) {
             session.setAttribute("user", loginRequest.getUsername());
@@ -136,21 +132,17 @@ public class AuthController {
     public String logoutUser(HttpServletRequest request, HttpServletResponse response) {
         String username = SecurityUtil.getSessionUser();
         if (username != null) {
-            UserEntityDto userEntityDto = userService.findUserByUsername(username);
             // Delete token logic by device and location
             authService.deleteUserToken(username,request.getRemoteAddr());
             // To clear the security context (SecurityContextHolder). The logout method terminates the current authentication session by removing authentication data from the security context, and logs out of the system.
             new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
-
             // The user session is invalidated, which means it will be invalidated. Calling request.getSession(false) returns the current session if it exists, or null if there is no session. If a session is found, session.invalidate() is called, which invalidates the session by destroying all of its attributes.
             HttpSession session = request.getSession(false);
             if (session != null) {
                 session.invalidate();
             }
-
             return "redirect:/home?successlogout";
         }
-
         return "redirect:/home?error";
     }
 }

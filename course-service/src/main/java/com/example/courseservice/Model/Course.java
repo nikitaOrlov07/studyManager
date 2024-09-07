@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @NoArgsConstructor
@@ -46,4 +47,16 @@ public class Course {
     private List<Homework> homeworks = new ArrayList<>(); // for homeworks
 
     private Long authorId;
+
+    // Course "security"
+    private String courseType;
+    private String coursePassword;
+    @Column(unique = true)
+    private String courseKey;
+    @PrePersist
+    protected void onCreate() {
+        if (this.courseKey == null) {
+            this.courseKey = UUID.randomUUID().toString();
+        }
+    }
 }

@@ -1,19 +1,14 @@
 package com.example.courseservice.Controller;
 
-import com.example.courseservice.Dto.UserEntityDto;
+import com.example.courseservice.Dto.UserEntity.UserEntityDto;
 import com.example.courseservice.Model.Attachment;
 import com.example.courseservice.Service.AttachmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
-import java.util.ArrayList;
 
 @Controller
 @RequestMapping("/files")

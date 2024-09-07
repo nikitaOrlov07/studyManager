@@ -1,6 +1,6 @@
 package com.example.courseservice.Service;
 
-import com.example.courseservice.Dto.Course.CourseRequest;
+import com.example.courseservice.Dto.Course.CourseCreationRequest;
 import com.example.courseservice.Dto.Course.CourseResponse;
 import com.example.courseservice.Model.Course;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,14 +10,16 @@ import java.util.List;
 public interface CourseService {
     List<Course> getAllCourses();
 
-    Course createCourse(CourseRequest courseRequest);
+    Course createCourse(CourseCreationRequest courseCreationRequest);
 
     CourseResponse getCourseResponse(Long courseId);
 
-    String uploadFile(MultipartFile file, Long id) throws Exception;
+    String uploadFile(MultipartFile file, Long id, String author) throws Exception;
 
     void deleteCourse(Long courseId);
 
 
     List<Course> getCourseByIds(List<Long> courseIds);
+
+    List<CourseResponse> findCourses(String type, String searchBar);
 }

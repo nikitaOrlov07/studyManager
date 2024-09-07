@@ -1,6 +1,6 @@
 package com.example.courseservice.Service.impl;
 
-import com.example.courseservice.Dto.UserEntityDto;
+import com.example.courseservice.Dto.UserEntity.UserEntityDto;
 import com.example.courseservice.Model.Attachment;
 import com.example.courseservice.Model.Course;
 import com.example.courseservice.Model.Homework;

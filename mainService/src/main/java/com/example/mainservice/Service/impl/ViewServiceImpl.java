@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 @Service
@@ -85,6 +86,24 @@ public class ViewServiceImpl implements ViewService {
                     .toEntity(Resource.class)
                     .block();
         }
+
+    @Override
+    public List<Course> searchCourses(String type, String searchBar) {
+        return webClientBuilder.build()
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("course-service")
+                        .path("/courses/search")
+                        .queryParam("type", type)
+                        .queryParam("searchBar", searchBar)
+                        .build())
+                .retrieve()
+                .bodyToFlux(Course.class)
+                .collectList()
+                .block();
+    }
+
 
 
 }

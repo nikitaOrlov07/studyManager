@@ -1,23 +1,28 @@
 package com.example.courseservice.Dto.Course;
 
-import com.example.courseservice.Model.Attachment;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.swing.plaf.multi.MultiPanelUI;
-import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class CourseRequest {
+public class CourseCreationRequest {
     private String title;
     private String description;
-    private List<MultipartFile> files;
+    private Double price;
+    private String language;
+    private String tags;
+    private String format;
+    private String endDate;
+
+    // Security
+    private String courseType;
+    private String coursePassword;
+
+    // Author
+    private String  author;
 }

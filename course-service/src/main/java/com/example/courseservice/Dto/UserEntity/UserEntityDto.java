@@ -1,11 +1,9 @@
-package com.example.courseservice.Dto;
+package com.example.courseservice.Dto.UserEntity;
 
 import com.example.courseservice.Dto.Chat.Chat;
 import com.example.courseservice.Dto.Homework.HomeworkResponse;
 import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentHomeworkAttachmentDto;
 import com.example.courseservice.Model.Course;
-import com.example.courseservice.Model.Homework;
-import com.example.courseservice.Model.StudentHomeworkAttachment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
