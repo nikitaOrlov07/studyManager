@@ -25,7 +25,7 @@ public class UserEntityDto {
     private String password;
     private String age;
     private String town;
-    private Long phoneNumber;
+    private String phoneNumber;
     private String role;
 
     // created courses

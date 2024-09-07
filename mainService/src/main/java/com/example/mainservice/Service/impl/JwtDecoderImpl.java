@@ -1,6 +1,6 @@
 package com.example.mainservice.Service.impl;
 
-import com.example.mainservice.Dto.UserEntityDto;
+import com.example.mainservice.Dto.User.UserEntityDto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -31,7 +31,7 @@ public class JwtDecoderImpl {
         user.setEmail(claims.get("email").toString());
         user.setAge(claims.get("age").toString());
         user.setTown(claims.get("town").toString());
-        user.setPhoneNumber(Long.valueOf(claims.get("phoneNumber").toString()));
+        user.setPhoneNumber(claims.get("phoneNumber").toString());
         user.setRole(claims.get("role").toString());
 
         // Converting fields that are lists

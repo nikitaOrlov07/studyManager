@@ -1,9 +1,7 @@
 package com.example.mainservice.Controller;
 
 import com.example.mainservice.Dto.LoginRequest;
-import com.example.mainservice.Dto.RegistrationDto;
-import com.example.mainservice.Dto.UserEntityDto;
-import com.example.mainservice.Entity.UserToken;
+import com.example.mainservice.Dto.User.RegistrationDto;
 import com.example.mainservice.Security.SecurityUtil;
 import com.example.mainservice.Service.AuthService;
 import com.example.mainservice.Service.UserService;
@@ -47,6 +45,10 @@ public class AuthController {
     @GetMapping("/register")
     public String getRegisterForm(Model model)
     {
+        if(SecurityUtil.getSessionUser() != null )
+        {
+            return "redirect:/home?notAllowed"; // Authenticated users do not have access to the registration page
+        }
         RegistrationDto user = new RegistrationDto();
         model.addAttribute("registrationDto", user);
         return"register";
@@ -64,15 +66,15 @@ public class AuthController {
         }
         String userSavingStatus = userService.saveUser(user);
 
-        if(userSavingStatus.equals("user with this email is already exists"))
-        {
-            log.error("This email already exists");
-            return "redirect:/register?existingEmail";
-        }
         if(userSavingStatus.equals("user with this username is already exists"))
         {
             log.error("This username already exists");
             return "redirect:/register?existingUsername";
+        }
+        if(userSavingStatus.equals("user with this email is already exists"))
+        {
+            log.error("This email already exists");
+            return "redirect:/register?existingEmail";
         }
         else
         {
@@ -141,7 +143,7 @@ public class AuthController {
             if (session != null) {
                 session.invalidate();
             }
-            return "redirect:/home?successlogout";
+            return "redirect:/login?logout";
         }
         return "redirect:/home?error";
     }

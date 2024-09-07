@@ -1,19 +1,11 @@
 package com.example.mainservice.Service.impl;
 
-import com.example.mainservice.Dto.LoginRequest;
-import com.example.mainservice.Dto.RegistrationDto;
-import com.example.mainservice.Dto.UserEntityDto;
+import com.example.mainservice.Dto.User.RegistrationDto;
+import com.example.mainservice.Dto.User.UserEntityDto;
 import com.example.mainservice.Service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;

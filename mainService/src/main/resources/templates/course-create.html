@@ -92,7 +92,7 @@
     </style>
 </head>
 <body layout:fragment="body">
-<div th:if="${param.existingTitle}" class="alert alert-danger">
+<div id="existingTitle" th:if="${param.existingTitle}" class="alert alert-danger">
     Course with this title already exists
 </div>
 <div class="container">
@@ -269,6 +269,11 @@
             }
         });
     });
+
+        document.addEventListener('DOMContentLoaded', function() {
+        hideAlertAfterDelay('existingTitle');
+    });
+
 </script>
 </body>
 </html>

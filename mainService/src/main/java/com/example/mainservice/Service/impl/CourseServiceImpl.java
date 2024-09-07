@@ -1,9 +1,7 @@
 package com.example.mainservice.Service.impl;
 
-import com.example.mainservice.Dto.UserEntityDto;
 import com.example.mainservice.Dto.course.CourseCreationRequest;
 import com.example.mainservice.Security.SecurityUtil;
-import com.example.mainservice.Service.AuthService;
 import com.example.mainservice.Service.CourseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

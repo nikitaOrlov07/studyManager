@@ -1,8 +1,7 @@
 package com.example.mainservice.Service;
 
-import com.example.mainservice.Dto.LoginRequest;
-import com.example.mainservice.Dto.RegistrationDto;
-import com.example.mainservice.Dto.UserEntityDto;
+import com.example.mainservice.Dto.User.RegistrationDto;
+import com.example.mainservice.Dto.User.UserEntityDto;
 
 public interface UserService {
     String saveUser(RegistrationDto registrationDto);

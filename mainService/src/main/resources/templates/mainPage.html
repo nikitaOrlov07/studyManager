@@ -61,7 +61,12 @@
 </head>
 <body layout:fragment="body" >
 <div>
-
+    <div id="notAllowedMessage" th:if="${param.notAllowed}" class="alert alert-danger">
+        You are not allowed to do this operation
+    </div>
+    <div id="error" th:if="${param.error}" class="alert alert-danger">
+        An error occurred
+    </div>
     <form class="search-form" action="/courses/findCourses" method="get">
         <select name="type">
             <option value="title">Search by Title</option>
@@ -95,5 +100,12 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        hideAlertAfterDelay('notAllowedMessage');
+        hideAlertAfterDelay('error');
+    });
+</script>
+
 </body>
 </html>

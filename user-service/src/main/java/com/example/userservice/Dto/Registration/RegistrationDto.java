@@ -5,13 +5,11 @@ import lombok.Data;
 
 @Data
 public class RegistrationDto {
-    @NotEmpty(message ="Must be not empty")
     private String username;
-    @NotEmpty(message ="Must be not empty")
     private String email;
-    @NotEmpty(message ="Must be not empty")
     private String password;
+    private String age;
     private String town;
-    private Long phoneNumber;
+    private String phoneNumber;
 }
 

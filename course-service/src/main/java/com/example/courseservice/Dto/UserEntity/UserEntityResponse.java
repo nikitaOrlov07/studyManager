@@ -18,7 +18,7 @@ public class UserEntityResponse {
     private String password;
     private String age;
     private String town;
-    private Long phoneNumber;
+    private String phoneNumber;
     private String role;
     private List<Long> createdCoursesIds = new ArrayList<>();
     private List<Long> participatingCourses = new ArrayList<>();

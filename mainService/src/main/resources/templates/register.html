@@ -50,33 +50,43 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-2">
-                    <div th:if="${param.existingEmail}" class="alert alert-danger" style="width: 500px ; height: 75px">
+                    <div id="existingEmail" th:if="${param.existingEmail}" class="alert alert-danger" style="width: 500px ; height: 75px">
                        This email has already been registered
                     </div>
-                    <div th:if="${param.existingUsername}" class="alert alert-danger" style="width: 500px ; height: 75px">
+                    <div id="existingUsername" th:if="${param.existingUsername}" class="alert alert-danger" style="width: 500px ; height: 75px">
                         This username has already been registered
                     </div>
                     <div class="login-form" style="width: 15000px">
                         <form method="post" th:action="@{/register/save}" th:object="${registrationDto}">
-                            <div class="form-group" >
+                            <div class="form-group">
                                 <label>Username</label>
                                 <input
                                         id="username"
                                         type="text"
                                         class="form-control"
                                         placeholder="Username"
-                                        name="username">
+                                        name="username" th:field="*{username}">
                                 <p th:if="${#fields.hasErrors('username')}" class="text-danger" th:errors="*{username}"> </p>
                             </div>
                             <div class="form-group">
                                 <label>Email</label>
                                 <input
-                                        id="Email"
+                                        id="email"
                                         type="text"
                                         class="form-control"
                                         placeholder="Email"
-                                        name="email">
+                                        name="email" th:field="*{email}">
                                 <p th:if="${#fields.hasErrors('email')}" class="text-danger" th:errors="*{email}"> </p>
+                            </div>
+                            <div class="form-group">
+                                <label>Age</label>
+                                <input
+                                        id="age"
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="Age"
+                                        name="age" th:field="*{age}">
+                                <p th:if="${#fields.hasErrors('age')}" class="text-danger" th:errors="*{age}"> </p>
                             </div>
                             <div class="form-group">
                                 <label>Password</label>
@@ -85,7 +95,7 @@
                                         type="password"
                                         class="form-control"
                                         placeholder="Password"
-                                        name="password">
+                                        name="password" th:field="*{password}">
                                 <p th:if="${#fields.hasErrors('password')}" class="text-danger" th:errors="*{password}"> </p>
                             </div>
                             <div class="form-group">
@@ -95,7 +105,7 @@
                                         type="text"
                                         class="form-control"
                                         placeholder="Town"
-                                        name="town">
+                                        name="town" th:field="*{town}">
                             </div>
                             <div class="form-group">
                                 <label>Phone Number</label>
@@ -104,15 +114,22 @@
                                         type="text"
                                         class="form-control"
                                         placeholder="Phone Number"
-                                        name="phone_number">
+                                        name="phoneNumber" th:field="*{phoneNumber}">
                             </div>
                             <a th:href="@{/login}" class="btn btn-black" style="margin-right: 20px ">Login here</a>
                             <button type="submit" class="btn btn-black">Register</button>
                         </form>
+
                     </div>
                 </div>
             </div>
         </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                hideAlertAfterDelay('existingEmail');
+                hideAlertAfterDelay('existingUsername');
+            });
+        </script>
     </section>
 </main>
 </body>

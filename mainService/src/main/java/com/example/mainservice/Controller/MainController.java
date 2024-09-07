@@ -1,6 +1,6 @@
 package com.example.mainservice.Controller;
 
-import com.example.mainservice.Dto.UserEntityDto;
+import com.example.mainservice.Dto.User.UserEntityDto;
 import com.example.mainservice.Model.Course;
 import com.example.mainservice.Security.SecurityUtil;
 import com.example.mainservice.Service.AuthService;

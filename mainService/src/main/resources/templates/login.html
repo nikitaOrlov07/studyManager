@@ -59,15 +59,15 @@
     </style>
     <div class="main">
         <div class="col-md-6 col-sm-12">
-            <div th:if="${param.error}" class="alert alert-danger">
+            <div id="error" th:if="${param.error}" class="alert alert-danger">
                 Invalid username and password.
             </div>
-            <div th:if="${param.logout}" class="alert alert-success">
+            <div id="logout" th:if="${param.logout}" class="alert alert-success">
                 You have been logged out.</div>
-            <div th:if="${loginError}" class="alert alert-info">
+            <div id="loginError" th:if="${loginError}" class="alert alert-info">
                 <span th:text="${loginError}"></span>
             </div>
-            <div th:if="${param.successfullyRegistered}" class="alert alert-success">
+            <div id="register" th:if="${param.successfullyRegistered}" class="alert alert-success">
                 You successfully registered
             </div>
             <div class="login-form">
@@ -94,6 +94,14 @@
                         <button type="submit" value="Log in" class="btn btn-black">Login</button>
                 </form>
             </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    hideAlertAfterDelay('error');
+                    hideAlertAfterDelay('logout');
+                    hideAlertAfterDelay('loginError');
+                    hideAlertAfterDelay('register');
+                });
+            </script>
         </div>
     </div>
 </section>
