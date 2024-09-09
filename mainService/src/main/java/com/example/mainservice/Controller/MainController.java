@@ -46,9 +46,26 @@ public class MainController {
     }
     @GetMapping("/courses/{courseId}")
     public String detailPage(@PathVariable Long courseId,
-                             Model model) throws Exception {
+                             Model model) throws Exception
+    {
+        // Get course information
         Course course = viewService.findCourse(courseId);
+        log.info("CourseId is: " + course.getId());
         model.addAttribute("course", course);
+        // Find involved users
+        List<UserEntityDto> involvedUsers = viewService.getInvolvedUsers(course.getInvolvedUserIds());
+        log.info("Involved users: "+ involvedUsers.size());
+        model.addAttribute("involvedUsers",involvedUsers);
+        // Get current user information
+        UserEntityDto userEntityDto = null;
+        if(SecurityUtil.getSessionUser() != null && !SecurityUtil.getSessionUser().isEmpty())
+        {
+            userEntityDto = userService.findUserByUsername(SecurityUtil.getSessionUser());
+            log.info("Current user: "+ userEntityDto.getUsername());
+        }
+
+
+        model.addAttribute("user",userEntityDto);
         log.info("Detail Page Main controller method is working");
         System.out.println(course.getAttachments().isEmpty());
         return "detailPage";

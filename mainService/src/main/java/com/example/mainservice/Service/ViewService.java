@@ -1,5 +1,7 @@
 package com.example.mainservice.Service;
 
+import com.example.mainservice.Dto.Homeworks.HomeworkDto;
+import com.example.mainservice.Dto.User.UserEntityDto;
 import com.example.mainservice.Model.Course;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +16,12 @@ public interface ViewService {
     ResponseEntity<Resource> getDownloadLink(Long fileId);
 
     // view file
-    ResponseEntity<Resource> getFileView(Long fileId);
+    ResponseEntity<Resource> getFileView(Long fileId, String username);
 
 
     List<Course> searchCourses(String type, String searchBar);
+
+    List<UserEntityDto> getInvolvedUsers(List<Long> involvedUserIds);
+
+    List<HomeworkDto> findHomeworksByUser(Long userId, String type);
 }

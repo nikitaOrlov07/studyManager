@@ -1,5 +1,7 @@
 package com.example.mainservice.Service.impl;
 
+import com.example.mainservice.Dto.Homeworks.HomeworkDto;
+import com.example.mainservice.Dto.User.UserEntityDto;
 import com.example.mainservice.Model.Course;
 import com.example.mainservice.Service.ViewService;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 @Service
@@ -78,14 +79,21 @@ public class ViewServiceImpl implements ViewService {
         }
         // view file
         @Override
-        public ResponseEntity<Resource> getFileView(Long fileId) {
+        public ResponseEntity<Resource> getFileView(Long fileId, String username) {
             return webClientBuilder.build()
                     .get()
-                    .uri("http://course-service/files/view/{fileId}", fileId)
+                    .uri(uriBuilder -> uriBuilder
+                            .scheme("http")
+                            .host("course-service")
+                            .path("/files/view")
+                            .queryParam("fileId",fileId)
+                            .queryParam("username", username)
+                            .build())
                     .retrieve()
                     .toEntity(Resource.class)
                     .block();
         }
+
 
     @Override
     public List<Course> searchCourses(String type, String searchBar) {
@@ -104,6 +112,37 @@ public class ViewServiceImpl implements ViewService {
                 .block();
     }
 
+    @Override
+    public List<UserEntityDto> getInvolvedUsers(List<Long> involvedUserIds) {
+        return webClientBuilder.build()
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("user-service")
+                        .path("/users/findUsersByIds")
+                        .queryParam("usersIds", involvedUserIds)
+                        .build())
+                .retrieve()
+                .bodyToFlux(UserEntityDto.class)
+                .collectList()
+                .block();
+    }
+
+    @Override
+    public List<HomeworkDto> findHomeworksByUser(Long userId, String type) {
+        return (List<HomeworkDto>) webClientBuilder.build()
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("course-service")
+                        .path("/homeworks")
+                        .queryParam("studentId", userId)
+                        .queryParam("type", type) // Add type parameter to the query
+                        .build())
+                .retrieve()
+                .bodyToFlux(HomeworkDto.class) // Use bodyToFlux to handle a list of objects
+                .collectList(); // Collect results into a List
+    }
 
 
 }

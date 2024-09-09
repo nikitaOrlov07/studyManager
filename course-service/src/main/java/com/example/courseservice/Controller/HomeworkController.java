@@ -83,12 +83,15 @@ public class HomeworkController {
             throw new RuntimeException(e);
         }
     }
-    // Get all homework
+
+    // Get students homework
     @GetMapping
     @Transactional(readOnly = true) // readOnly means that the annotated method will only perform a read operation
-    public List<HomeworkResponse> getAllHomeworks(@RequestParam Long studentId)
+    public List<HomeworkResponse> getHomeworks(@RequestParam("studentId") Long studentId,
+                                               @RequestParam(value = "type") String type)
     {
-        return homeworkService.getAllHomeworks(studentId);
+        log.info("Course service \"getHomeworks\" controller method is working with type: " + type + " for studentId: "+ studentId);
+        return homeworkService.getHomeworks(studentId,type);
     }
 
 

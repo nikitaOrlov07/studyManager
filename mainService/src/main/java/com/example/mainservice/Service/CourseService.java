@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface CourseService {
     String createCourse(CourseCreationRequest request, List<MultipartFile> files) throws IOException;
+    Boolean action(Long courseId, String username, String action);
+
 }

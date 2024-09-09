@@ -4,6 +4,7 @@ import com.example.courseservice.Config.exceptions.CourseCreationException;
 import com.example.courseservice.Config.exceptions.ResourceNotFoundException;
 import com.example.courseservice.Dto.Course.CourseCreationRequest;
 import com.example.courseservice.Dto.Course.CourseResponse;
+import com.example.courseservice.Dto.UserEntity.UserEntityDto;
 import com.example.courseservice.Dto.UserEntity.UserEntityResponse;
 import com.example.courseservice.Mappers.CourseMapper;
 import com.example.courseservice.Mappers.UsersMapper;
@@ -114,13 +115,7 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Course with ID " + courseId + " not found."));
 
-        return CourseResponse.builder()
-                .title(course.getTitle())
-                .description(course.getDescription())
-                .involvedUserIds(course.getInvolvedUserIds())
-                .chatId(course.getChatId())
-                .attachments(course.getAttachments())
-                .build();
+        return CourseMapper.getCourseResponseFromCourse(course);
     }
 
     @Transactional
@@ -209,6 +204,51 @@ public class CourseServiceImpl implements CourseService {
 
         log.info("Found " + result.size() + " course(s)");
         result.forEach(course -> log.info(course.toString()));
+        return result;
+    }
+
+    @Override
+    public Boolean actionCourse(Long courseId, String username, String action) {
+        // HTTP request to get user
+        UserEntityResponse userEntityResponse = webClientBuilder.build()
+                .get()
+                .uri("http://user-service/users/{username}", username)
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(UserEntityResponse.class)
+                .block();
+
+        if(userEntityResponse == null)
+            return false;
+
+        // Add userId to participating  course users
+        Course course = courseRepository.findById(courseId).get();
+
+        if(course == null)
+            return false;
+
+        if(action.equals("join") && !course.getInvolvedUserIds().contains(userEntityResponse.getId()))
+            course.getInvolvedUserIds().add(userEntityResponse.getId());
+
+        if(action.equals("leave") && course.getInvolvedUserIds().contains(userEntityResponse.getId()))
+            course.getInvolvedUserIds().remove(userEntityResponse.getId());
+
+        courseRepository.save(course);
+
+        // HTTP request to userService to update user information
+        Boolean result = webClientBuilder.build()
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("user-service")
+                        .path("/users/action/"+action)  // Updated path with 'action' as part of the path
+                        .queryParam("courseId", courseId)
+                        .queryParam("username", username)
+                        .build())
+                .retrieve()
+                .bodyToMono(Boolean.class)
+                .block();
+
         return result;
     }
 

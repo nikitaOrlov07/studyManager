@@ -3,6 +3,7 @@ package com.example.authenticationservice.Controller;
 import com.example.authenticationservice.Dto.LoginRequestDto;
 import com.example.authenticationservice.Dto.UserEntityDto;
 import com.example.authenticationservice.Exceptions.UserNotFoundException;
+import com.example.authenticationservice.Exceptions.WrongDataException;
 import com.example.authenticationservice.JwtConf.JwtGenerator;
 import com.example.authenticationservice.Service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,12 @@ public class UserAuthenticationController {
             log.info("Generation token for user: " + userData.getUsername());
             return new ResponseEntity<>(jwtGenerator.generateToken(userData), HttpStatus.OK);
         } catch (UserNotFoundException e) {
+            log.error("\"UserNotFoundException\" was thrown");
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        } catch (WrongDataException e)
+        {
+            log.error("\"WrongDataException\" was thrown");
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.CONFLICT);
         }
     }
 }

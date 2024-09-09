@@ -1,6 +1,7 @@
 package com.example.courseservice.Service;
 
 import com.example.courseservice.Dto.UserEntity.UserEntityDto;
+import com.example.courseservice.Dto.UserEntity.UserEntityResponse;
 import com.example.courseservice.Model.Attachment;
 import com.example.courseservice.Model.Course;
 import com.example.courseservice.Model.Homework;
@@ -15,5 +16,5 @@ public interface AttachmentService {
 
     Attachment getAttachment(Long fileId) throws Exception;
 
-    boolean canMakeOperationsWithAttachment(UserEntityDto userEntityDto, Attachment attachment);
+    boolean canMakeOperationsWithAttachment(UserEntityResponse userEntityDto, Attachment attachment);
 }

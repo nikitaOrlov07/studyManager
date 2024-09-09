@@ -11,101 +11,163 @@
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
         }
+
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: 2000px;
+            margin: 20px auto;
+            padding: 0 15px;
         }
+
         h1 {
             color: #333;
             text-align: center;
             margin-bottom: 2rem;
             font-size: 2.5rem;
         }
+
         .card {
             border: none;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease-in-out;
+            background-color: #fff;
+            margin-bottom: 20px;
         }
+
         .card:hover {
             transform: translateY(-5px);
         }
+
         .card-body {
             padding: 1.5rem;
         }
+
         .card-title {
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             font-weight: bold;
             color: #2c3e50;
         }
+
         .card-text {
             color: #555;
         }
+
         .card-footer {
-            background-color: #fff;
+            background-color: #f8f9fa;
             border-top: 1px solid #eee;
             padding: 1rem;
+            text-align: right;
         }
+
         .btn-primary {
             background-color: #3498db;
             border: none;
             padding: 0.5rem 1rem;
             border-radius: 5px;
+            color: #fff;
+            text-decoration: none;
             transition: background-color 0.3s ease;
         }
+
         .btn-primary:hover {
             background-color: #2980b9;
         }
+
+        .search-form {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-form select,
+        .search-form input {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+
+        .search-form button {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .search-form button:hover {
+            background-color: #2980b9;
+        }
+
+        .alert {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
     </style>
 </head>
-<body layout:fragment="body" >
-<div>
+<body>
+<div layout:fragment="body" class="container">
     <div id="notAllowedMessage" th:if="${param.notAllowed}" class="alert alert-danger">
-        You are not allowed to do this operation
+        You are not allowed to do this operation.
     </div>
     <div id="error" th:if="${param.error}" class="alert alert-danger">
-        An error occurred
+        An error occurred.
     </div>
     <form class="search-form" action="/courses/findCourses" method="get">
-        <select name="type">
-            <option value="title">Search by Title</option>
-            <option value="identifier">Search by Identifier</option>
+        <select name="type" th:value="${param.type}">
+            <option value="title" th:selected="${param.type == 'title'}">Search by Title</option>
+            <option value="identifier" th:selected="${param.type == 'identifier'}">Search by Identifier</option>
         </select>
-        <input type="text" name="searchBar" placeholder="Enter search term">
+        <input type="text" name="searchBar" placeholder="Enter search term" th:value="${param.searchBar}">
         <button type="submit">Search</button>
     </form>
 
-    <div class="container px-5 py-5">
-        <h1 class="mb-4">Available Courses</h1>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            <div class="col" th:each="course : ${courses}">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title" th:text="${course.title}">Course Title</h5>
-                        <!--
-                        <p class="card-text">
-                            <strong>Category:</strong> <span th:text="${course.category}">Category</span>
-                        </p>
-                        -->
-                        <p class="card-text">
-                            <strong>Created:</strong> <span th:text="${course.creationDate}">Creation Date</span>
-                        </p>
-                    </div>
-                    <div class="card-footer">
-                        <a th:href="@{/courses/{id}(id=${course.id})}" class="btn btn-primary">Details</a>
-                    </div>
+    <h1>Available Courses</h1>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4" style="width: 100%;max-height: 800px; overflow-y: auto;">
+        <div class="col" th:each="course : ${courses}">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${course.title}">Course Title</h5>
+                    <p class="card-text">
+                        <strong>Created:</strong> <span th:text="${course.creationDate}">Creation Date</span>
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a th:href="@{/courses/{id}(id=${course.id})}" class="btn btn-primary">Details</a>
                 </div>
             </div>
         </div>
     </div>
+
 </div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         hideAlertAfterDelay('notAllowedMessage');
         hideAlertAfterDelay('error');
     });
 </script>
-
 </body>
 </html>

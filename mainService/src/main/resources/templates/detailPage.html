@@ -5,82 +5,135 @@
 <head>
     <title th:text="${course.title + ' - Course Details'}">Course Details</title>
     <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .content {
+            flex: 1 0 auto;
+        }
+        footer {
+            flex-shrink: 0;
+        }
         .course-detail {
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
+            background-color: #ffffff;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .section-title {
             color: #007bff;
-            margin-top: 20px;
+            margin-top: 30px;
+            font-weight: bold;
         }
         .tag {
             display: inline-block;
             background-color: #e9ecef;
-            padding: 5px 10px;
-            margin: 2px;
+            padding: 5px 15px;
+            margin: 3px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        .course-info p {
+            margin-bottom: 10px;
+        }
+        .course-info strong {
+            color: #495057;
+        }
+        .attachment-card {
+            transition: transform 0.3s ease-in-out;
+        }
+        .attachment-card:hover {
+            transform: translateY(-5px);
+        }
+        .btn-custom {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 15px;
             border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-custom:hover {
+            background-color: #0056b3;
+        }
+        .action-buttons {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .btn-action {
+            padding: 10px 20px;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-join {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-join:hover {
+            background-color: #218838;
+        }
+        .btn-leave {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-leave:hover {
+            background-color: #c82333;
         }
     </style>
 </head>
 <body>
-<div layout:fragment="body">
+<div layout:fragment="body" class="content">
     <div class="container py-5">
         <div class="course-detail">
-            <h1 th:text="${course.title}">Course Title</h1>
-            <p><strong>Description:</strong> <span th:text="${course.description != null ? course.description : 'Not specified'}">Description</span></p>
-            <p><strong>Price:</strong> <span th:text="${course.price != null ? '$' + course.price : 'Not specified'}">Price</span></p>
-            <p><strong>Language:</strong> <span th:text="${course.language != null ? course.language : 'Not specified'}">Language</span></p>
-            <p><strong>Format:</strong> <span th:text="${course.format != null ? course.format : 'Not specified'}">Format</span></p>
-            <p><strong>Creation Date:</strong> <span th:text="${course.creationDate != null ? course.creationDate : 'Not specified'}">Creation Date</span></p>
-            <p><strong>End Date:</strong> <span th:text="${course.endDate != null ? course.endDate : 'Not specified'}">End Date</span></p>
+            <h1 class="mb-4" th:text="${course.title}">Course Title</h1>
+            <div class="course-info">
+                <p><strong>Description:</strong> <span th:text="${course.description != null ? course.description : 'Not specified'}">Description</span></p>
+                <p th:if="${user == null or !course.getInvolvedUserIds().contains(user.getId())}"><strong>Price:</strong> <span th:text="${course.price != null ? '$' + course.price : 'Not specified'}">Price</span></p>
+                <p><strong>Language:</strong> <span th:text="${course.language != null ? course.language : 'Not specified'}">Language</span></p>
+                <p><strong>Format:</strong> <span th:text="${course.format != null ? course.format : 'Not specified'}">Format</span></p>
+                <p><strong>Creation Date:</strong> <span th:text="${course.creationDate != null ? course.creationDate : 'Not specified'}">Creation Date</span></p>
+                <p><strong>End Date:</strong> <span th:text="${course.endDate != null ? course.endDate : 'Not specified'}">End Date</span></p>
+                <p th:if="${user != null and course.getInvolvedUserIds().contains(user.getId())}"><strong>Chat ID:</strong> <span th:text="${course.chatId != null ? course.chatId : 'Not specified'}">Chat ID</span></p>
+            </div>
 
-            <div th:if="${course.tags != null and !course.tags.empty}">
+            <div th:if="${course.tags != null and !course.tags.isEmpty()}" class="mt-4">
                 <h3 class="section-title">Tags</h3>
                 <div th:each="tag : ${course.tags}" class="tag" th:text="${tag}">Tag</div>
             </div>
 
-            <div th:if="${course.userEntities != null and !course.userEntities.empty}">
+            <div th:if="${involvedUsers != null and !involvedUsers.isEmpty()}" class="mt-4">
                 <h3 class="section-title">Confirmed Users</h3>
-                <ul>
-                    <li th:each="user : ${course.userEntities}" th:text="${user.name}">User</li>
+                <ul class="list-group">
+                    <li th:each="user : ${involvedUsers}" class="list-group-item" th:text="${user.username}">User</li>
                 </ul>
             </div>
 
-            <div th:if="${course.instructor != null and !course.instructor.empty}">
-                <h3 class="section-title">Instructors</h3>
-                <ul>
-                    <li th:each="instructor : ${course.instructor}" th:text="${instructor.name}">Instructor</li>
-                </ul>
-            </div>
-
-            <div th:if="${course.userRequests != null and !course.userRequests.empty}">
-                <h3 class="section-title">User Requests</h3>
-                <ul>
-                    <li th:each="request : ${course.userRequests}" th:text="${request.name}">Request</li>
-                </ul>
-            </div>
-
-            <p><strong>Chat ID:</strong> <span th:text="${course.chatId != null ? course.chatId : 'Not specified'}">Chat ID</span></p>
-            <div>
-                <h5>Attachment</h5>
+            <div class="mt-5">
+                <h3 class="section-title">Attachments</h3>
                 <div class="row" style="margin-right: 5px">
-                    <div th:if="${course != null and course.getAttachments.isEmpty()}" class="alert alert-primary" style="margin-top: 5px;margin-left: 5px">
-                        No attachment available
+                    <div th:if="${course != null and course.getAttachments().isEmpty()}" class="alert alert-info" style="margin-top: 5px;margin-left: 5px">
+                        No attachments available
                     </div>
-                    <div th:if="${course.getAttachments != null and !course.getAttachments.isEmpty()}" th:each="file : ${course.getAttachments}" class="col-md-6 mb-3">
-                        <div class="card h-100 shadow-sm">
+                    <div th:if="${course.getAttachments() != null and !course.getAttachments().isEmpty()}" th:each="file : ${course.getAttachments()}" class="col-md-6 mb-3">
+                        <div class="card h-100 shadow-sm attachment-card">
                             <div th:if="${file != null}">
-                                <img th:if="${file.fileType.startsWith('image/')}" th:src="${file.viewUrl}" class="card-img-top" th:alt="${file.fileName}" style="object-fit: cover; height: 500px;">
+                                <img th:if="${file.fileType.startsWith('image/')}" th:src="${file.viewUrl}" class="card-img-top" th:alt="${file.fileName}" style="object-fit: cover; height: 200px;">
                                 <div class="card-body" th:unless="${file.fileType.startsWith('image/')}">
-                                    <h5 class="card-title" th:text="${file.fileName}"></h5>
-                                    <p class="card-text">Creator: <span th:text="${file.creator}"></span></p>
-                                    <p class="card-text">Time: <small class="text-muted" th:text="${file.timestamp}"></small></p>
+                                    <h5 class="card-title" th:text="${file.fileName}">File Name</h5>
+                                    <p class="card-text">Creator: <span th:text="${file.creator}">Creator Name</span></p>
+                                    <p class="card-text">Time: <small class="text-muted" th:text="${file.timestamp}">Timestamp</small></p>
                                 </div>
-                                <div class="card-footer">
-                                    <a th:href="@{/files/view/{fileId}(fileId=${file.id})}" class="btn btn-primary detail-btn" style="width:100px; height: 35px">View</a>
-                                    <a th:href="@{/files/download/{fileId}(fileId=${file.id})}" class="btn btn-primary detail-btn" style="width:100px; height: 35px">Download</a>
+                                <div class="card-footer text-center">
+                                    <a th:href="@{/files/view/{fileId}(fileId=${file.id})}" class="btn btn-custom me-2">View</a>
+                                    <a th:href="@{/files/download/{fileId}(fileId=${file.id})}" class="btn btn-custom">Download</a>
                                 </div>
                             </div>
                         </div>
@@ -88,6 +141,17 @@
                 </div>
             </div>
         </div>
+        <div class="action-buttons" th:if="${user != null}">
+            <form th:if="${!user.getParticipatingCourses().contains(course.getId())}" th:action="@{/courses/{courseId}/join(courseId=${course.getId()})}" method="post" style="display: inline-block; margin-right: 10px;">
+                <input type="hidden" name="courseId" th:value="${course.getId()}" />
+                <button type="submit" class="btn-action btn-join">Join Course</button>
+            </form>
+            <form th:if="${user.getParticipatingCourses().contains(course.getId())}" th:action="@{/courses/{courseId}/leave(courseId=${course.getId()})}" method="post" style="display: inline-block;">
+                <input type="hidden" name="courseId" th:value="${course.id}" />
+                <button type="submit" class="btn-action btn-leave">Leave Course</button>
+            </form>
+        </div>
+
     </div>
 </div>
 </body>

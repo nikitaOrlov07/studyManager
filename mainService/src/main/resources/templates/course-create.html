@@ -91,11 +91,11 @@
         }
     </style>
 </head>
-<body layout:fragment="body">
+<body>
 <div id="existingTitle" th:if="${param.existingTitle}" class="alert alert-danger">
     Course with this title already exists
 </div>
-<div class="container">
+<div layout:fragment="body" class="container">
     <h1>Create New Course</h1>
     <form id="courseForm" action="/courses/create/save" method="post" enctype="multipart/form-data">
         <div>

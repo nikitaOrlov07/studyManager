@@ -1,6 +1,7 @@
 package com.example.courseservice.Service.impl;
 
 import com.example.courseservice.Dto.UserEntity.UserEntityDto;
+import com.example.courseservice.Dto.UserEntity.UserEntityResponse;
 import com.example.courseservice.Model.Attachment;
 import com.example.courseservice.Model.Course;
 import com.example.courseservice.Model.Homework;
@@ -47,6 +48,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             LocalDateTime currentDateTime = LocalDateTime.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             attachment.setTimestamp(currentDateTime.format(formatter));
+            attachment.setAccessType("open"); // temporary
 
             return attachmentRepository.save(attachment);
 
@@ -72,7 +74,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         return attachmentRepository.findById(fileId).orElseThrow(()-> new Exception("File not found with id "+ fileId));
     }
     @Override
-    public boolean canMakeOperationsWithAttachment(UserEntityDto userEntityDto, Attachment attachment) {
+    public boolean canMakeOperationsWithAttachment(UserEntityResponse userEntityDto, Attachment attachment) {
         // Check if the user is authorized (assuming you have a method to check authorization)
         if(userEntityDto == null)
         { return false;}

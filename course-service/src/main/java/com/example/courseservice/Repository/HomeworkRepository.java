@@ -1,5 +1,6 @@
 package com.example.courseservice.Repository;
 
+import com.example.courseservice.Dto.Homework.HomeworkStatus;
 import com.example.courseservice.Model.Homework;
 import io.micrometer.observation.annotation.Observed;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +17,6 @@ public interface HomeworkRepository extends JpaRepository<Homework,Long> {
     List<Homework> findAllByStudentId(@Param("studentId") Long studentId);
 
     List<Homework> findAllByUserEntitiesIdContaining(Long studentId);
+
+    List<Homework> findAllByUserEntitiesIdContainingAndStatus(Long studentId, HomeworkStatus homeworkStatus);
 }

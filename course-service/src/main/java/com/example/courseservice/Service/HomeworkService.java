@@ -18,7 +18,7 @@ public interface HomeworkService {
 
     String checkHomework(Long studentHomeworkAttachmentId, HomeworkStatus homeworkStatus, String message, Integer mark) throws Exception;
 
-    List<HomeworkResponse> getAllHomeworks(Long studentId);
+    List<HomeworkResponse> getHomeworks(Long studentId, String type);
 
     List<StudentHomeworkAttachmentDto> findHomeworkAttachmentsByIds(List<Long> studentAttachmentsIds);
 

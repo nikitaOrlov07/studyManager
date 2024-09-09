@@ -1,10 +1,8 @@
-package com.example.courseservice.Dto.Homework;
+package com.example.mainservice.Dto.Homeworks;
 
-import com.example.courseservice.Dto.Attachment.AttachmentDto;
-import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentHomeworkAttachmentDto;
-import com.example.courseservice.Model.Attachment;
-import com.example.courseservice.Model.Course;
-import com.example.courseservice.Model.StudentHomeworkAttachment;
+import com.example.mainservice.Model.Attachment;
+import com.example.mainservice.Model.Course;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,10 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class HomeworkResponse {
+public class HomeworkDto {
+
     private Long id;
 
     // basic information
@@ -32,17 +31,19 @@ public class HomeworkResponse {
     // Who need to do homework
     List<Long> userEntitiesId = new ArrayList<Long>();
 
-    // Who  submit homework
-    List<Long> submitHomeworkEntitiesId = new ArrayList<Long>();
-
     // Homework Attachments
-    private List<AttachmentDto> attachmentList = new ArrayList<>();
+    private List<Attachment> attachmentList = new ArrayList<>();
 
-    // Student Attachments
+    // Student homework attachment
+    @OneToMany(mappedBy = "homework", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<StudentHomeworkAttachmentDto> studentAttachments = new ArrayList<>();
 
     // Relationship with Course
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "course_id") // This will create a foreign key in the Homework table
+    @JsonIgnore
     private Course course;
-    private Long authorId;
 
+    private Long authorId;
 }

@@ -31,10 +31,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/users/checkAuthentication","/users/{username}", "/users/save", "/users/getCurrent", "/static/**", "/assets/**", "/css/**", "/js/**", "/error").permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
-                .httpBasic(Customizer.withDefaults()) ;// Добавляем базовую аутентификацию
+                .httpBasic(Customizer.withDefaults());
 
         return http.build();
     }

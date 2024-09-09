@@ -100,6 +100,15 @@ public class CourseController {
         log.info("Type: "+type + '\n' + "Query: "+ searchBar);
         return courseService.findCourses(type,searchBar);
     }
+    // Join Course logic
+    @GetMapping("/action/{action}")
+    public Boolean actionCourse(@PathVariable("action") String action ,
+                              @RequestParam("courseId") Long courseId,
+                              @RequestParam("username") String username)
+    {
+        log.info("CourseServive \"actionCourse\" controller method is working");
+        return courseService.actionCourse(courseId,username,action);
+    }
 
 
 }

@@ -5,6 +5,7 @@ import io.micrometer.observation.annotation.Observed;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -12,6 +13,7 @@ import java.util.Optional;
 public interface UserEntityRepository extends JpaRepository<UserEntity,Long> {
     UserEntity findFirstByUsername(String username);
     UserEntity findByUsername(String username);
-
     UserEntity findByEmail(String email);
+    List<UserEntity> findByIdIn(List<Long> ids);
+
 }

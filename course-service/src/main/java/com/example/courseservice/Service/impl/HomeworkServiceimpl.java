@@ -217,9 +217,31 @@ public class HomeworkServiceimpl implements HomeworkService {
     }
 
     @Override
-    @Transactional(readOnly = true) // readOnly means that the annotated method will only perform a read operation
-    public List<HomeworkResponse> getAllHomeworks(Long studentId) {
-        List<Homework> homeworks = homeworkRepository.findAllByUserEntitiesIdContaining(studentId);
+    @Transactional(readOnly = true)
+    public List<HomeworkResponse> getHomeworks(Long studentId, String type) {
+        List<Homework> homeworks;
+
+        switch (type) {
+            case "Completed":
+                homeworks = homeworkRepository.findAllByUserEntitiesIdContainingAndStatus(studentId, HomeworkStatus.Completed);
+                break;
+            case "Submitted":
+                homeworks = homeworkRepository.findAllByUserEntitiesIdContainingAndStatus(studentId, HomeworkStatus.Submitted);
+                break;
+            case "Verified":
+                homeworks = homeworkRepository.findAllByUserEntitiesIdContainingAndStatus(studentId, HomeworkStatus.Rated);
+                break;
+            case "All":
+            default:
+                homeworks = homeworkRepository.findAllByUserEntitiesIdContaining(studentId);
+                break;
+        }
+
+        if (homeworks == null || homeworks.isEmpty()) {
+            log.info("Homework list is empty");
+            return null;
+        }
+
         return homeworks.stream()
                 .map(HomeworkMapper::convertToHomeworkResponse)
                 .collect(Collectors.toList());

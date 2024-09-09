@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html
         xmlns:th="http://thymeleaf.org"
         xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -5,104 +6,142 @@
 <head>
     <title>Log in</title>
     <style>
-
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        .main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .login-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-form {
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
         .btn {
             display: inline-block;
             font-weight: 400;
-            color: #212529;
+            color: #fff;
             text-align: center;
             vertical-align: middle;
             cursor: pointer;
-            background-color: #818b9a;
+            background-color: #007bff;
             border: 1px solid transparent;
-            padding: .375rem .75rem;
+            padding: 10px 20px;
             font-size: 1rem;
             line-height: 1.5;
-            border-radius: .25rem;
-            transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-            margin-top: 20px; /* Добавлен отступ сверху */
+            border-radius: 4px;
+            transition: background-color 0.15s ease-in-out;
+            text-decoration: none;
         }
         .btn:hover {
-            color: #ffffff;
-            background-color: #9a9a9a;
-            border-color: #bbb4b4;
+            background-color: #0056b3;
+        }
+        .btn-register {
+            background-color: #6c757d;
+            margin-right: 10px;
+        }
+        .btn-register:hover {
+            background-color: #5a6268;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .alert-info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
         }
     </style>
 </head>
-<section layout:fragment="body">
-    <style>
-        .main {
-            padding: 0px 10px;
-        }
-
-        @media screen and (max-width: 450px) {
-            .login-form{
-                margin-top: 10%;
-            }
-            .register-form{
-                margin-top: 10%;
-            }
-        }
-        @media screen and (min-width: 768px){
-            .main{
-                margin-left: 30%;
-            }
-
-            .sidenav{
-                width: 40%;
-                position: fixed;
-                z-index: 1;
-                top: 0;
-                left: 0;
-            }
-        }
-    </style>
-    <div class="main">
-        <div class="col-md-6 col-sm-12">
-            <div id="error" th:if="${param.error}" class="alert alert-danger">
-                Invalid username and password.
-            </div>
-            <div id="logout" th:if="${param.logout}" class="alert alert-success">
-                You have been logged out.</div>
-            <div id="loginError" th:if="${loginError}" class="alert alert-info">
-                <span th:text="${loginError}"></span>
-            </div>
-            <div id="register" th:if="${param.successfullyRegistered}" class="alert alert-success">
-                You successfully registered
-            </div>
-            <div class="login-form">
-                <form role = "form" method="post" th:action="@{/users/login}">
-                    <div class="form-group">
-                        <label>Username</label>
-                        <input
-                                id="username"
-                                type="text"
-                                class="form-control"
-                                placeholder="Username"
-                                name="username">
-                    </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input
-                                id="password"
-                                type="password"
-                                class="form-control"
-                                placeholder="Password"
-                                name="password">
-                    </div>
-                        <a href="/register" class="btn btn-black">Don't have an account? Register here.</a>
-                        <button type="submit" value="Log in" class="btn btn-black">Login</button>
-                </form>
-            </div>
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    hideAlertAfterDelay('error');
-                    hideAlertAfterDelay('logout');
-                    hideAlertAfterDelay('loginError');
-                    hideAlertAfterDelay('register');
-                });
-            </script>
+<body>
+<div class="main" layout:fragment="body">
+    <div class="login-container">
+        <h2 class="text-center mb-4">Log In</h2>
+        <div id="error" th:if="${param.error}" class="alert alert-danger">
+            Invalid username and password.
+        </div>
+        <div id="logout" th:if="${param.logout}" class="alert alert-success">
+            You have been logged out.
+        </div>
+        <div id="loginError" th:if="${loginError}" class="alert alert-info">
+            <span th:text="${loginError}"></span>
+        </div>
+        <div id="register" th:if="${param.successfullyRegistered}" class="alert alert-success">
+            You successfully registered
+        </div>
+        <div class="login-form">
+            <form role="form" method="post" th:action="@{/users/login}">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input
+                            id="username"
+                            type="text"
+                            class="form-control"
+                            placeholder="Enter your username"
+                            name="username"
+                            required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input
+                            id="password"
+                            type="password"
+                            class="form-control"
+                            placeholder="Enter your password"
+                            name="password"
+                            required>
+                </div>
+                <div class="text-center">
+                    <a href="/register" class="btn btn-register">Register</a>
+                    <button type="submit" class="btn">Login</button>
+                </div>
+            </form>
         </div>
     </div>
-</section>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        hideAlertAfterDelay('error');
+        hideAlertAfterDelay('logout');
+        hideAlertAfterDelay('loginError');
+        hideAlertAfterDelay('register');
+    });
+</script>
+</body>
 </html>

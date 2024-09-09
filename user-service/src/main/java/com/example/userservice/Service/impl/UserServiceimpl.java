@@ -10,6 +10,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
 public class UserServiceimpl implements UserService {
@@ -48,6 +51,32 @@ public class UserServiceimpl implements UserService {
     @Override
     public UserEntity findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public List<UserEntityDto> findUsersByIds(List<Long> usersIds) {
+        return userRepository.findByIdIn(usersIds)
+                .stream()
+                .map(UserEntityMapper::userEntityToUserEntityDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Boolean courseAction(String action, Long courseId, String username) {
+        UserEntity userEntity = findUserByUsername(username);
+        if(action.equals("join"))
+        {
+            userEntity.getParticipatingCourses().add(courseId);
+            userRepository.save(userEntity);
+            return true;
+        }
+        if(action.equals("leave"))
+        {
+            userEntity.getParticipatingCourses().remove(courseId);
+            userRepository.save(userEntity);
+            return true;
+        }
+        return false;
     }
 
 }

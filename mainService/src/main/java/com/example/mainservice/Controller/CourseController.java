@@ -1,12 +1,10 @@
 package com.example.mainservice.Controller;
 
 import com.example.mainservice.Dto.course.CourseCreationRequest;
-import com.example.mainservice.Security.SecurityConfig;
 import com.example.mainservice.Security.SecurityUtil;
 import com.example.mainservice.Service.CourseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -23,6 +21,7 @@ public class CourseController {
 
     private final CourseService courseService;
 
+    // Create Course
     @GetMapping("/create")
     public String getCreateCoursePage(Model model)
     {
@@ -51,4 +50,25 @@ public class CourseController {
         }
         return "redirect:/home?courseCreatedSuccessfully";
     }
+    // Join Course
+    @PostMapping("/{courseId}/{action}")
+    public String joinCourse(@PathVariable("action") String action,
+                             @PathVariable("courseId") Long courseId)
+    {
+        String username = SecurityUtil.getSessionUser();
+        if(username == null)
+        {
+            return "redirect:/home?notAllowed";
+        }
+
+        Boolean result = courseService.action(courseId, username,action);
+
+        if(result.equals(false))
+        {
+            return "redirect:/home?error";
+        }
+
+        return "redirect:/courses/"+courseId+"?success"+action; // action can be join or leave
+    }
+
 }

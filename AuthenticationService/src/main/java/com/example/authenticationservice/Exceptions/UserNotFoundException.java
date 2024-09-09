@@ -4,7 +4,7 @@ package com.example.authenticationservice.Exceptions;
 public class UserNotFoundException extends RuntimeException {
 
     public UserNotFoundException(String message) {
-        super(message); // Вызываем конструктор суперкласса с сообщением
+        super(message);
     }
     
     public UserNotFoundException(String message, Throwable cause) {

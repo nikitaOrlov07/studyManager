@@ -83,6 +83,10 @@ public class AuthController {
     }
     @GetMapping("/login")
     public String loginPage() {
+        if(SecurityUtil.getSessionUser() != null)
+        {
+            return "redirect:/home?notAllowed";
+        }
         return "login";
     }
 
@@ -115,6 +119,10 @@ public class AuthController {
         loginRequest.setDeviceType(deviceInfo);
 
         String token = authService.login(loginRequest);
+        if(token.equals("Wrong data"))
+        {
+            return "redirect:/login?error";
+        }
         if (token != null) {
             session.setAttribute("user", loginRequest.getUsername());
             session.setAttribute("token", token);
@@ -128,7 +136,7 @@ public class AuthController {
 
             return "redirect:/home";
         }
-        return "redirect:/login?error=true";
+        return "redirect:/home?error";
     }
     @PostMapping("/users/logout")
     public String logoutUser(HttpServletRequest request, HttpServletResponse response) {

@@ -35,7 +35,7 @@ public class HomeworkRequest {
     private String endDate;
 
     // who should do
-    // private List<Long> userEntitiesId = new ArrayList<Long>();
+    private List<Long> userEntitiesId = new ArrayList<Long>();
 
     // homework Attachment
     private List<MultipartFile> files = new ArrayList<>();    // what to do (teacher make thsi attachments)

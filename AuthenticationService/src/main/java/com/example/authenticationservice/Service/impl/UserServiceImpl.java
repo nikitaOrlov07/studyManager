@@ -2,6 +2,7 @@ package com.example.authenticationservice.Service.impl;
 
 import com.example.authenticationservice.Dto.UserEntityDto;
 import com.example.authenticationservice.Exceptions.UserNotFoundException;
+import com.example.authenticationservice.Exceptions.WrongDataException;
 import com.example.authenticationservice.Service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +45,9 @@ public class UserServiceImpl implements UserService {
                 .bodyToMono(Boolean.class)
                 .block();
 
-        if(isAuthenticated == null || !isAuthenticated) {
-            throw new UserNotFoundException("Wrong username or password");
+        if(isAuthenticated == null || isAuthenticated.equals(false)) {
+            log.info("Password isn`t correct");
+            throw new WrongDataException("Wrong username or password");
         }
         else
             log.info("user is authenticated");

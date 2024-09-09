@@ -41,7 +41,8 @@ public class HomeworkMapper {
                         attachment.getFileName(),
                         attachment.getFileType(),
                         attachment.getDownloadUrl(),
-                        attachment.getViewUrl()
+                        attachment.getViewUrl(),
+                        attachment.getAccessType()
                 ))
                 .collect(Collectors.toList()));
 
@@ -71,7 +72,8 @@ public class HomeworkMapper {
                         attachment.getFileName(),
                         attachment.getFileType(),
                         attachment.getDownloadUrl(),
-                        attachment.getViewUrl()
+                        attachment.getViewUrl(),
+                        attachment.getAccessType()
                 ))
                 .collect(Collectors.toList()));
 

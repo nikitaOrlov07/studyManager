@@ -59,7 +59,7 @@ public class CustomDeserializer implements Deserializer<Object> {
                     (String) map.get("password"),
                     (String) map.get("age"),
                     (String) map.get("town"),
-                    toLong.apply(map.get("phoneNumber")),
+                    (String) map.get("phoneNumber"),
                     (String) map.get("role"),
                     toListOfLong.apply(map.get("createdCoursesIds")),
                     toListOfLong.apply(map.get("participatingCourses")),

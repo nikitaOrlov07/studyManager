@@ -1,8 +1,10 @@
 package com.example.mainservice.Controller;
 
+import com.example.mainservice.Security.SecurityUtil;
 import com.example.mainservice.Service.ViewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +33,8 @@ public class AttachmentController {
     @GetMapping("/view/{fileId}")
     public ResponseEntity<Resource> getViewLink(@PathVariable Long fileId)
     {
-        ResponseEntity<Resource> fileView =  viewService.getFileView(fileId);
+        String username = SecurityUtil.getSessionUser();
+        ResponseEntity<Resource> fileView =  viewService.getFileView(fileId,username);
         return fileView;
     }
 }

@@ -67,4 +67,22 @@ public class CourseServiceImpl implements CourseService {
         }
     }
 
+    @Override
+    public Boolean action(Long courseId, String username, String action) {
+        Boolean result = webClientBuilder.build()
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("course-service")
+                        .path("/courses/action/" + action)
+                        .queryParam("courseId", courseId)
+                        .queryParam("username", username)
+                        .build())
+                .retrieve()
+                .bodyToMono(Boolean.class)
+                .block();
+
+        return result;
+    }
+
 }

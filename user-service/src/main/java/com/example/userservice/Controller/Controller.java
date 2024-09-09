@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -61,15 +62,18 @@ public class Controller {
         return "User was successfully saved";
     }
 
-    // Method to verify the passed login and password with Authentication Service
 
+    // Method to verify the passed login and password with Authentication Service
     @PostMapping("/checkAuthentication")
     public Boolean checkLoginData(@ModelAttribute LoginRequestDto loginRequestDto) {
+        log.info("User Service \"checkAuthentication \" controller method is working ");
         UserEntity user = userService.findUserByUsername(loginRequestDto.getUsername());
         if (user == null) {
             return false;
         }
-        return passwordEncoder.matches(loginRequestDto.getPassword(), user.getPassword());
+        Boolean result = passwordEncoder.matches(loginRequestDto.getPassword(), user.getPassword());
+        log.info("Password correct: "+ result);
+        return result;
     }
 
     @GetMapping("/{username}")
@@ -80,5 +84,25 @@ public class Controller {
         }
         return UserEntityMapper.userEntityToUserEntityDto(user);
     }
+
+    /// Method for finding course involved users
+    @GetMapping("/findUsersByIds")
+    public List<UserEntityDto> findUsersByIds(@RequestParam List<Long> usersIds)
+    {
+        return userService.findUsersByIds(usersIds);
+    }
+
+    /// Method for joining or leaving course
+    @GetMapping("/action/{action}")
+    public Boolean actionCourse(@PathVariable("action") String action ,
+                              @RequestParam("courseId") Long courseId,
+                              @RequestParam("username") String username)
+    {
+        log.info("UserService \"Action Course\" method is working");
+        Boolean result = userService.courseAction(action,courseId,username);
+        log.info("Operation status: "+ result);
+        return result;
+    }
+
 
 }

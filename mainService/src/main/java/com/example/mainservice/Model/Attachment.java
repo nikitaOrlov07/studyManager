@@ -17,4 +17,6 @@ public class Attachment {
     private String timestamp;
     private byte[] data;
     private Course course;
+    private String accessType; // can be open or private
+
 }

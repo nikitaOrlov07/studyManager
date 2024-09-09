@@ -13,4 +13,6 @@ public class AttachmentDto {
     private String fileType;
     private String downloadUrl;
     private String viewUrl;
+    private String accessType; // can be open or private
+
 }
