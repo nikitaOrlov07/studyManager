@@ -33,6 +33,18 @@ public class Homework {
     @ElementCollection
     List<Long> userEntitiesId = new ArrayList<Long>();
 
+    // Who  submit homework
+    @ElementCollection
+    List<Long> submitHomeworkUserEntitiesId = new ArrayList<Long>();
+
+    // Graded homework
+    @ElementCollection
+    List<Long> gradedHomeworkUserEntitiesId = new ArrayList<>();
+
+    // Rejected homework
+    @ElementCollection
+    List<Long> rejectedHomeworkUserEntitiesId = new ArrayList<>();
+
     // Homework Attachments
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "homework_id")

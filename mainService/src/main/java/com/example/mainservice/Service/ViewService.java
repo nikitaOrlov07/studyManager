@@ -1,6 +1,7 @@
 package com.example.mainservice.Service;
 
 import com.example.mainservice.Dto.Homeworks.HomeworkDto;
+import com.example.mainservice.Dto.Homeworks.StudentHomeworkAttachmentDto;
 import com.example.mainservice.Dto.User.UserEntityDto;
 import com.example.mainservice.Model.Course;
 import org.springframework.core.io.Resource;
@@ -24,4 +25,8 @@ public interface ViewService {
     List<UserEntityDto> getInvolvedUsers(List<Long> involvedUserIds);
 
     List<HomeworkDto> findHomeworksByUser(Long userId, String type);
+
+    HomeworkDto findHomeworkByHomeworkId(Long homeworkId);
+
+    StudentHomeworkAttachmentDto findStudentAttachmentsByHomeworkAndStudentId(Long homeworkId, Long userId);
 }

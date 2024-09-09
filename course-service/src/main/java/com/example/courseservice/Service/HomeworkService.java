@@ -23,4 +23,8 @@ public interface HomeworkService {
     List<StudentHomeworkAttachmentDto> findHomeworkAttachmentsByIds(List<Long> studentAttachmentsIds);
 
     List<HomeworkResponse> getCreatedHomeworksByIds(List<Long> homeworksIds);
+
+    HomeworkResponse getHomeworkById(Long homeworkId);
+
+    StudentHomeworkAttachmentDto findStudentAttachmentsByHomeworkIdAndStudentId(Long homeworkId, Long studentId);
 }

@@ -1,10 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Homeworks</title>
+    <style>
+        .homework-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .card h3 {
+            margin-top: 0;
+        }
+        .card .status {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .card button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .filter-buttons {
+            margin-bottom: 20px;
+            padding: 0 20px;
+        }
+        .filter-buttons button {
+            margin-right: 10px;
+        }
+    </style>
 </head>
 <body>
+<div layout:fragment="body">
+    <div th:if="${homeworks == null or homeworks.isEmpty()}" class="alert alert-success">
+        Your homework list is empty
+    </div>
 
+    <div class="container px-5">
+        <h1 class="mt-4">Homework</h1>
+        <div class="filter-buttons">
+            <button th:class="${type == 'All'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks?type=All'">All</button>
+            <button th:class="${type == 'Submitted'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks?type=Submitted'">Submitted</button>
+            <button th:class="${type == 'Graded'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks?type=Graded'">Graded</button>
+            <button th:class="${type == 'Rejected'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks?type=Rejected'">Rejected</button>
+        </div>
+
+        <div class="homework-cards">
+            <div th:each="homework : ${homeworks}" class="card">
+                <h3 th:text="${homework.title}">Homework Title</h3>
+                <p th:text="${homework.description}">Homework Description</p>
+                <p>Start Date: <span th:text="${homework.startDate}"></span></p>
+                <p>End Date: <span th:text="${homework.endDate}"></span></p>
+                <p class="status">Status:
+                    <span th:if="${#lists.contains(homework.submitHomeworkUserEntitiesId, user.id)}">Submitted</span>
+                    <span th:if="${#lists.contains(homework.rejectedHomeworkUserEntitiesId, user.id)}">Rejected</span>
+                    <span th:if="${#lists.contains(homework.gradedHomeworkUserEntitiesId, user.id)}">Graded</span>
+                    <span th:if="${!#lists.contains(homework.submitHomeworkUserEntitiesId, user.id) && !#lists.contains(homework.rejectedHomeworkUserEntitiesId, user.id) && !#lists.contains(homework.gradedHomeworkUserEntitiesId, user.id)}">Not Submitted</span>
+                </p>
+                <button class="btn btn-primary" th:onclick="'location.href=\'/homeworks/' + ${homework.id} + '\''">Details</button>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

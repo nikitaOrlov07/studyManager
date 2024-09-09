@@ -1,5 +1,6 @@
 package com.example.courseservice.Repository;
 
+import com.example.courseservice.Dto.Homework.HomeworkResponse;
 import com.example.courseservice.Dto.Homework.HomeworkStatus;
 import com.example.courseservice.Model.Homework;
 import io.micrometer.observation.annotation.Observed;
@@ -18,5 +19,9 @@ public interface HomeworkRepository extends JpaRepository<Homework,Long> {
 
     List<Homework> findAllByUserEntitiesIdContaining(Long studentId);
 
-    List<Homework> findAllByUserEntitiesIdContainingAndStatus(Long studentId, HomeworkStatus homeworkStatus);
+    // Find by homework status
+    List<Homework> findBySubmitHomeworkUserEntitiesIdContaining(Long userId);
+    List<Homework> findByGradedHomeworkUserEntitiesIdContaining(Long userId);
+    List<Homework> findByRejectedHomeworkUserEntitiesIdContaining(Long userId);
+
 }

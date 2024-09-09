@@ -31,19 +31,22 @@ public class HomeworkDto {
     // Who need to do homework
     List<Long> userEntitiesId = new ArrayList<Long>();
 
+    // Who  submit homework
+    List<Long> submitHomeworkUserEntitiesId = new ArrayList<Long>();
+
+    // Graded homework
+    List<Long> gradedHomeworkUserEntitiesId = new ArrayList<>();
+
+    // Rejected homework
+    List<Long> rejectedHomeworkUserEntitiesId = new ArrayList<>();
+
     // Homework Attachments
     private List<Attachment> attachmentList = new ArrayList<>();
 
-    // Student homework attachment
-    @OneToMany(mappedBy = "homework", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
+    // Student Attachments
     private List<StudentHomeworkAttachmentDto> studentAttachments = new ArrayList<>();
 
     // Relationship with Course
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "course_id") // This will create a foreign key in the Homework table
-    @JsonIgnore
     private Course course;
-
     private Long authorId;
 }

@@ -1,4 +1,4 @@
-package com.example.courseservice.Config.Validation;
+package com.example.mainservice.config.Validation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

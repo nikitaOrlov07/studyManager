@@ -216,36 +216,7 @@ public class HomeworkServiceimpl implements HomeworkService {
         return "homework was successfully checked";
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<HomeworkResponse> getHomeworks(Long studentId, String type) {
-        List<Homework> homeworks;
 
-        switch (type) {
-            case "Completed":
-                homeworks = homeworkRepository.findAllByUserEntitiesIdContainingAndStatus(studentId, HomeworkStatus.Completed);
-                break;
-            case "Submitted":
-                homeworks = homeworkRepository.findAllByUserEntitiesIdContainingAndStatus(studentId, HomeworkStatus.Submitted);
-                break;
-            case "Verified":
-                homeworks = homeworkRepository.findAllByUserEntitiesIdContainingAndStatus(studentId, HomeworkStatus.Rated);
-                break;
-            case "All":
-            default:
-                homeworks = homeworkRepository.findAllByUserEntitiesIdContaining(studentId);
-                break;
-        }
-
-        if (homeworks == null || homeworks.isEmpty()) {
-            log.info("Homework list is empty");
-            return null;
-        }
-
-        return homeworks.stream()
-                .map(HomeworkMapper::convertToHomeworkResponse)
-                .collect(Collectors.toList());
-    }
 
     @Override
     public List<StudentHomeworkAttachmentDto> findHomeworkAttachmentsByIds(List<Long> studentAttachmentsIds) {
@@ -265,11 +236,68 @@ public class HomeworkServiceimpl implements HomeworkService {
 
         return homeworkResponses;
     }
+
+    @Override
+    public HomeworkResponse getHomeworkById(Long homeworkId) {
+        Homework homework = homeworkRepository.findById(homeworkId).get();
+        if(homework == null)
+            return null;
+        HomeworkResponse response = HomeworkMapper.convertToHomeworkResponse(homework);
+        return  response ;
+    }
+
+    @Override
+    public StudentHomeworkAttachmentDto findStudentAttachmentsByHomeworkIdAndStudentId(Long homeworkId, Long studentId) {
+       Homework homework = homeworkRepository.findById(homeworkId).get();
+       if(homework == null)
+       {
+           log.error("Homework is null");
+           return null;
+       }
+       StudentHomeworkAttachment  studentHomeworkAttachment = studentHomeworkRepository.findByStudentIdAndHomework(studentId,homework);
+       if(studentHomeworkAttachment == null)
+       {
+           log.error("StudentHomeworkAttachment is null");
+           return null;
+       }
+
+       return HomeworkMapper.studentHomeworkAttachmentToDto(studentHomeworkAttachment);
+    }
+
     private String getCurrentDate()
     {
         LocalDate today = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MM yyyy");
         return today.format(formatter);
     }
+    @Override
+    @Transactional(readOnly = true)
+    public List<HomeworkResponse> getHomeworks(Long studentId, String type) {
+        List<Homework> homeworks;
 
+        switch (type) {
+            case "Submitted":
+                homeworks = homeworkRepository.findBySubmitHomeworkUserEntitiesIdContaining(studentId);
+                break;
+            case "Graded":
+                homeworks = homeworkRepository.findByGradedHomeworkUserEntitiesIdContaining(studentId);
+                break;
+            case "Rejected":
+                homeworks = homeworkRepository.findByRejectedHomeworkUserEntitiesIdContaining(studentId);
+                break;
+            case "All":
+            default:
+                homeworks = homeworkRepository.findAllByUserEntitiesIdContaining(studentId);
+                break;
+        }
+
+        if (homeworks == null || homeworks.isEmpty()) {
+            log.info("Homework list is empty");
+            return null;
+        }
+
+        return homeworks.stream()
+                .map(HomeworkMapper::convertToHomeworkResponse)
+                .collect(Collectors.toList());
+    }
 }

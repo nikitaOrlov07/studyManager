@@ -53,7 +53,6 @@ public class UserServiceImpl implements UserService {
                 .block();
 
         return userEntityDto;
-
     }
 
 }

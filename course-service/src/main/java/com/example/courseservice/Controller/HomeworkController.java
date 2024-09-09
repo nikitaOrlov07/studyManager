@@ -3,6 +3,7 @@ package com.example.courseservice.Controller;
 import com.example.courseservice.Dto.Homework.HomeworkRequest;
 import com.example.courseservice.Dto.Homework.HomeworkResponse;
 import com.example.courseservice.Dto.Homework.HomeworkStatus;
+import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentHomeworkAttachmentDto;
 import com.example.courseservice.Model.StudentHomeworkAttachment;
 import com.example.courseservice.Model.Homework;
 import com.example.courseservice.Service.HomeworkService;
@@ -84,7 +85,7 @@ public class HomeworkController {
         }
     }
 
-    // Get students homework
+    // Get students homework (for homeworks page)
     @GetMapping
     @Transactional(readOnly = true) // readOnly means that the annotated method will only perform a read operation
     public List<HomeworkResponse> getHomeworks(@RequestParam("studentId") Long studentId,
@@ -94,5 +95,22 @@ public class HomeworkController {
         return homeworkService.getHomeworks(studentId,type);
     }
 
+    // Get homework
+    @GetMapping("/{homeworkId}")
+    public HomeworkResponse getHomeworkById(@PathVariable Long homeworkId)
+    {
+        log.info("Course Service \"getHomeworkById\" method is working");
+        HomeworkResponse homeworkResponse = homeworkService.getHomeworkById(homeworkId);
+        log.info("Homework title: " + homeworkResponse.getTitle());
+        return homeworkResponse;
+    }
+    @GetMapping("/studentAttachments")
+    public StudentHomeworkAttachmentDto findStudentHomeworkAttachmentDto(@RequestParam("homeworkId") Long homeworkId,
+                                                                         @RequestParam("studentId")  Long studentId)
+    {
+        log.info("Course Service \"findStudentHomeworkAttachmentDto\" method is working");
+        StudentHomeworkAttachmentDto studentHomeworkAttachmentDto = homeworkService.findStudentAttachmentsByHomeworkIdAndStudentId(homeworkId,studentId);
+        return studentHomeworkAttachmentDto;
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.example.mainservice.Service.impl;
 
 import com.example.mainservice.Dto.Homeworks.HomeworkDto;
+import com.example.mainservice.Dto.Homeworks.StudentHomeworkAttachmentDto;
 import com.example.mainservice.Dto.User.UserEntityDto;
 import com.example.mainservice.Model.Course;
 import com.example.mainservice.Service.ViewService;
@@ -130,18 +131,57 @@ public class ViewServiceImpl implements ViewService {
 
     @Override
     public List<HomeworkDto> findHomeworksByUser(Long userId, String type) {
-        return (List<HomeworkDto>) webClientBuilder.build()
+        try {
+            return webClientBuilder.build()
+                    .get()
+                    .uri(uriBuilder -> uriBuilder
+                            .scheme("http")
+                            .host("course-service")
+                            .path("/homeworks")
+                            .queryParam("studentId", userId)
+                            .queryParam("type", type) // Add type parameter to the query
+                            .build())
+                    .retrieve()
+                    .bodyToFlux(HomeworkDto.class) // Use bodyToFlux to handle a list of objects
+                    .collectList() // Collect results into a List
+                    .block(); // Block to wait for the result
+        } catch (Exception e) {
+            log.error("Error fetching homeworks for user ID: {}, type: {}", userId, type, e);
+            throw e; // Rethrow the exception to allow the caller to handle it
+        }
+    }
+
+    @Override
+    public HomeworkDto findHomeworkByHomeworkId(Long homeworkId) {
+        HomeworkDto homeworkDto = webClientBuilder.build()
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("http")
                         .host("course-service")
-                        .path("/homeworks")
-                        .queryParam("studentId", userId)
-                        .queryParam("type", type) // Add type parameter to the query
+                        .path("/homeworks/"+homeworkId)
                         .build())
                 .retrieve()
-                .bodyToFlux(HomeworkDto.class) // Use bodyToFlux to handle a list of objects
-                .collectList(); // Collect results into a List
+                .bodyToMono(HomeworkDto.class)
+                .block();
+        return homeworkDto;
+    }
+
+    @Override
+    public StudentHomeworkAttachmentDto findStudentAttachmentsByHomeworkAndStudentId(Long homeworkId, Long userId) {
+          StudentHomeworkAttachmentDto studentHomeworkAttachmentDto = webClientBuilder.build()
+                  .get()
+                  .uri(uriBuilder -> uriBuilder
+                          .scheme("http")
+                          .host("course-service")
+                          .path("/homeworks/studentAttachments")
+                          .queryParam("homeworkId", homeworkId)
+                          .queryParam("studentId",userId)
+                          .build())
+                  .retrieve()
+                  .bodyToMono(StudentHomeworkAttachmentDto.class)
+                  .block();
+
+          return  studentHomeworkAttachmentDto;
     }
 
 

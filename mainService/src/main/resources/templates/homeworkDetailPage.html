@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Homework Details</title>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .homework-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        .homework-title {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+        .card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .card-title {
+            color: #2980b9;
+            font-weight: 600;
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+        .list-group-item {
+            border: none;
+            padding: 0.75rem 1.25rem;
+            background-color: transparent;
+            transition: background-color 0.2s ease;
+        }
+        .list-group-item:hover {
+            background-color: #f1f8ff;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            border-color: #3498db;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        .form-control:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+        .attachment-link {
+            color: #3498db;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .attachment-link:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+        .status-badge {
+            padding: 0.25em 0.6em;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 30px;
+        }
+        .status-submitted { background-color: #2ecc71; color: white; }
+        .status-graded { background-color: #f39c12; color: white; }
+        .status-rejected { background-color: #e74c3c; color: white; }
+    </style>
+</head>
+<body>
+<div layout:fragment="body">
+    <div class="homework-container">
+        <h1 class="homework-title" th:text="${homework.title}">Homework Title</h1>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Description</h5>
+                <p class="card-text" th:text="${homework.description}">Homework description goes here.</p>
+                <p><strong>Start Date:</strong> <span th:text="${homework.startDate}">Start Date</span></p>
+                <p><strong>End Date:</strong> <span th:text="${homework.endDate}">End Date</span></p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Homework Attachments</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item" th:each="attachment : ${homework.attachmentList}">
+                        <a class="attachment-link" th:href="${attachment.downloadUrl}" th:text="${attachment.fileName}">Attachment Name</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Your Submission</h5>
+                <div th:if="${studentAttachments == null}" class="alert alert-success">
+                    You have no works pinned to this homework assignment
+                </div>
+                <div th:if="${studentAttachment}">
+                    <p>
+                        <strong>Status:</strong>
+                        <span class="status-badge" th:classappend="${'status-' + studentAttachment.status.toLowerCase()}" th:text="${studentAttachment.status}">Status</span>
+                    </p>
+                    <p th:if="${studentAttachment.mark}"><strong>Mark:</strong> <span th:text="${studentAttachment.mark}">Mark</span></p>
+                    <p th:if="${studentAttachment.message}"><strong>Teacher's Message:</strong> <span th:text="${studentAttachment.message}">Message</span></p>
+                    <p th:if="${studentAttachment.checkedDate}"><strong>Checked Date:</strong> <span th:text="${studentAttachment.checkedDate}">Checked Date</span></p>
+
+                    <h6>Your Attachments:</h6>
+                    <div th:if="${homework.getAttachmentList() != null and !homework.getAttachmentList().isEmpty()}" th:each="file : ${homework.getAttachmentList()}" class="col-md-6 mb-3">
+                        <div class="card h-100 shadow-sm attachment-card">
+                            <div th:if="${file != null}">
+                                <img th:if="${file.fileType.startsWith('image/')}" th:src="${file.viewUrl}" class="card-img-top" th:alt="${file.fileName}" style="object-fit: cover; height: 200px;">
+                                <div class="card-body" th:unless="${file.fileType.startsWith('image/')}">
+                                    <h5 class="card-title" th:text="${file.fileName}">File Name</h5>
+                                    <p class="card-text">Creator: <span th:text="${file.creator}">Creator Name</span></p>
+                                    <p class="card-text">Time: <small class="text-muted" th:text="${file.timestamp}">Timestamp</small></p>
+                                </div>
+                                <div class="card-footer text-center">
+                                    <a th:href="@{/files/view/{fileId}(fileId=${file.id})}" class="btn btn-custom me-2">View</a>
+                                    <a th:href="@{/files/download/{fileId}(fileId=${file.id})}" class="btn btn-custom">Download</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:unless="${studentAttachment}">
+                    <p>You haven't submitted any attachments yet.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Submit Your Work</h5>
+                <form th:action="@{/homework/{id}/submit(id=${homework.id})}" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="attachmentFile" class="form-label">Choose file(s)</label>
+                        <input class="form-control" type="file" id="attachmentFile" name="attachmentFile" multiple>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

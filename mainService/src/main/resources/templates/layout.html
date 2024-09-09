@@ -45,8 +45,11 @@
                 <li sec:authorize="!isAuthenticated()" class="nav-item">
                     <a class="nav-link" th:href="@{/login}">Login</a>
                 </li>
-                <li sec:authorize="hasAuthority('ADMIN')" class="nav-item">
-                    <a class="nav-link" th:href="@{/news/create}">Create news</a>
+                <li sec:authorize="isAuthenticated()" class="nav-item">
+                    <a class="nav-link" th:href="@{/homeworks}">Homeworks</a>
+                </li>
+                <li sec:authorize="isAuthenticated()" class="nav-item">
+                    <a class="nav-link" th:href="@{/courses/create}">Create course</a>
                 </li>
                 <li sec:authorize="isAuthenticated()" class="nav-item">
                     <a class="nav-link" th:href="@{/cabinet}">Cabinet</a>

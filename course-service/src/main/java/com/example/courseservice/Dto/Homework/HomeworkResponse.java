@@ -33,7 +33,13 @@ public class HomeworkResponse {
     List<Long> userEntitiesId = new ArrayList<Long>();
 
     // Who  submit homework
-    List<Long> submitHomeworkEntitiesId = new ArrayList<Long>();
+    List<Long> submitHomeworkUserEntitiesId = new ArrayList<Long>();
+
+    // Graded homework
+    List<Long> gradedHomeworkUserEntitiesId = new ArrayList<>();
+
+    // Rejected homework
+    List<Long> rejectedHomeworkUserEntitiesId = new ArrayList<>();
 
     // Homework Attachments
     private List<AttachmentDto> attachmentList = new ArrayList<>();

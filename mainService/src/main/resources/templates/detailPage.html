@@ -87,6 +87,26 @@
         .btn-leave:hover {
             background-color: #c82333;
         }
+        .btn-create-homework {
+            background-color: #17a2b8;
+            color: white;
+            padding: 10px 20px;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        .btn-create-homework:hover {
+            background-color: #138496;
+            text-decoration: none;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -140,6 +160,11 @@
                     </div>
                 </div>
             </div>
+            <div class="text-center mt-4">
+                <a th:href="@{/homeworks/create/course/{courseId}(courseId=${course.getId()})}" class="btn-create-homework">
+                    Create Homework
+                </a>
+            </div>
         </div>
         <div class="action-buttons" th:if="${user != null}">
             <form th:if="${!user.getParticipatingCourses().contains(course.getId())}" th:action="@{/courses/{courseId}/join(courseId=${course.getId()})}" method="post" style="display: inline-block; margin-right: 10px;">
@@ -151,6 +176,7 @@
                 <button type="submit" class="btn-action btn-leave">Leave Course</button>
             </form>
         </div>
+
 
     </div>
 </div>

@@ -1,10 +1,9 @@
-package com.example.courseservice.Config.Validation;
+package com.example.mainservice.config.Validation;
 
-import com.example.courseservice.Dto.Homework.HomeworkRequest;
+import com.example.mainservice.Dto.Homeworks.HomeworkRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.extern.slf4j.Slf4j;
-
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -29,12 +28,12 @@ public class DateFormatValidator implements ConstraintValidator<ValidDateFormat,
         if (!startDateValid || !endDateValid) {
             context.disableDefaultConstraintViolation();
             if (!startDateValid) {
-                context.buildConstraintViolationWithTemplate("Неверный формат даты начала. Используйте дд-мм-гггг")
+                context.buildConstraintViolationWithTemplate("Incorrect start date format. Use dd-mm-yyyy")
                         .addPropertyNode("startDate")
                         .addConstraintViolation();
             }
             if (!endDateValid) {
-                context.buildConstraintViolationWithTemplate("Неверный формат даты окончания. Используйте дд-мм-гггг")
+                context.buildConstraintViolationWithTemplate("Incorrect end date format. Use dd-mm-yyyy")
                         .addPropertyNode("endDate")
                         .addConstraintViolation();
             }
