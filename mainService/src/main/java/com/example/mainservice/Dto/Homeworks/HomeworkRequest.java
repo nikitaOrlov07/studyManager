@@ -38,6 +38,7 @@ public class HomeworkRequest {
 
     // homework Attachment
     private List<MultipartFile> files = new ArrayList<>();    // what to do (teacher make thsi attachments)
-
+    private Long courseId;
+    private Long authorId; // will be needed if in course will be many teachers
 
 }

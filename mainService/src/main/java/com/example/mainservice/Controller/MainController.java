@@ -54,8 +54,14 @@ public class MainController {
         model.addAttribute("course", course);
         // Find involved users
         List<UserEntityDto> involvedUsers = viewService.getInvolvedUsers(course.getInvolvedUserIds());
+
         log.info("Involved users: "+ involvedUsers.size());
+
         model.addAttribute("involvedUsers",involvedUsers);
+
+        log.info("Course type: " + course.getCourseType());
+        log.info("Course authorId is :" + course.getAuthorId());
+
         // Get current user information
         UserEntityDto userEntityDto = null;
         if(SecurityUtil.getSessionUser() != null && !SecurityUtil.getSessionUser().isEmpty())

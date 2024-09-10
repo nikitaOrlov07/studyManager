@@ -24,4 +24,6 @@ public interface CourseService {
     List<CourseResponse> findCourses(String type, String searchBar);
 
     Boolean actionCourse(Long courseId, String username, String action);
+
+    Course findCourseById(Long courseId);
 }

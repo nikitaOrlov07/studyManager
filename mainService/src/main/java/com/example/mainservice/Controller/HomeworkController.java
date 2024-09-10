@@ -10,10 +10,12 @@ import com.example.mainservice.Service.CourseService;
 import com.example.mainservice.Service.HomeworkService;
 import com.example.mainservice.Service.UserService;
 import com.example.mainservice.Service.ViewService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -82,30 +84,79 @@ public class HomeworkController {
         return "homeworkDetailPage";
     }
 
-    // Create homework page
-    @GetMapping("/create/course/{courseId}")
-    public String createHomeworkPage(@PathVariable Long courseId,
-                                     Model model) throws Exception {
-        Course course = viewService.findCourse(courseId);
-        System.out.println(course.getAuthor());
-        String username = SecurityUtil.getSessionUser();
-        if(course == null || username == null || username.isEmpty())
-        {
-            log.error("Course not found");
-            return "redirect:/home?error";
+        // Create homework page
+        @GetMapping("/create/course/{courseId}")
+        public String createHomeworkPage(@PathVariable Long courseId,
+                                         Model model) throws Exception {
+            Course course = viewService.findCourse(courseId);
+            String username = SecurityUtil.getSessionUser();
+            if(course == null || username == null || username.isEmpty())
+            {
+                log.error("Course not found");
+                return "redirect:/home?error";
+            }
+            UserEntityDto userEntityDto = userService.findUserByUsername(username);
+            if(!course.getAuthorId().equals(userEntityDto.getId()))
+            {
+                return "redirect:/home?notAllowed";
+            }
+            List<UserEntityDto> users = userService.findUsersByIds(course.getInvolvedUserIds());
+
+            HomeworkRequest homeworkRequest = new HomeworkRequest();
+            homeworkRequest.setCourseId(course.getId());
+            homeworkRequest.setAuthorId(userEntityDto.getId());
+
+            model.addAttribute("course",course);
+            model.addAttribute("homeworkCreationRequest",homeworkRequest);
+            model.addAttribute("involvedUsers", users);
+
+            model.addAttribute("pageType","student"); // for view
+
+            return "homeworkCreation";
         }
-        UserEntityDto userEntityDto = userService.findUserByUsername(username);
-        if(!course.getAuthor().equals(userEntityDto.getId().toString()))
-        {
-            return "redirect:/home?notAllowed";
+        @PostMapping("/create/save")
+        public String saveHomework(@ModelAttribute("homework") @Valid HomeworkRequest homeworkRequest,
+                                   BindingResult bindingResult,
+                                   Model model) throws Exception {
+            if(bindingResult.hasErrors())
+            {
+                model.addAttribute("homeworkCreationRequest",homeworkRequest);
+                model.addAttribute("involvedUsers", userService.findUsersByIds(viewService.findCourse(homeworkRequest.getCourseId()).getInvolvedUserIds()));
+                model.addAttribute("course", viewService.findCourse(homeworkRequest.getCourseId()));
+
+                return "homeworkCreation";
+            }
+
+            Boolean result = homeworkService.createHomework(homeworkRequest); // if true -> homework was saved successfully
+
+            if(!result)
+            {
+                return "redirect:/home?error";
+            }
+
+            return "redirect:/course/"+homeworkRequest.getCourseId()+"?successHomeworkCreated";
         }
-        model.addAttribute("course",course);
-        model.addAttribute("homeworkCreationRequest", new HomeworkRequest());
-        return "homeworkCreation";
-    }
-    @PostMapping("/create/save")
-    public String saveHomework(@ModelAttribute("homework") HomeworkRequest homeworkRequest)
+    // Homework cheking
+    @GetMapping("/teacherPage")  // Get teacher page
+    public String getTeacherPage(Model model,
+                                 @RequestParam(value = "homeworkStatus",required = false ) String homeworkStatus,
+                                 @RequestParam(value = "courseId",required = false) Long courseId)
     {
-      return null;
+      String username = SecurityUtil.getSessionUser();
+      if(username != null || username.isEmpty() || userService.findUserByUsername(username).getCreatedCoursesIds().isEmpty())
+      {
+          log.error("The user does not have permission to access the teacher's page ");
+          return "redirect:/home?notAllowed";
+      }
+      UserEntityDto userEntityDto = userService.findUserByUsername(SecurityUtil.getSessionUser());
+      List<HomeworkDto> createdHomeworks =  homeworkService.findHomeworksByAuthorAndStatusAndCourseId(userEntityDto.getId(),homeworkStatus,courseId);
+      log.info("User created homeworks size is :"+createdHomeworks.size());
+
+      model.addAttribute("pageType","teacher"); // for view
+      return "homeworksPage";
     }
+
+
+
+
 }

@@ -5,10 +5,13 @@ import com.example.mainservice.Dto.User.UserEntityDto;
 import com.example.mainservice.Service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -54,5 +57,30 @@ public class UserServiceImpl implements UserService {
 
         return userEntityDto;
     }
+
+    @Override
+    public List<UserEntityDto> findUsersByIds(List<Long> involvedUserIds) {
+        List<UserEntityDto> users = webClientBuilder.build()
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("user-service")
+                        .path("/users/findUsersByIds")
+                        .queryParam("usersIds", involvedUserIds) // Correctly add the query parameter
+                        .build()
+                )
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<UserEntityDto>>() {})
+                .block();
+
+        if(users == null)
+            log.error("List of users is  null");
+        else if(users.isEmpty())
+            log.error("List of users is empty");
+        else
+            log.info("List of users size is " + users.size());
+        return users;
+    }
+
 
 }

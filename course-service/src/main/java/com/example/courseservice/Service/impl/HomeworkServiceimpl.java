@@ -1,8 +1,10 @@
 package com.example.courseservice.Service.impl;
 
+import com.example.courseservice.Dto.Homework.Enums.HomeworkStatus;
 import com.example.courseservice.Dto.Homework.HomeworkRequest;
 import com.example.courseservice.Dto.Homework.HomeworkResponse;
 import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentHomeworkAttachmentDto;
+import com.example.courseservice.Model.Course;
 import com.example.courseservice.Model.StudentHomeworkAttachment;
 import com.example.courseservice.Dto.UserEntity.UserEntityDto;
 import com.example.courseservice.Mappers.HomeworkMapper;
@@ -11,6 +13,7 @@ import com.example.courseservice.Model.Homework;
 import com.example.courseservice.Repository.HomeworkRepository;
 import com.example.courseservice.Repository.StudentHomeworkRepository;
 import com.example.courseservice.Service.AttachmentService;
+import com.example.courseservice.Service.CourseService;
 import com.example.courseservice.Service.HomeworkService;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.example.courseservice.Dto.Homework.HomeworkStatus;
+import com.example.courseservice.Dto.Homework.Enums.StudentAttachmentStatus;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -33,6 +36,7 @@ import java.util.stream.Collectors;
 public class HomeworkServiceimpl implements HomeworkService {
 
     private final WebClient.Builder webClientBuilder;  // for HTTP requests
+    private final CourseService courseService;
     private final HomeworkRepository homeworkRepository;
     private final AttachmentService attachmentService;
     private final StudentHomeworkRepository studentHomeworkRepository;
@@ -138,7 +142,7 @@ public class HomeworkServiceimpl implements HomeworkService {
        StudentHomeworkAttachment studentHomework = StudentHomeworkAttachment.builder()
                 .homework(homework)
                 .studentId(studentId)
-                .status(HomeworkStatus.Submitted)
+                .status(StudentAttachmentStatus.Submitted)
                 .uploadedDate(getCurrentDate())
                 .build();
 
@@ -172,7 +176,7 @@ public class HomeworkServiceimpl implements HomeworkService {
     }
 
     @Override
-    public String checkHomework(Long  studentHomeworkAttachmentId, HomeworkStatus homeworkStatus, String message, Integer mark) throws Exception {
+    public String checkHomework(Long  studentHomeworkAttachmentId, StudentAttachmentStatus studentAttachmentStatus, String message, Integer mark) throws Exception {
         StudentHomeworkAttachment studentHomeworkAttachment = studentHomeworkRepository.findById(studentHomeworkAttachmentId)
                 .orElseThrow(() -> new Exception("Homework not found"));
         Homework homework = studentHomeworkAttachment.getHomework();
@@ -208,8 +212,8 @@ public class HomeworkServiceimpl implements HomeworkService {
             studentHomeworkAttachment.setMessage(message);
         if(mark != null)
            studentHomeworkAttachment.setMark(mark);
-        if(homeworkStatus != null)
-            studentHomeworkAttachment.setStatus(homeworkStatus);
+        if(studentAttachmentStatus != null)
+            studentHomeworkAttachment.setStatus(studentAttachmentStatus);
 
         studentHomeworkAttachment.setCheckedDate(getCurrentDate());
         studentHomeworkRepository.save(studentHomeworkAttachment);
@@ -262,6 +266,37 @@ public class HomeworkServiceimpl implements HomeworkService {
        }
 
        return HomeworkMapper.studentHomeworkAttachmentToDto(studentHomeworkAttachment);
+    }
+
+    @Override
+    public List<HomeworkResponse> getHomeworksByAuthorIdAndHomeworkStatusAndCourse(Long authorId, String homeworkStatus , Long courseId) {
+
+         List<Homework> homeworks = null;
+         Course course = null;
+
+         if(courseId != null)
+         {
+             course = courseService.findCourseById(courseId);
+         }
+
+
+         if(homeworkStatus.equals("All"))
+         {
+             homeworks = homeworkRepository.findByAuthorIdAndHomeworkStatusAndCourse(authorId,null,course);
+         }
+         if(homeworkStatus.equals("Checked"))
+         {
+             homeworks =homeworkRepository.findByAuthorIdAndHomeworkStatusAndCourse(authorId, HomeworkStatus.Checked,course);
+         }
+        if(homeworkStatus.equals("Unchecked"))
+        {
+            homeworks = homeworkRepository.findByAuthorIdAndHomeworkStatusAndCourse(authorId, HomeworkStatus.Unchecked,course);
+        }
+
+        if(homeworks == null || homeworks.isEmpty())
+            return null;
+
+        return homeworks.stream().map(HomeworkMapper::convertToHomeworkResponse).collect(Collectors.toList());
     }
 
     private String getCurrentDate()

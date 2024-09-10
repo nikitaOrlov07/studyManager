@@ -1,9 +1,8 @@
 package com.example.mainservice.Dto.Homeworks;
 
+import com.example.mainservice.Dto.Homeworks.Enums.StudentAttachmentStatus;
 import com.example.mainservice.Model.Attachment;
 import com.example.mainservice.Model.Course;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -49,4 +48,7 @@ public class HomeworkDto {
     // Relationship with Course
     private Course course;
     private Long authorId;
+
+    // Homework status
+    private StudentAttachmentStatus status; // if all students attachments are checked -> homework is checked , if noy -> unchecked
 }

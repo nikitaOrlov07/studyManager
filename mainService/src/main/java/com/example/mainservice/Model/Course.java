@@ -28,6 +28,6 @@ public class Course {
     private String coursePassword;
 
     // Author
-    private String  author;
+    private Long  authorId;
 }
 

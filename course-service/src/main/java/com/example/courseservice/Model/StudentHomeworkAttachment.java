@@ -1,8 +1,6 @@
 package com.example.courseservice.Model;
 
-import com.example.courseservice.Dto.Homework.HomeworkStatus;
-import com.example.courseservice.Model.Attachment;
-import com.example.courseservice.Model.Homework;
+import com.example.courseservice.Dto.Homework.Enums.StudentAttachmentStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,7 +34,7 @@ import java.util.List;
         private String uploadedDate;
 
         // For teacher
-        private HomeworkStatus status;
+        private StudentAttachmentStatus status;
         private Integer mark;
         private String message;
         private String checkedDate ;

@@ -1,159 +1,136 @@
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-    <title>Создание домашнего задания</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homework creation</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <style>
-        .content-wrapper {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+        .file-list {
+            max-height: 150px;
+            overflow-y: auto;
         }
-        form {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .file-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #e9e9e9;
-            padding: 5px 10px;
-            margin-bottom: 5px;
-            border-radius: 4px;
-        }
-        .remove-file {
-            color: #e74c3c;
-            cursor: pointer;
+        .rounded-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
-<body>
-<main layout:fragment="body">
-    <div class="content-wrapper">
-        <h1 class="mb-4 text-center">Creating a homework assignment </h1>
-        <form id="homeworkForm" th:action="@{/create/save}" method="post" enctype="multipart/form-data">
-            <div class="mb-3">
-                <label for="title" class="form-label">Title:</label>
-                <input type="text" class="form-control" id="title" name="title" required>
+<body layout:fragment="body" class="bg-gray-100">
+<div class="container mx-auto p-8">
+    <h1 class="text-4xl font-bold mb-6 text-center text-blue-700">Homework creation</h1>
+    <form id="homeworkForm" class="rounded-card bg-white shadow-lg px-8 pt-6 pb-8 mb-4">
+        <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
+                Title
+            </label>
+            <input class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="title" type="text" name="title" placeholder="Введите название" required>
+        </div>
+        <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="description">
+                Description
+            </label>
+            <textarea class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="description" name="description" rows="4" placeholder="Введите описание" required></textarea>
+        </div>
+        <div class="mb-6 flex space-x-4">
+            <div class="w-1/2">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="startDate">
+                    Start date
+                </label>
+                <input class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="startDate" type="date" name="startDate" required>
             </div>
-
-            <div class="mb-3">
-                <label for="description" class="form-label">Description:</label>
-                <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+            <div class="w-1/2">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="endDate">
+                    End date
+                </label>
+                <input class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="endDate" type="date" name="endDate" required>
             </div>
-
-            <div class="mb-3">
-                <label for="startDate" class="form-label">Start Date:</label>
-                <input type="date" class="form-control" id="startDate" name="startDate" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="endDate" class="form-label">End Date:</label>
-                <input type="date" class="form-control" id="endDate" name="endDate" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="files">Прикрепить файлы:</label>
-                <input type="file" id="files" name="files" multiple>
-                <div id="fileList" class="file-list"></div>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Choose students:</label>
-                <div th:if="${course.getInvolvedUserIds() == null or course.getInvolvedUserIds().isEmpty()}" class="alert alert-success">
-                    There are no users in the course
-                </div>
-                <div th:if="${!course.getInvolvedUserIds().isEmpty()}" id="userList" class="border p-3 mb-3" style="max-height: 200px; overflow-y: auto;">
-                    <button type="button" class="btn btn-secondary mb-2" id="selectAllButton">Выбрать всех</button>
-                    <div th:each="user : ${involvedUsers}" class="form-check">
-                        <input class="form-check-input" type="checkbox" th:id="'user' + ${user.id}" name="userEntitiesId" th:value="${user.id}">
-                        <label class="form-check-label" th:for="'user' + ${user.id}" th:text="${user.username}"></label>
+        </div>
+        <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="fileInput">
+                Attach files
+            </label>
+            <input class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="fileInput" type="file" multiple>
+            <div id="fileList" class="mt-2 file-list"></div>
+        </div>
+        <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-bold mb-2">
+                Choose students
+            </label>
+            <button type="button" id="selectAllBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline mb-2">
+                Everyone in course
+            </button>
+            <div id="userList" class="mt-2 space-y-2">
+                <th:block th:each="user : ${involvedUsers}">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="user[[${user.id}]]" name="userEntitiesId" value="[[${user.id}]]" class="mr-2">
+                        <label for="user[[${user.id}]]" class="text-gray-700">[[${user.username}]]</label>
                     </div>
-                </div>
+                </th:block>
             </div>
+        </div>
+        <div class="flex items-center justify-between">
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-110" type="submit">
+                Create homework
+            </button>
+        </div>
+    </form>
+</div>
 
-            <button type="submit" class="btn btn-primary">Create</button>
-        </form>
-    </div>
-</main>
-    <script th:inline="javascript">
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('homeworkForm');
-            const fileInput = document.getElementById('files');
-            const fileList = document.getElementById('fileList');
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        const form = document.getElementById('homeworkForm');
 
-            // File selection handling
-            fileInput.addEventListener('change', function() {
-                fileList.innerHTML = '';
-                for (let file of this.files) {
-                    const fileItem = document.createElement('div');
-                    fileItem.className = 'file-item';
-                    fileItem.innerHTML = `
+        let files = [];
+
+        fileInput.addEventListener('change', function(e) {
+            const newFiles = Array.from(e.target.files);
+            files = [...files, ...newFiles];
+            updateFileList();
+        });
+
+        function updateFileList() {
+            fileList.innerHTML = '';
+            files.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'flex items-center justify-between bg-gray-100 p-2 mb-2 rounded';
+                fileItem.innerHTML = `
                         <span>${file.name}</span>
-                        <span class="remove-file" data-name="${file.name}">Удалить</span>
+                        <button type="button" class="text-red-500 hover:text-red-700" data-index="${index}">×</button>
                     `;
-                    fileList.appendChild(fileItem);
-                }
+                fileList.appendChild(fileItem);
             });
+        }
 
-            // File removal from list
-            fileList.addEventListener('click', function(e) {
-                if (e.target.classList.contains('remove-file')) {
-                    const fileName = e.target.getAttribute('data-name');
-                    const dt = new DataTransfer();
-                    for (let file of fileInput.files) {
-                        if (file.name !== fileName) {
-                            dt.items.add(file);
-                        }
-                    }
-                    fileInput.files = dt.files;
-                    e.target.parentElement.remove();
-                }
-            });
-
-            // Add "Select All" button
-            const userList = document.getElementById('userList');
-            const selectAllButton = document.createElement('button');
-            selectAllButton.type = 'button';
-            selectAllButton.textContent = 'Выбрать всех';
-            selectAllButton.onclick = function() {
-                const checkboxes = userList.querySelectorAll('input[type="checkbox"]');
-                const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-                checkboxes.forEach(cb => cb.checked = !allChecked);
-                this.textContent = allChecked ? 'Выбрать всех' : 'Отменить выбор';
-            };
-            userList.insertBefore(selectAllButton, userList.firstChild);
-
-            // Form validation before submission
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                if (validateForm()) {
-                    this.submit();
-                }
-            });
-
-            function validateForm() {
-                const startDate = new Date(document.getElementById('startDate').value);
-                const endDate = new Date(document.getElementById('endDate').value);
-
-                if (startDate >= endDate) {
-                    alert('Дата начала должна быть раньше даты окончания');
-                    return false;
-                }
-
-                const selectedUsers = document.querySelectorAll('input[name="userEntitiesId"]:checked');
-                if (selectedUsers.length === 0) {
-                    alert('Выберите хотя бы одного учащегося');
-                    return false;
-                }
-
-                return true;
+        fileList.addEventListener('click', function(e) {
+            if (e.target.tagName === 'BUTTON') {
+                const index = parseInt(e.target.getAttribute('data-index'));
+                files.splice(index, 1);
+                updateFileList();
             }
         });
-    </script>
-</div>
+
+        selectAllBtn.addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('#userList input[type="checkbox"]');
+            checkboxes.forEach(checkbox => checkbox.checked = true);
+        });
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            files.forEach(file => formData.append('files', file));
+
+            // Отправка данных на сервер
+            console.log('Отправка данных:', Object.fromEntries(formData));
+            alert('Домашнее задание создано!');
+        });
+    });
+</script>
 </body>
 </html>

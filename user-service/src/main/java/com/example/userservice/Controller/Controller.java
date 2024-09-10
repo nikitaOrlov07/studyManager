@@ -95,8 +95,8 @@ public class Controller {
     /// Method for joining or leaving course
     @GetMapping("/action/{action}")
     public Boolean actionCourse(@PathVariable("action") String action ,
-                              @RequestParam("courseId") Long courseId,
-                              @RequestParam("username") String username)
+                                @RequestParam("courseId") Long courseId,
+                                @RequestParam("username") String username)
     {
         log.info("UserService \"Action Course\" method is working");
         Boolean result = userService.courseAction(action,courseId,username);

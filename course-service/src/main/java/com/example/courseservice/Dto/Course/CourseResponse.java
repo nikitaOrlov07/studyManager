@@ -31,5 +31,5 @@ public class CourseResponse {
     private String coursePassword;
 
     // Author
-    private String  author;
+    private Long authorId;
 }

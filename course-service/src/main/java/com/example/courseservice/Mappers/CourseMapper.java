@@ -21,7 +21,7 @@ public class CourseMapper {
                 .chatId(course.getChatId())
                 .courseType(course.getCourseType())
                 .coursePassword(course.getCoursePassword())
-                .author(course.getAuthorId() != null ? course.getAuthorId().toString() : null)
+                .authorId(course.getAuthorId())
                 .build();
     }
 }

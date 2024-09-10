@@ -107,10 +107,32 @@
             text-decoration: none;
             color: white;
         }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 10px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 <div layout:fragment="body" class="content">
+    <div th:if="${param.successHomeworkCreated}" class="alert alert-success">
+        Homework was successfully created
+    </div>
     <div class="container py-5">
         <div class="course-detail">
             <h1 class="mb-4" th:text="${course.title}">Course Title</h1>
@@ -129,11 +151,17 @@
                 <div th:each="tag : ${course.tags}" class="tag" th:text="${tag}">Tag</div>
             </div>
 
+            <div th:if="${user != null and (course.getInvolvedUserIds().contains(user.getId()) or course.getAuthorId().equals(user.getId()))}">
+                <h3 class="section-title">Users</h3>
+                <div th:if="${involvedUsers == null or involvedUsers.isEmpty()}" class="alert alert-success">
+                    There are no users in this course yet
+                </div>
             <div th:if="${involvedUsers != null and !involvedUsers.isEmpty()}" class="mt-4">
-                <h3 class="section-title">Confirmed Users</h3>
                 <ul class="list-group">
                     <li th:each="user : ${involvedUsers}" class="list-group-item" th:text="${user.username}">User</li>
                 </ul>
+            </div>
+
             </div>
 
             <div class="mt-5">
@@ -166,18 +194,62 @@
                 </a>
             </div>
         </div>
-        <div class="action-buttons" th:if="${user != null}">
-            <form th:if="${!user.getParticipatingCourses().contains(course.getId())}" th:action="@{/courses/{courseId}/join(courseId=${course.getId()})}" method="post" style="display: inline-block; margin-right: 10px;">
+        <input type="hidden" id="coursePasswordHidden" th:value="${course.coursePassword}" />
+
+        <!-- Window for entering password -->
+        <div id="passwordModal" class="modal">
+            <div class="modal-content">
+                <h3>Enter Password</h3>
+                <input type="password" id="coursePassword" class="form-control mb-3" placeholder="Пароль">
+                <button onclick="validatePassword()" class="btn btn-primary">Confirm</button>
+                <button onclick="closeModal()" class="btn btn-secondary">Cansel</button>
+            </div>
+        </div>
+
+        <div class="action-buttons" th:if="${user != null and !course.getAuthorId().equals(user.getId())}">
+            <form id="joinForm" th:if="${!user.getParticipatingCourses().contains(course.getId())}" th:action="@{/courses/{courseId}/join(courseId=${course.getId()})}" method="post" style="display: inline-block; margin-right: 10px;">
                 <input type="hidden" name="courseId" th:value="${course.getId()}" />
-                <button type="submit" class="btn-action btn-join">Join Course</button>
+                <input type="hidden" id="passwordInput" name="password" />
+                <button type="button" class="btn-action btn-join" onclick="handleJoin()">Join Course</button>
             </form>
             <form th:if="${user.getParticipatingCourses().contains(course.getId())}" th:action="@{/courses/{courseId}/leave(courseId=${course.getId()})}" method="post" style="display: inline-block;">
                 <input type="hidden" name="courseId" th:value="${course.id}" />
                 <button type="submit" class="btn-action btn-leave">Leave Course</button>
             </form>
         </div>
+        <script>
+            function handleJoin() {
+                var courseType = /*[[${'PRIVATE' == course.courseType}]]*/ 'PUBLIC' ? 'PRIVATE' : 'PUBLIC';
+                if (courseType === 'PRIVATE') {
+                    // If the course is private, display the modal for password input
+                    document.getElementById('passwordModal').style.display = 'block';
+                } else {
+                    // If the course is public, submit the join form directly
+                    document.getElementById('joinForm').submit();
+                }
+            }
+
+            function validatePassword() {
+                var enteredPassword = document.getElementById('coursePassword').value;
+                var correctPassword = document.getElementById('coursePasswordHidden').value;
+
+                console.log("Введённый пароль:", enteredPassword);
+                console.log("Правильный пароль:", correctPassword);
+
+                if (enteredPassword === correctPassword) {
+                    document.getElementById('passwordInput').value = enteredPassword;
+                    document.getElementById('joinForm').submit();
+                } else {
+                    alert('Неверный пароль');
+                }
+            }
 
 
+            function closeModal() {
+                // Close the password modal
+                document.getElementById('passwordModal').style.display = 'none';
+            }
+        </script>
     </div>
 </div>
 </body>

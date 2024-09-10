@@ -64,4 +64,7 @@ public class Homework {
 
     private Long authorId;
 
+    // Homework status
+    private HomeworkStatus status; // if all students attachments are checked -> homework is checked , if noy -> unchecked
+
 }

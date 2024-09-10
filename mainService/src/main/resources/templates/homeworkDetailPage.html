@@ -11,7 +11,7 @@
             color: #333;
         }
         .homework-container {
-            max-width: 800px;
+            max-width: 75%;
             margin: 2rem auto;
             padding: 2rem;
             background-color: #ffffff;
@@ -105,12 +105,26 @@
 
         <div class="card mb-4">
             <div class="card-body">
-                <h5 class="card-title">Homework Attachments</h5>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item" th:each="attachment : ${homework.attachmentList}">
-                        <a class="attachment-link" th:href="${attachment.downloadUrl}" th:text="${attachment.fileName}">Attachment Name</a>
-                    </li>
-                </ul>
+                <h5 class="card-title">Homework Attachments:</h5>
+                <div th:if="${homework.getAttachmentList() == null or homework.getAttachmentList().isEmpty()}" class="alert alert-success">
+                    There are no attachments to the homework
+                </div>
+                <div th:if="${homework.getAttachmentList() != null and !homework.getAttachmentList().isEmpty()}" th:each="file : ${homework.getAttachmentList()}" class="col-md-6 mb-3">
+                    <div class="card h-100 shadow-sm attachment-card">
+                        <div th:if="${file != null}">
+                            <img th:if="${file.fileType.startsWith('image/')}" th:src="${file.viewUrl}" class="card-img-top" th:alt="${file.fileName}" style="object-fit: cover; height: 200px;">
+                            <div class="card-body" th:unless="${file.fileType.startsWith('image/')}">
+                                <h5 class="card-title" th:text="${file.fileName}">File Name</h5>
+                                <p class="card-text">Creator: <span th:text="${file.creator}">Creator Name</span></p>
+                                <p class="card-text">Time: <small class="text-muted" th:text="${file.timestamp}">Timestamp</small></p>
+                            </div>
+                            <div class="card-footer text-center">
+                                <a th:href="@{/files/view/{fileId}(fileId=${file.id})}" class="btn btn-custom me-2">View</a>
+                                <a th:href="@{/files/download/{fileId}(fileId=${file.id})}" class="btn btn-custom">Download</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -146,9 +160,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div th:unless="${studentAttachment}">
-                    <p>You haven't submitted any attachments yet.</p>
                 </div>
             </div>
         </div>

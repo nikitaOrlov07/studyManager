@@ -1,8 +1,7 @@
 package com.example.courseservice.Dto.StudenHomeworkAttachment;
 
 import com.example.courseservice.Dto.Attachment.AttachmentDto;
-import com.example.courseservice.Dto.Homework.HomeworkStatus;
-import com.example.courseservice.Model.Attachment;
+import com.example.courseservice.Dto.Homework.Enums.StudentAttachmentStatus;
 import com.example.courseservice.Model.Homework;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +24,7 @@ public class StudentHomeworkAttachmentDto {
     private String uploadedDate;
 
     // For teacher
-    private HomeworkStatus status;
+    private StudentAttachmentStatus status;
     private Integer mark;
     private String message;
     private String checkedDate ;

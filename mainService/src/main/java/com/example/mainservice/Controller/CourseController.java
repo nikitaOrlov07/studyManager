@@ -5,6 +5,7 @@ import com.example.mainservice.Security.SecurityUtil;
 import com.example.mainservice.Service.CourseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,6 +18,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/courses")
 @RequiredArgsConstructor
+@Slf4j
 public class CourseController {
 
     private final CourseService courseService;
@@ -42,7 +44,7 @@ public class CourseController {
             model.addAttribute("course", request);
             return "course-create";
         }
-
+        log.info("Course save controller is working");
         String result = courseService.createCourse(request, files);
         if(result.equals("Course with title " + request.getTitle() + " already exists"))
         {
