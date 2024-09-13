@@ -17,4 +17,8 @@ public interface UserService {
     List<UserEntityDto> findUsersByIds(List<Long> usersIds);
 
     Boolean courseAction(String action, Long courseId, String username);
+
+    void updateCreatedItems(String action, String type, Long id,Long userId);
+
+    void assignHomeworks(List<Long> userEntities, Long homeworkId, String type);
 }

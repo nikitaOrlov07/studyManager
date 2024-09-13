@@ -25,6 +25,6 @@ public interface HomeworkRepository extends JpaRepository<Homework,Long> {
     List<Homework> findByRejectedHomeworkUserEntitiesIdContaining(Long userId);
 
     // Find homeworks for  teacher by their id and homework status
-    List<Homework> findByAuthorIdAndHomeworkStatusAndCourse(Long authorId, HomeworkStatus status, Course course); // if status value is null -> Spring will search only by authorId
+    List<Homework> findByAuthorIdAndStatusAndCourse(Long authorId, HomeworkStatus status, Course course); // if status value is null -> Spring will search only by authorId
 
 }

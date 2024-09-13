@@ -1,7 +1,7 @@
 package com.example.mainservice.Service;
 
 import com.example.mainservice.Dto.Homeworks.HomeworkDto;
-import com.example.mainservice.Dto.Homeworks.StudentHomeworkAttachmentDto;
+import com.example.mainservice.Dto.StudentAttachments.StudentHomeworkAttachmentDto;
 import com.example.mainservice.Dto.User.UserEntityDto;
 import com.example.mainservice.Model.Course;
 import org.springframework.core.io.Resource;
@@ -14,7 +14,9 @@ public interface ViewService {
 
     Course findCourse(Long courseId) throws Exception;
 
-    ResponseEntity<Resource> getDownloadLink(Long fileId);
+
+    // download file
+    ResponseEntity<Resource> getDownloadLink(Long fileId, String username);
 
     // view file
     ResponseEntity<Resource> getFileView(Long fileId, String username);

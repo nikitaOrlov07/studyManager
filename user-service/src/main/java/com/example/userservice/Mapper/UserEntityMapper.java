@@ -20,6 +20,7 @@ public class UserEntityMapper {
                 .phoneNumber(userEntity.getPhoneNumber())
                 .role(userEntity.getRole())
                 .createdCoursesIds(userEntity.getCreatedCoursesIds())
+                .homeworkIds(userEntity.getHomeworksIds())
                 .participatingCourses(userEntity.getParticipatingCourses())
                 .chatsIds(userEntity.getChatsIds())
                 .completedHomeworksIds(userEntity.getCompletedHomeworksIds())

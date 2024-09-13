@@ -51,6 +51,7 @@ public class CourseController {
             return e.getMessage();
         }
         // file saving
+        log.info("file size: "+ files.size());
         if(files != null) {
             for (MultipartFile file : files ) {
                 if (!file.isEmpty()) {

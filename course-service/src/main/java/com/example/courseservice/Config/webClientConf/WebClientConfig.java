@@ -3,6 +3,7 @@ package com.example.courseservice.Config.webClientConf;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
@@ -13,6 +14,11 @@ public class WebClientConfig {
     // Automatically creates client side LoadBalancing
     public WebClient.Builder webClientBuilder()
     {
-        return  WebClient.builder(); // create a bean of WebClient with "webClientBuilder" name
+        ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder()
+                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(500 * 1024 * 1024)) // 500MB
+                .build(); // Configures the maximum size of data that can be loaded into memory for processing.
+
+        return  WebClient.builder()
+                .exchangeStrategies(exchangeStrategies); // create a bean of WebClient with "webClientBuilder" name
     }
 }

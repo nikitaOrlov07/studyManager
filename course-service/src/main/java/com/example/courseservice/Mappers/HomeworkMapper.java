@@ -3,28 +3,48 @@ package com.example.courseservice.Mappers;
 import com.example.courseservice.Dto.Attachment.AttachmentDto;
 import com.example.courseservice.Dto.Homework.HomeworkRequest;
 import com.example.courseservice.Dto.Homework.HomeworkResponse;
+import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentAttachmentRequest;
 import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentHomeworkAttachmentDto;
+import com.example.courseservice.Model.Course;
 import com.example.courseservice.Model.Homework;
 import com.example.courseservice.Model.StudentHomeworkAttachment;
+import com.example.courseservice.Service.CourseService;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class HomeworkMapper {
-    public static Homework homeworkRequestToHomework(HomeworkRequest homeworkRequest)
+
+    private  final CourseService courseService;
+
+    public Homework homeworkRequestToHomework(HomeworkRequest homeworkRequest)
     {
+        Course course = null;
+        if(homeworkRequest.getCourseId() != null)
+        {
+            course = courseService.findCourseById(homeworkRequest.getCourseId());
+        }
         Homework homework = Homework.builder()
                 .title(homeworkRequest.getTitle())
                 .description(homeworkRequest.getDescription())
                 .startDate(homeworkRequest.getStartDate())
                 .endDate(homeworkRequest.getEndDate())
-    //          .userEntitiesId(homeworkRequest.getUserEntitiesId())
+                .userEntitiesId(homeworkRequest.getUserEntitiesId())
+                .course(course)
+                .authorId(homeworkRequest.getAuthorId())
                 .build();
+
         return  homework;
     }
-    public static HomeworkResponse convertToHomeworkResponse(Homework homework) {
+    public  HomeworkResponse convertToHomeworkResponse(Homework homework) {
         HomeworkResponse response = new HomeworkResponse();
         response.setId(homework.getId());
         response.setTitle(homework.getTitle());
@@ -53,7 +73,7 @@ public class HomeworkMapper {
 
         return response;
     }
-    public static StudentHomeworkAttachmentDto studentHomeworkAttachmentToDto(StudentHomeworkAttachment studentHomeworkAttachment)
+    public  static StudentHomeworkAttachmentDto studentHomeworkAttachmentToDto(StudentHomeworkAttachment studentHomeworkAttachment)
     {
         StudentHomeworkAttachmentDto studentHomeworkAttachmentDto = StudentHomeworkAttachmentDto.builder()
                 .id(studentHomeworkAttachment.getId())
@@ -79,4 +99,5 @@ public class HomeworkMapper {
 
         return studentHomeworkAttachmentDto;
     }
+
 }

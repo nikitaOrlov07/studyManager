@@ -1,5 +1,6 @@
 package com.example.courseservice.Model;
 
+import com.example.courseservice.Dto.Homework.Enums.HomeworkStatus;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

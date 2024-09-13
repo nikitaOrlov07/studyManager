@@ -41,21 +41,142 @@
         .filter-buttons button {
             margin-right: 10px;
         }
+        .search-form {
+            margin-bottom: 20px;
+            padding: 0 20px;
+        }
+        .search-form input, .search-form button {
+            margin-right: 10px;
+        }
+        #fileList {
+            margin-top: 10px;
+        }
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            border: 1px solid #ddd;
+            margin-bottom: 5px;
+        }
+        .remove-file {
+            color: red;
+            cursor: pointer;
+        }
+        .file-item {
+            background-color: #edf2f7;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .file-item:hover {
+            background-color: #e2e8f0;
+        }
+        .file-item button {
+            transition: all 0.3s ease;
+        }
+        .file-item button:hover {
+            color: #e53e3e;
+            transform: scale(1.2);
+        }
     </style>
 </head>
 <body>
 <div layout:fragment="body">
-    <div th:if="${homeworks == null or homeworks.isEmpty()}" class="alert alert-success">
-        Your homework list is empty
-    </div>
+    <script>
+        // Массив для хранения выбранных файлов
+        let fileList = [];
 
+        // Обработчик выбора файлов
+        function handleFileSelect(event) {
+            const files = event.target.files;
+
+            // Добавление новых файлов в массив
+            for (let i = 0; i < files.length; i++) {
+                fileList.push(files[i]);
+            }
+
+            // Обновление списка файлов на странице
+            updateFileList();
+        }
+
+        // Функция для удаления файла из списка
+        function removeFile(index) {
+            fileList.splice(index, 1);
+            updateFileList();
+        }
+
+        // Обновление списка файлов на странице
+        function updateFileList() {
+            const fileListContainer = document.getElementById('fileList');
+            fileListContainer.innerHTML = ''; // Очистка текущего списка
+
+            fileList.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span>${file.name}</span>
+                    <button class="remove-file" onclick="removeFile(${index})">Remove</button>
+                `;
+                fileListContainer.appendChild(fileItem);
+            });
+        }
+
+        // Обработчик отправки формы
+        function prepareForm() {
+            const formData = new FormData(document.getElementById('uploadForm'));
+
+            // Добавление файлов в formData
+            fileList.forEach((file) => {
+                formData.append('files', file);
+            });
+
+            // Отправка данных на сервер
+            fetch('/homeworks/upload', {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                if (response.ok) {
+                    alert('Files uploaded successfully!');
+                } else {
+                    alert('Failed to upload files.');
+                }
+            }).catch(error => {
+                console.error('Error uploading files:', error);
+                alert('An error occurred while uploading files.');
+            });
+
+            return false; // Предотвращаем отправку формы обычным способом
+        }
+    </script>
     <div class="container px-5">
         <h1 class="mt-4">Homework</h1>
-        <div class="filter-buttons">
+
+        <!-- Student View -->
+        <div th:if="${pageType == 'student'}">
             <button th:class="${type == 'All'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks?type=All'">All</button>
             <button th:class="${type == 'Submitted'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks?type=Submitted'">Submitted</button>
             <button th:class="${type == 'Graded'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks?type=Graded'">Graded</button>
             <button th:class="${type == 'Rejected'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks?type=Rejected'">Rejected</button>
+        </div>
+
+        <!-- Teacher View -->
+        <div th:if="${pageType == 'teacher'}">
+            <div class="filter-buttons">
+                <button th:class="${type == 'All'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks/teacherPage?type=All'">All Homeworks</button>
+                <button th:class="${type == 'Checked'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks/teacherPage?type=Checked'">Checked</button>
+                <button th:class="${type == 'Unchecked'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks/teacherPage?type=Unchecked'">Unchecked</button>
+            </div>
+            <form id="searchForm" class="search-form" action="/homeworks/teacherPage" method="get" onsubmit="return prepareForm()">
+                <input type="text" name="courseId" placeholder="Course ID">
+                <input type="text" name="courseTitle" placeholder="course title">
+                <input type="text" name="homeworkTitle" placeholder="Homework title">
+                <input type="hidden" name="type" th:value="${type != null ? type : 'All'}">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+
+        <div th:if="${homeworks == null or homeworks.isEmpty()}" style="width: 100% ; margin: 5px" class="alert alert-success">
+            Your homework list is empty
         </div>
 
         <div class="homework-cards">
@@ -64,14 +185,23 @@
                 <p th:text="${homework.description}">Homework Description</p>
                 <p>Start Date: <span th:text="${homework.startDate}"></span></p>
                 <p>End Date: <span th:text="${homework.endDate}"></span></p>
-                <p class="status">Status:
+                <p class="status" th:if="${pageType == 'student'}">Status:
                     <span th:if="${#lists.contains(homework.submitHomeworkUserEntitiesId, user.id)}">Submitted</span>
                     <span th:if="${#lists.contains(homework.rejectedHomeworkUserEntitiesId, user.id)}">Rejected</span>
                     <span th:if="${#lists.contains(homework.gradedHomeworkUserEntitiesId, user.id)}">Graded</span>
                     <span th:if="${!#lists.contains(homework.submitHomeworkUserEntitiesId, user.id) && !#lists.contains(homework.rejectedHomeworkUserEntitiesId, user.id) && !#lists.contains(homework.gradedHomeworkUserEntitiesId, user.id)}">Not Submitted</span>
                 </p>
-                <button class="btn btn-primary" th:onclick="'location.href=\'/homeworks/' + ${homework.id} + '\''">Details</button>
+                <button th:if="${pageType.equals('student')}" class="btn btn-primary" th:onclick="'location.href=\'/homeworks/' + ${homework.id} + '\''">Details</button>
+                <button th:if="${pageType.equals('teacher')}" class="btn btn-primary" th:onclick="'location.href=\'/homeworks/teacherPage/' + ${homework.id} + '\''">Details</button>
             </div>
+        </div>
+
+        <div class="file-upload-section">
+            <form id="uploadForm" method="post" enctype="multipart/form-data" onsubmit="return prepareForm()">
+                <input type="file" id="fileInput" multiple onchange="handleFileSelect(event)">
+                <div id="fileList"></div>
+                <button type="submit" class="btn btn-primary mt-3">Submit Homework</button>
+            </form>
         </div>
     </div>
 </div>

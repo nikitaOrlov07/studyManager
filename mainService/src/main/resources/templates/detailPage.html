@@ -16,6 +16,10 @@
         footer {
             flex-shrink: 0;
         }
+        .container {
+            width: 75%;
+            margin: 0 auto;
+        }
         .course-detail {
             background-color: #ffffff;
             border-radius: 15px;
@@ -130,7 +134,7 @@
 </head>
 <body>
 <div layout:fragment="body" class="content">
-    <div th:if="${param.successHomeworkCreated}" class="alert alert-success">
+    <div  id="successHomeworkCreated" th:if="${param.successHomeworkCreated}" class="alert alert-success">
         Homework was successfully created
     </div>
     <div class="container py-5">
@@ -189,9 +193,10 @@
                 </div>
             </div>
             <div class="text-center mt-4">
-                <a th:href="@{/homeworks/create/course/{courseId}(courseId=${course.getId()})}" class="btn-create-homework">
+                <a th:if="${involvedUsers != null and !involvedUsers.isEmpty()}" th:href="@{/homeworks/create/course/{courseId}(courseId=${course.getId()})}" class="btn-create-homework">
                     Create Homework
                 </a>
+                <strong th:if="${involvedUsers == null or involvedUsers.isEmpty()}">* Can create homeworks , only when there are users in course</strong>
             </div>
         </div>
         <input type="hidden" id="coursePasswordHidden" th:value="${course.coursePassword}" />
@@ -217,6 +222,7 @@
                 <button type="submit" class="btn-action btn-leave">Leave Course</button>
             </form>
         </div>
+        
         <script>
             function handleJoin() {
                 var courseType = /*[[${'PRIVATE' == course.courseType}]]*/ 'PUBLIC' ? 'PRIVATE' : 'PUBLIC';
@@ -249,6 +255,9 @@
                 // Close the password modal
                 document.getElementById('passwordModal').style.display = 'none';
             }
+            document.addEventListener('DOMContentLoaded', function() {
+                hideAlertAfterDelay('successHomeworkCreated');
+            });
         </script>
     </div>
 </div>

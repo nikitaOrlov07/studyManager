@@ -1,6 +1,8 @@
 package com.example.mainservice.Dto.Homeworks;
 
-import com.example.mainservice.config.Validation.ValidDateFormat;
+import com.example.mainservice.config.Validation.DateFormat.ValidDateFormat;
+import com.example.mainservice.config.Validation.DateRange.ValidDateRange;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -14,7 +16,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ValidDateFormat
+@ValidDateRange
 public class HomeworkRequest {
     // basic information
     @NotEmpty(message = "Title is required")
@@ -25,10 +27,12 @@ public class HomeworkRequest {
     @NotNull
     private String description;
 
+    @ValidDateFormat
     @NotEmpty(message = "Start date is required")
     @NotNull
     private String startDate;
 
+    @ValidDateFormat
     @NotEmpty(message = "End date is required")
     @NotNull
     private String endDate;

@@ -2,7 +2,10 @@ package com.example.mainservice.Service.impl;
 
 import com.example.mainservice.Dto.Homeworks.HomeworkDto;
 import com.example.mainservice.Dto.Homeworks.HomeworkRequest;
+import com.example.mainservice.Dto.StudentAttachments.StudentAttachmentRequest;
+import com.example.mainservice.Dto.StudentAttachments.StudentHomeworkAttachmentDto;
 import com.example.mainservice.Service.HomeworkService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
@@ -18,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class HomeworkServiceImpl implements HomeworkService {
 
     @Autowired
@@ -45,7 +49,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     @Override
-    public List<HomeworkDto> findHomeworksByAuthorAndStatusAndCourseId(Long authorId, String homeworkStatus, Long courseId) {
+    public List<HomeworkDto> findHomeworksByAuthorAndStatusAndCourseIdAndCourseTitle(Long authorId, String homeworkStatus, Long courseId, String courseTitle) {
         List<HomeworkDto> result = webClientBuilder.build()
                 .get()
                 .uri(uriBuilder -> uriBuilder
@@ -55,12 +59,57 @@ public class HomeworkServiceImpl implements HomeworkService {
                         .queryParam("authorId", authorId)
                         .queryParam("type", homeworkStatus)
                         .queryParam("courseId", courseId)
+                        .queryParam("courseTitle", courseTitle)
                         .build())
                 .retrieve()
                 .bodyToFlux(HomeworkDto.class)
                 .collect(Collectors.toList())
                 .block();
         return result;
+    }
+
+    @Override
+    public List<StudentHomeworkAttachmentDto> findStudentsAttachmentsByHomeworkId(Long homeworkId) {
+        List<StudentHomeworkAttachmentDto> studentHomeworkAttachmentDtos =webClientBuilder.build()
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("course-service")
+                        .path("/homeworks/studentAttachments")
+                        .queryParam("homeworkId",homeworkId)
+                        .build())
+                .retrieve()
+                .bodyToFlux(StudentHomeworkAttachmentDto.class)
+                .collect(Collectors.toList())
+                .block();
+
+        return studentHomeworkAttachmentDtos;
+    }
+
+    @Override
+    public Boolean uploadStudentAttachment(StudentAttachmentRequest studentAttachmentRequest) {
+        String response = webClientBuilder.build()
+                .post()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("course-service")
+                        .path("/homeworks/upload")
+                        .build())
+                .bodyValue(studentAttachmentRequest)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        if(response.equals("Homework was upload successfully"))
+        {
+            log.info(response);
+            return true;
+        }
+        else{
+            log.error(response);
+            return false;
+        }
+
     }
 
 

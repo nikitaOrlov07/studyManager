@@ -34,6 +34,7 @@ public class UserServiceImpl implements UserService {
                 .body(BodyInserters.fromFormData("username", registrationDto.getUsername())
                         .with("email", registrationDto.getEmail())
                         .with("password", registrationDto.getPassword())
+                        .with("age",registrationDto.getAge())
                         .with("town", registrationDto.getTown() != null ? registrationDto.getTown() : "")
                         .with("phoneNumber", registrationDto.getPhoneNumber() != null ? String.valueOf(registrationDto.getPhoneNumber()) : ""))
                 .retrieve()

@@ -25,7 +25,8 @@ public class AttachmentController {
     @GetMapping("/download/{fileId}")
     public ResponseEntity<Resource> getDownloadLink(@PathVariable Long fileId)
     {
-        ResponseEntity<Resource> resourceResponseEntity =  viewService.getDownloadLink(fileId);
+        String username = SecurityUtil.getSessionUser();
+        ResponseEntity<Resource> resourceResponseEntity =  viewService.getDownloadLink(fileId,username);
         log.info("Download link"+ resourceResponseEntity.getBody());
         return resourceResponseEntity;
     }

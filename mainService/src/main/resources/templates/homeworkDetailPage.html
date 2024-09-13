@@ -2,13 +2,15 @@
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout}">
 <head>
-    <title>Homework Details</title>
+    <title th:text="${homework.title}">Homework Detail</title>
     <style>
         body {
             background-color: #f8f9fa;
             color: #333;
+            font-family: 'Arial', sans-serif;
         }
         .homework-container {
             max-width: 75%;
@@ -87,96 +89,210 @@
         .status-submitted { background-color: #2ecc71; color: white; }
         .status-graded { background-color: #f39c12; color: white; }
         .status-rejected { background-color: #e74c3c; color: white; }
+
+        /* Teacher View Styles */
+        .teacher-view .card {
+            border-left: 5px solid #3498db;
+        }
+        .teacher-view .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .teacher-view .card-title {
+            color: #34495e;
+        }
+        .teacher-view .btn-danger {
+            background-color: #e74c3c;
+            border-color: #e74c3c;
+        }
+        .teacher-view .btn-danger:hover {
+            background-color: #c0392b;
+            border-color: #c0392b;
+        }
+        .teacher-view .form-label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .teacher-view .student-id {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+        }
     </style>
 </head>
 <body>
 <div layout:fragment="body">
-    <div class="homework-container">
+    <div class="homework-container" th:classappend="${pageType == 'teacher'} ? 'teacher-view' : ''">
         <h1 class="homework-title" th:text="${homework.title}">Homework Title</h1>
 
-        <div class="card mb-4">
+        <!-- Homework Details -->
+        <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Description</h5>
-                <p class="card-text" th:text="${homework.description}">Homework description goes here.</p>
-                <p><strong>Start Date:</strong> <span th:text="${homework.startDate}">Start Date</span></p>
-                <p><strong>End Date:</strong> <span th:text="${homework.endDate}">End Date</span></p>
+                <p class="card-text" th:text="${homework.description}">Homework description</p>
+                <div class="d-flex justify-content-between text-muted">
+                    <small>Start Date: <span th:text="${homework.startDate}"></span></small>
+                    <small>End Date: <span th:text="${homework.endDate}"></span></small>
+                </div>
             </div>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Homework Attachments:</h5>
-                <div th:if="${homework.getAttachmentList() == null or homework.getAttachmentList().isEmpty()}" class="alert alert-success">
-                    There are no attachments to the homework
-                </div>
-                <div th:if="${homework.getAttachmentList() != null and !homework.getAttachmentList().isEmpty()}" th:each="file : ${homework.getAttachmentList()}" class="col-md-6 mb-3">
-                    <div class="card h-100 shadow-sm attachment-card">
-                        <div th:if="${file != null}">
-                            <img th:if="${file.fileType.startsWith('image/')}" th:src="${file.viewUrl}" class="card-img-top" th:alt="${file.fileName}" style="object-fit: cover; height: 200px;">
-                            <div class="card-body" th:unless="${file.fileType.startsWith('image/')}">
-                                <h5 class="card-title" th:text="${file.fileName}">File Name</h5>
-                                <p class="card-text">Creator: <span th:text="${file.creator}">Creator Name</span></p>
-                                <p class="card-text">Time: <small class="text-muted" th:text="${file.timestamp}">Timestamp</small></p>
-                            </div>
-                            <div class="card-footer text-center">
-                                <a th:href="@{/files/view/{fileId}(fileId=${file.id})}" class="btn btn-custom me-2">View</a>
-                                <a th:href="@{/files/download/{fileId}(fileId=${file.id})}" class="btn btn-custom">Download</a>
-                            </div>
+        <!-- Homework Attachments -->
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">Homework Attachments</h5>
+            </div>
+            <div style="margin: 5px" th:if="${homework.getAttachmentList() == null or homework.getAttachmentList().isEmpty()}" class="alert alert-success">
+                There are no attachments to the homework
+            </div>
+            <div th:if="${homework.getAttachmentList() != null and !homework.getAttachmentList().isEmpty()}" th:each="file : ${homework.getAttachmentList()}" class="col-md-6 mb-3">
+                <div class="card h-100 shadow-sm attachment-card">
+                    <div th:if="${file != null}">
+                        <img th:if="${file.fileType.startsWith('image/')}" th:src="${file.viewUrl}" class="card-img-top" th:alt="${file.fileName}" style="object-fit: cover; height: 200px;">
+                        <div class="card-body" th:unless="${file.fileType.startsWith('image/')}">
+                            <h5 class="card-title" th:text="${file.fileName}">File Name</h5>
+                            <p class="card-text">Creator: <span th:text="${file.creator}">Creator Name</span></p>
+                            <p class="card-text">Time: <small class="text-muted" th:text="${file.timestamp}">Timestamp</small></p>
+                        </div>
+                        <div class="card-footer text-center">
+                            <a th:href="@{/files/view/{fileId}(fileId=${file.id})}" class="btn btn-custom me-2">View</a>
+                            <a th:href="@{/files/download/{fileId}(fileId=${file.id})}" class="btn btn-custom">Download</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card mb-4">
+        <!-- Student View -->
+        <div th:if="${pageType == 'student'}" class="card">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">Your Submission</h5>
+            </div>
             <div class="card-body">
-                <h5 class="card-title">Your Submission</h5>
-                <div th:if="${studentAttachments == null}" class="alert alert-success">
-                    You have no works pinned to this homework assignment
+                <div th:if="${studentAttachments != null}">
+                    <p>Status: <span class="status-badge" th:classappend="'status-' + ${#strings.toLowerCase(studentAttachments.status)}" th:text="${studentAttachments.status}"></span></p>
+                    <p th:if="${studentAttachments.mark != null}">Mark: <span class="badge bg-success" th:text="${studentAttachments.mark}"></span></p>
+                    <p th:if="${studentAttachments.message != null}">Teacher's Message: <span th:text="${studentAttachments.message}"></span></p>
+                    <ul class="list-group list-group-flush mt-3">
+                        <li th:each="attachment : ${studentAttachments.attachments}" class="list-group-item">
+                            <a th:href="${attachment.url}" th:text="${attachment.fileName}" class="attachment-link">
+                                <i class="bi bi-file-earmark me-2"></i>
+                                <span th:text="${attachment.fileName}"></span>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
-                <div th:if="${studentAttachment}">
-                    <p>
-                        <strong>Status:</strong>
-                        <span class="status-badge" th:classappend="${'status-' + studentAttachment.status.toLowerCase()}" th:text="${studentAttachment.status}">Status</span>
-                    </p>
-                    <p th:if="${studentAttachment.mark}"><strong>Mark:</strong> <span th:text="${studentAttachment.mark}">Mark</span></p>
-                    <p th:if="${studentAttachment.message}"><strong>Teacher's Message:</strong> <span th:text="${studentAttachment.message}">Message</span></p>
-                    <p th:if="${studentAttachment.checkedDate}"><strong>Checked Date:</strong> <span th:text="${studentAttachment.checkedDate}">Checked Date</span></p>
-
-                    <h6>Your Attachments:</h6>
-                    <div th:if="${homework.getAttachmentList() != null and !homework.getAttachmentList().isEmpty()}" th:each="file : ${homework.getAttachmentList()}" class="col-md-6 mb-3">
-                        <div class="card h-100 shadow-sm attachment-card">
-                            <div th:if="${file != null}">
-                                <img th:if="${file.fileType.startsWith('image/')}" th:src="${file.viewUrl}" class="card-img-top" th:alt="${file.fileName}" style="object-fit: cover; height: 200px;">
-                                <div class="card-body" th:unless="${file.fileType.startsWith('image/')}">
-                                    <h5 class="card-title" th:text="${file.fileName}">File Name</h5>
-                                    <p class="card-text">Creator: <span th:text="${file.creator}">Creator Name</span></p>
-                                    <p class="card-text">Time: <small class="text-muted" th:text="${file.timestamp}">Timestamp</small></p>
-                                </div>
-                                <div class="card-footer text-center">
-                                    <a th:href="@{/files/view/{fileId}(fileId=${file.id})}" class="btn btn-custom me-2">View</a>
-                                    <a th:href="@{/files/download/{fileId}(fileId=${file.id})}" class="btn btn-custom">Download</a>
-                                </div>
-                            </div>
+                <div th:unless="${studentAttachments != null}" class="alert alert-info" role="alert">
+                    You haven't submitted your homework yet.
+                    <form th:action="@{/upload}" method="post" enctype="multipart/form-data" id="uploadForm">
+                        <input type="hidden" name="homeworkId" th:value="${homework.id}">
+                        <div class="mb-3">
+                            <label for="fileInput" class="form-label">Choose files to upload:</label>
+                            <input type="file" class="form-control" id="fileInput" name="files" multiple>
                         </div>
-                    </div>
+                        <ul id="fileList" class="file-list mb-3"></ul>
+                        <button type="submit" class="btn btn-primary">Submit Homework</button>
+                    </form>
                 </div>
             </div>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Submit Your Work</h5>
-                <form th:action="@{/homework/{id}/submit(id=${homework.id})}" method="post" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label for="attachmentFile" class="form-label">Choose file(s)</label>
-                        <input class="form-control" type="file" id="attachmentFile" name="attachmentFile" multiple>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
+        <!-- Teacher View -->
+        <div th:if="${pageType == 'teacher'}">
+            <h2 class="h3 mb-4">Student Submissions</h2>
+            <div th:each="studentAttachment : ${studentAttachments}" class="card">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <span class="student-id" th:text="${'Student ID: ' + studentAttachment.studentId}"></span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p>Status: <span class="status-badge" th:classappend="'status-' + ${#strings.toLowerCase(studentAttachment.status)}" th:text="${studentAttachment.status}"></span></p>
+                    <p>Uploaded Date: <span th:text="${studentAttachment.uploadedDate}"></span></p>
+
+                    <h6 class="mt-3 mb-2">Attachments:</h6>
+                    <ul class="list-group list-group-flush">
+                        <li th:each="attachment : ${studentAttachment.attachments}" class="list-group-item">
+                            <a th:href="${attachment.url}" th:text="${attachment.fileName}" class="attachment-link">
+                                <i class="bi bi-file-earmark me-2"></i>
+                                <span th:text="${attachment.fileName}"></span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <form th:action="@{/grade-homework}" method="post" class="mt-4">
+                        <input type="hidden" name="studentAttachmentId" th:value="${studentAttachment.id}">
+                        <div class="mb-3">
+                            <label for="mark" class="form-label">Mark:</label>
+                            <input type="number" id="mark" name="mark" th:value="${studentAttachment.mark}"
+                                   class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Feedback:</label>
+                            <textarea id="message" name="message" rows="3"
+                                      class="form-control"
+                                      th:text="${studentAttachment.message}"></textarea>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" name="action" value="grade"
+                                    class="btn btn-primary">
+                                Submit Grade
+                            </button>
+                            <button type="submit" name="action" value="reject"
+                                    class="btn btn-danger">
+                                Reject Submission
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
+    <script th:if="${pageType == 'student'}">
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const fileList = document.getElementById('fileList');
+            const uploadForm = document.getElementById('uploadForm');
+
+            fileInput.addEventListener('change', updateFileList);
+
+            function updateFileList() {
+                fileList.innerHTML = '';
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    const file = fileInput.files[i];
+                    const li = document.createElement('li');
+                    li.className = 'file-item';
+                    li.innerHTML = `
+                    <span>${file.name}</span>
+                    <span class="remove-file" data-index="${i}">&times;</span>
+                `;
+                    fileList.appendChild(li);
+                }
+            }
+
+            fileList.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-file')) {
+                    const index = parseInt(e.target.dataset.index);
+                    const dt = new DataTransfer();
+                    const { files } = fileInput;
+
+                    for (let i = 0; i < files.length; i++) {
+                        if (i !== index) {
+                            dt.items.add(files[i]);
+                        }
+                    }
+
+                    fileInput.files = dt.files;
+                    updateFileList();
+                }
+            });
+
+            uploadForm.addEventListener('submit', function(e) {
+                if (fileInput.files.length === 0) {
+                    e.preventDefault();
+                    alert('Please select at least one file to upload.');
+                }
+            });
+        });
+    </script>
 </div>
 </body>
 </html>

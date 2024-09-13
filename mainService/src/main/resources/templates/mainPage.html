@@ -16,7 +16,8 @@
         }
 
         .container {
-            max-width: 2000px;
+            max-width:  80%;
+            max-height: 75%;
             margin: 20px auto;
             padding: 0 15px;
         }
@@ -160,14 +161,12 @@
             </div>
         </div>
     </div>
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            hideAlertAfterDelay('notAllowedMessage');
+            hideAlertAfterDelay('error');
+        });
+    </script>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        hideAlertAfterDelay('notAllowedMessage');
-        hideAlertAfterDelay('error');
-    });
-</script>
 </body>
 </html>

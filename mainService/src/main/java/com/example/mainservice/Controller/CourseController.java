@@ -45,6 +45,7 @@ public class CourseController {
             return "course-create";
         }
         log.info("Course save controller is working");
+        log.info("Files size :" + files.size());
         String result = courseService.createCourse(request, files);
         if(result.equals("Course with title " + request.getTitle() + " already exists"))
         {

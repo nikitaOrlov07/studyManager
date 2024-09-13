@@ -25,4 +25,5 @@ public class UserEntityDto {
     private List<Long> chatsIds = new ArrayList<>();
     private List<Long> completedHomeworksIds = new ArrayList<>();
     private List<Long> createdHomeworksIds = new ArrayList<>();
+    private List<Long> homeworkIds = new ArrayList<>();
 }

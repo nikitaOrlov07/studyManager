@@ -36,25 +36,23 @@ public class Controller {
 
 
     @GetMapping("/get") // working
-    public UserEntityDto getUserByUserId(@RequestParam Long userId)
-    {
-         return  userService.findUserById(userId);
+    public UserEntityDto getUserByUserId(@RequestParam Long userId) {
+        return userService.findUserById(userId);
     }
 
     // registration
     @PostMapping("/save")
-    public String saveUser(@ModelAttribute RegistrationDto registrationDto)
-    {
+    public String saveUser(@ModelAttribute RegistrationDto registrationDto) {
         log.info("UserService \"saveUser\" controller method is working");
         // check existing email
         UserEntity existingUserByEmail = userService.findByEmail(registrationDto.getEmail());
-        if(existingUserByEmail != null && existingUserByEmail.getEmail() != null && !existingUserByEmail.getEmail().isEmpty()) {
+        if (existingUserByEmail != null && existingUserByEmail.getEmail() != null && !existingUserByEmail.getEmail().isEmpty()) {
             return "user with this email is already exists";
         }
         System.out.println(registrationDto);
         // check existing username
         UserEntity existingUserByUsername = userService.findUserByUsername(registrationDto.getUsername());
-        if(existingUserByUsername != null && existingUserByUsername.getUsername() != null && !existingUserByUsername.getUsername().isEmpty()) {
+        if (existingUserByUsername != null && existingUserByUsername.getUsername() != null && !existingUserByUsername.getUsername().isEmpty()) {
             return "user with this username is already exists";
         }
 
@@ -72,7 +70,7 @@ public class Controller {
             return false;
         }
         Boolean result = passwordEncoder.matches(loginRequestDto.getPassword(), user.getPassword());
-        log.info("Password correct: "+ result);
+        log.info("Password correct: " + result);
         return result;
     }
 
@@ -87,22 +85,38 @@ public class Controller {
 
     /// Method for finding course involved users
     @GetMapping("/findUsersByIds")
-    public List<UserEntityDto> findUsersByIds(@RequestParam List<Long> usersIds)
-    {
+    public List<UserEntityDto> findUsersByIds(@RequestParam List<Long> usersIds) {
         return userService.findUsersByIds(usersIds);
     }
 
     /// Method for joining or leaving course
     @GetMapping("/action/{action}")
-    public Boolean actionCourse(@PathVariable("action") String action ,
+    public Boolean actionCourse(@PathVariable("action") String action,
                                 @RequestParam("courseId") Long courseId,
-                                @RequestParam("username") String username)
-    {
+                                @RequestParam("username") String username) {
         log.info("UserService \"Action Course\" method is working");
-        Boolean result = userService.courseAction(action,courseId,username);
-        log.info("Operation status: "+ result);
+        Boolean result = userService.courseAction(action, courseId, username);
+        log.info("Operation status: " + result);
         return result;
     }
 
+    /// Method for updating user information when user creates a new course or a new homework (or a new studentAttachment)
+    @PostMapping("/{action}/{type}/{id}")
+    public void createOrDeleteItems(@PathVariable("type") String type,     // type can be homework or course
+                                    @PathVariable("id") Long id,
+                                    @PathVariable("action") String action,
+                                    @RequestParam("userId") Long userId) // action can be "create","update", "submit"
+    {
+        log.info("createOrDeleteItems controller method is working");
+        userService.updateCreatedItems(action,type,id,userId);
+    }
+    @PostMapping("/assignHomeworks")
+    public void assignHomework(@RequestParam("usersId") List<Long> userEntities,
+                               @RequestParam("homeworkId") Long homeworkId,
+                               @RequestParam("type") String type) // type can be submitted or assigned
+    {
+      log.info("assignHomework controller method is working");
+      userService.assignHomeworks(userEntities, homeworkId , type);
+    }
 
 }

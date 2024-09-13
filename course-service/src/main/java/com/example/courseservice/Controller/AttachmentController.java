@@ -4,6 +4,7 @@ import com.example.courseservice.Dto.UserEntity.UserEntityDto;
 import com.example.courseservice.Dto.UserEntity.UserEntityResponse;
 import com.example.courseservice.Model.Attachment;
 import com.example.courseservice.Service.AttachmentService;
+import com.example.courseservice.Service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
@@ -19,25 +20,21 @@ public class AttachmentController {
 
     private final AttachmentService attachmentService;
     private final WebClient.Builder webClientBuilder; // for http requests
+    private final UserService userService;
 
     // download file
     @GetMapping("/download")
-    public ResponseEntity<?> downloadFile(@RequestParam(value = "fileId") String fileIdString, @RequestParam(value = "username" , required = false) String username ) throws Exception // method will return file content and file metadata
+    public ResponseEntity<?> downloadFile(@RequestParam(value = "fileId") Long fileId, @RequestParam(value = "username" , required = false) String username ) throws Exception // method will return file content and file metadata
     {
         if(username == null || username.isEmpty())
         {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("Not allowed to make operations");
         }
-        Long fileId = Long.parseLong(fileIdString);
+
         Attachment attachment = attachmentService.getAttachment(fileId);
         // HTTP request to userService to find new user
-        UserEntityResponse currentUser = webClientBuilder.build()
-                .get()
-                .uri("")
-                .retrieve()
-                .bodyToMono(UserEntityResponse.class)
-                .block();
+        UserEntityResponse currentUser = userService.findUsersByUsername(username);
 
         if(attachment.getAccessType().equals("open") || attachmentService.canMakeOperationsWithAttachment(currentUser,attachment)) // user can`t download file if he is not involved into this course
         {

@@ -4,7 +4,6 @@ import com.example.courseservice.Config.exceptions.CourseCreationException;
 import com.example.courseservice.Config.exceptions.ResourceNotFoundException;
 import com.example.courseservice.Dto.Course.CourseCreationRequest;
 import com.example.courseservice.Dto.Course.CourseResponse;
-import com.example.courseservice.Dto.UserEntity.UserEntityDto;
 import com.example.courseservice.Dto.UserEntity.UserEntityResponse;
 import com.example.courseservice.Mappers.CourseMapper;
 import com.example.courseservice.Mappers.UsersMapper;
@@ -13,11 +12,13 @@ import com.example.courseservice.Model.Course;
 import com.example.courseservice.Repository.CourseRepository;
 import com.example.courseservice.Service.AttachmentService;
 import com.example.courseservice.Service.CourseService;
+import com.example.courseservice.Service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -38,6 +39,7 @@ public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
     private final AttachmentService attachmentService;
     private final WebClient.Builder webClientBuilder; // for HTTP requests
+    private final UserService userService;
 
     @Override
     public List<Course> getAllCourses() {
@@ -103,10 +105,16 @@ public class CourseServiceImpl implements CourseService {
 
         Course savedCourse = courseRepository.save(course);
 
+
         if(savedCourse == null)
             log.error("Course creation failed");
         else
             log.info("Course was created successfully");
+
+        if(savedCourse != null)
+        {
+            userService.updateUserItems("courses","create",savedCourse.getId(),response.getBody().getId());
+        }
         return savedCourse;
     }
 
@@ -255,6 +263,11 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Course findCourseById(Long courseId) {
         return courseRepository.findById(courseId).get();
+    }
+
+    @Override
+    public Course findByTitle(String courseTitle) {
+        return courseRepository.findByTitle(courseTitle);
     }
 
 

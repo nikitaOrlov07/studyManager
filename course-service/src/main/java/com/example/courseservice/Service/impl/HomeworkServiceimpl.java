@@ -3,7 +3,10 @@ package com.example.courseservice.Service.impl;
 import com.example.courseservice.Dto.Homework.Enums.HomeworkStatus;
 import com.example.courseservice.Dto.Homework.HomeworkRequest;
 import com.example.courseservice.Dto.Homework.HomeworkResponse;
+import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentAttachmentRequest;
 import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentHomeworkAttachmentDto;
+import com.example.courseservice.Dto.UserEntity.UserEntityResponse;
+import com.example.courseservice.Mappers.UsersMapper;
 import com.example.courseservice.Model.Course;
 import com.example.courseservice.Model.StudentHomeworkAttachment;
 import com.example.courseservice.Dto.UserEntity.UserEntityDto;
@@ -15,6 +18,7 @@ import com.example.courseservice.Repository.StudentHomeworkRepository;
 import com.example.courseservice.Service.AttachmentService;
 import com.example.courseservice.Service.CourseService;
 import com.example.courseservice.Service.HomeworkService;
+import com.example.courseservice.Service.UserService;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,49 +34,52 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
-@RequiredArgsConstructor
-@Slf4j
-public class HomeworkServiceimpl implements HomeworkService {
+    @Service
+    @RequiredArgsConstructor
+    @Slf4j
+    public class HomeworkServiceimpl implements HomeworkService {
 
-    private final WebClient.Builder webClientBuilder;  // for HTTP requests
-    private final CourseService courseService;
-    private final HomeworkRepository homeworkRepository;
-    private final AttachmentService attachmentService;
-    private final StudentHomeworkRepository studentHomeworkRepository;
+        private final WebClient.Builder webClientBuilder;  // for HTTP requests
+        private final CourseService courseService;
+        private final HomeworkRepository homeworkRepository;
+        private final AttachmentService attachmentService;
+        private final StudentHomeworkRepository studentHomeworkRepository;
+        private final UserService userService;
+        private final HomeworkMapper mapper;
 
 
-    @Override
-    public Homework createHomework(HomeworkRequest request) {
-        System.out.println(request);
-        Homework homework = HomeworkMapper.homeworkRequestToHomework(request);
-        System.out.println(homework);
-        // HTTP request to get User author
-        UserEntityDto author = UserEntityDto.builder()
-                .id(2L)
-                .username("username")
-                .password("password")
-                .email("sdsdsd")
-                .role("user")
-                .createdHomeworks(Arrays.asList(HomeworkMapper.convertToHomeworkResponse(homework)))
-                .chats(new ArrayList<>())
-                .build(); // temporary
-        // HTTP request to user service to find users in the group
-        UserEntityDto user = UserEntityDto.builder()
-                .id(1L)
-                .username("username")
-                .password("password")
-                .email("sdsdsd")
-                .role("user")
-                .chats(new ArrayList<>())
-                .build(); // temporary
+        @Override
+        public Homework createHomework(HomeworkRequest request) {
 
-        homework.setUserEntitiesId(Arrays.asList(user.getId()));
-        homework.setAuthorId(author.getId());
 
-        homeworkRepository.save(homework);
-        return homework;
-    }
+            Homework homework = mapper.homeworkRequestToHomework(request); // make this method non-static in HomeworkMapper class, because i need to use CourseService
+
+            UserEntityResponse author = userService.findUsersById(Arrays.asList(request.getAuthorId())).get(0);
+
+            homework.setAuthorId(author.getId());
+            Homework savedHomework = homeworkRepository.save(homework);
+
+            userService.updateUserItems("homeworks", "create", savedHomework.getId(), author.getId());
+
+            if (request.getUserEntitiesId() != null && !request.getUserEntitiesId().isEmpty()) {
+                webClientBuilder.build()
+                        .post()
+                        .uri(uriBuilder -> uriBuilder
+                                .scheme("http")
+                                .host("user-service")
+                                .path("/users/assignHomeworks")
+                                .queryParam("usersId", request.getUserEntitiesId())
+                                .queryParam("homeworkId", savedHomework.getId())
+                                .queryParam("type", "assign")
+                                .build())
+                        .retrieve()
+                        .bodyToMono(Void.class)
+                        .block();
+            }
+
+            return homework;
+        }
+
 
     @Transactional
     @Override
@@ -80,7 +87,6 @@ public class HomeworkServiceimpl implements HomeworkService {
         log.info("Uploading file for homework is working");
         Homework homework = homeworkRepository.findById(courseId).get();
         // Find User sending HTTP request to users service
-
         UserEntityDto user = UserEntityDto.builder()
                 .id(1L)
                 .username("username")
@@ -110,45 +116,37 @@ public class HomeworkServiceimpl implements HomeworkService {
     }
 
     @Transactional
-    public String uploadHomework(Long homeworkId, Long studentId, List<MultipartFile> files) throws Exception {
+    public String uploadHomework(StudentAttachmentRequest studentAttachmentRequest) throws Exception {
         log.info("Uploading homework for student");
 
-        Homework homework = homeworkRepository.findById(homeworkId)
+        Homework homework = homeworkRepository.findById(studentAttachmentRequest.getHomeworkId())
                 .orElseThrow(() -> new Exception("Homework not found"));
 
         // HTTP request to userService to find user by userId
-        UserEntityDto student = UserEntityDto.builder()
-                .id(studentId)
-                .username("username")
-                .password("password")
-                .email("sdsdsd")
-                .role("user")
-                .completedHomeworks(new ArrayList<>())
-                .chats(new ArrayList<>())
-                .build(); // temporary
+        UserEntityDto student = UsersMapper.responseToDto(userService.findUsersById(Arrays.asList(studentAttachmentRequest.getStudentId())).get(0));
 
-
-        if (student == null || !homework.getUserEntitiesId().contains(studentId)) {
+        if (student == null || !homework.getUserEntitiesId().contains(studentAttachmentRequest.getStudentId())) {
             throw new Exception("Student is not allowed to submit this homework");
         }
 
         // check if this job has been submitted before (working good)
         boolean homeworkAlreadySubmitted = student.getCompletedHomeworks().stream()
-                .anyMatch(attachment -> attachment.getHomework().getId().equals(homeworkId));
+                .anyMatch(attachment -> attachment.getHomework().getId().equals(studentAttachmentRequest.getHomeworkId()));
 
         if (homeworkAlreadySubmitted) {
             throw new Exception("Homework has already been submitted by this student");
         }
+
        StudentHomeworkAttachment studentHomework = StudentHomeworkAttachment.builder()
                 .homework(homework)
-                .studentId(studentId)
+                .studentId(student.getId())
                 .status(StudentAttachmentStatus.Submitted)
                 .uploadedDate(getCurrentDate())
                 .build();
 
         List<Attachment> attachments = new ArrayList<>();
 
-        for (MultipartFile file : files) {
+        for (MultipartFile file : studentAttachmentRequest.getFiles()) {
             Attachment attachment = attachmentService.saveAttachment(file, homework.getCourse(), homework, student);
 
             String downloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -172,6 +170,25 @@ public class HomeworkServiceimpl implements HomeworkService {
 
         studentHomeworkRepository.save(studentHomework);
         // Http request to update user (student)
+        Boolean result = webClientBuilder.build()
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("user-service")
+                        .path("/users/homework/upload/"+homework.getId())
+                        .queryParam("userId",student.getId())
+                        .build())
+                .retrieve()
+                .bodyToMono(Boolean.class)
+                .block();
+        if(result) {
+            log.info("User information for uploading homework was changed successfully");
+        }
+        else {
+            log.error("User information for uploading homework was not changed successfully");
+            throw new Exception("Error in user service");
+        }
+
         return "Homework was upload successfully";
     }
 
@@ -188,7 +205,7 @@ public class HomeworkServiceimpl implements HomeworkService {
                 .password("password")
                 .email("sdsdsd")
                 .role("user")
-                .createdHomeworks(Arrays.asList(HomeworkMapper.convertToHomeworkResponse(homework)))
+                .createdHomeworks(Arrays.asList(mapper.convertToHomeworkResponse(homework)))
                 .chats(new ArrayList<>())
                 .build(); // temporary
         /*if(!author.getId().equals(homework.getAuthorId()))
@@ -235,18 +252,19 @@ public class HomeworkServiceimpl implements HomeworkService {
     public List<HomeworkResponse> getCreatedHomeworksByIds(List<Long> homeworksIds)
     {
         List<HomeworkResponse> homeworkResponses = homeworksIds.stream()
-                .map(id -> HomeworkMapper.convertToHomeworkResponse(homeworkRepository.findById(id).get()))
+                .map(id -> mapper.convertToHomeworkResponse(homeworkRepository.findById(id).get()))
                 .collect(Collectors.toList());
 
         return homeworkResponses;
     }
 
     @Override
+    @Transactional
     public HomeworkResponse getHomeworkById(Long homeworkId) {
         Homework homework = homeworkRepository.findById(homeworkId).get();
         if(homework == null)
             return null;
-        HomeworkResponse response = HomeworkMapper.convertToHomeworkResponse(homework);
+        HomeworkResponse response = mapper.convertToHomeworkResponse(homework);
         return  response ;
     }
 
@@ -265,41 +283,67 @@ public class HomeworkServiceimpl implements HomeworkService {
            return null;
        }
 
-       return HomeworkMapper.studentHomeworkAttachmentToDto(studentHomeworkAttachment);
+       return mapper.studentHomeworkAttachmentToDto(studentHomeworkAttachment);
     }
 
     @Override
-    public List<HomeworkResponse> getHomeworksByAuthorIdAndHomeworkStatusAndCourse(Long authorId, String homeworkStatus , Long courseId) {
+    @Transactional(readOnly = true)
+    public List<HomeworkResponse> findHomeworksByAuthorAndStatusAndCourseIdAndCourseTitle(Long authorId, String homeworkStatus , Long courseId, String courseTitle) {
 
          List<Homework> homeworks = null;
+
          Course course = null;
 
          if(courseId != null)
          {
              course = courseService.findCourseById(courseId);
          }
-
-
-         if(homeworkStatus.equals("All"))
+         if(courseTitle != null && !courseTitle.isEmpty())
          {
-             homeworks = homeworkRepository.findByAuthorIdAndHomeworkStatusAndCourse(authorId,null,course);
+             course = courseService.findByTitle(courseTitle);
          }
+
+
          if(homeworkStatus.equals("Checked"))
          {
-             homeworks =homeworkRepository.findByAuthorIdAndHomeworkStatusAndCourse(authorId, HomeworkStatus.Checked,course);
+             homeworks =   homeworkRepository.findByAuthorIdAndStatusAndCourse(authorId,HomeworkStatus.Checked,course);
          }
-        if(homeworkStatus.equals("Unchecked"))
-        {
-            homeworks = homeworkRepository.findByAuthorIdAndHomeworkStatusAndCourse(authorId, HomeworkStatus.Unchecked,course);
-        }
+         else if(homeworkStatus.equals("Unchecked"))
+         {
+             homeworks =   homeworkRepository.findByAuthorIdAndStatusAndCourse(authorId,HomeworkStatus.Unchecked,course);
+         }
+         else {
+             homeworks = homeworkRepository.findByAuthorIdAndStatusAndCourse(authorId,null,course);
+         }
 
         if(homeworks == null || homeworks.isEmpty())
             return null;
 
-        return homeworks.stream().map(HomeworkMapper::convertToHomeworkResponse).collect(Collectors.toList());
+        log.info("User created homeworks: " + homeworks);
+        return homeworks.stream().map(mapper::convertToHomeworkResponse).collect(Collectors.toList());
     }
 
-    private String getCurrentDate()
+        @Override
+        public List<StudentHomeworkAttachmentDto> findHomeworkAttachmentsByHomeworkId(Long homeworkId) {
+            if(homeworkId == null)
+            {return null;}
+
+            Homework homework = homeworkRepository.findById(homeworkId).get();
+
+            if(homework == null)
+            {
+                return null;
+            }
+
+            List<StudentHomeworkAttachment> studentHomeworkAttachments = studentHomeworkRepository.findAllByHomework(homework);
+
+            if(studentHomeworkAttachments == null || studentHomeworkAttachments.isEmpty())
+                return null;
+
+            return studentHomeworkAttachments.stream().map(HomeworkMapper::studentHomeworkAttachmentToDto).collect(Collectors.toList());
+        }
+
+        private String getCurrentDate()
     {
         LocalDate today = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MM yyyy");
@@ -332,7 +376,7 @@ public class HomeworkServiceimpl implements HomeworkService {
         }
 
         return homeworks.stream()
-                .map(HomeworkMapper::convertToHomeworkResponse)
+                .map(mapper::convertToHomeworkResponse)
                 .collect(Collectors.toList());
     }
 }

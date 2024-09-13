@@ -5,16 +5,19 @@ import com.example.userservice.Mapper.UserEntityMapper;
 import com.example.userservice.Model.UserEntity;
 import com.example.userservice.Repositories.UserEntityRepository;
 import com.example.userservice.Service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 
 @Service
+@Slf4j
 public class UserServiceimpl implements UserService {
 
     @Autowired
@@ -78,5 +81,66 @@ public class UserServiceimpl implements UserService {
         }
         return false;
     }
+
+    @Override
+    public void updateCreatedItems(String action, String type, Long id,Long userId) {
+        UserEntity userEntity = userRepository.findById(userId).get();
+        if(userEntity == null)
+        {
+            throw new NoSuchElementException("User not found");
+        }
+        if(action.equals("create"))
+        {
+            if(type.equals("courses"))
+            {
+                userEntity.getCreatedCoursesIds().add(id);
+            }
+            if(type.equals("homeworks"))
+            {
+                userEntity.getCreatedHomeworksIds().add(id);
+            }
+        }
+        else if(action.equals("delete"))
+        {
+            if(type.equals("courses"))
+            {
+                userEntity.getCreatedCoursesIds().remove(id);
+            }
+            if(type.equals("homeworks"))
+            {
+                userEntity.getCreatedHomeworksIds().remove(id);
+            }
+        }
+        else if(action.equals("submit") && type.equals("homework"))
+        {
+            userEntity.getHomeworksIds().remove(id);
+            userEntity.getCompletedHomeworksIds().add(id);
+        }
+
+        userRepository.save(userEntity);
+    }
+
+    @Override
+    public void assignHomeworks(List<Long> userEntities, Long homeworkId, String type) {
+        List<UserEntity> users = userRepository.findAllById(userEntities);
+        if (type.equals("assign")) {
+            for (UserEntity user : users) {
+                if (!user.getHomeworksIds().contains(homeworkId)) {
+                    user.getHomeworksIds().add(homeworkId);
+                }
+            }
+        }
+        if(type.equals("submit"))
+        {
+            for (UserEntity user : users) {
+                if (!user.getHomeworksIds().contains(homeworkId)) {
+                    user.getHomeworksIds().remove(homeworkId);
+                    user.getCompletedHomeworksIds().add(homeworkId);
+                }
+            }
+        }
+        userRepository.saveAll(users);
+    }
+
 
 }

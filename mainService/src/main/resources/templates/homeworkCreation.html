@@ -22,38 +22,43 @@
 <body layout:fragment="body" class="bg-gray-100">
 <div class="container mx-auto p-8">
     <h1 class="text-4xl font-bold mb-6 text-center text-blue-700">Homework creation</h1>
-    <form id="homeworkForm" class="rounded-card bg-white shadow-lg px-8 pt-6 pb-8 mb-4">
+    <form id="homeworkForm" action="/homeworks/create/save" method="post" enctype="multipart/form-data" class="rounded-card bg-white shadow-lg px-8 pt-6 pb-8 mb-4" th:object="${homeworkCreationRequest}">
+        <input type="hidden" name="courseId" th:value="${course.id}">
         <div class="mb-6">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
                 Title
             </label>
-            <input class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="title" type="text" name="title" placeholder="Введите название" required>
+            <input class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="title" type="text" th:field="*{title}" placeholder="Enter title" required>
+            <p th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="text-red-500 text-xs italic mt-1"></p>
         </div>
         <div class="mb-6">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="description">
                 Description
             </label>
-            <textarea class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="description" name="description" rows="4" placeholder="Введите описание" required></textarea>
+            <textarea class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="description" th:field="*{description}" rows="4" placeholder="Enter description" required></textarea>
+            <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="text-red-500 text-xs italic mt-1"></p>
         </div>
         <div class="mb-6 flex space-x-4">
             <div class="w-1/2">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="startDate">
                     Start date
                 </label>
-                <input class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="startDate" type="date" name="startDate" required>
+                <input class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="startDate" type="date" th:field="*{startDate}" required>
+                <p th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}" class="text-red-500 text-xs italic mt-1"></p>
             </div>
             <div class="w-1/2">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="endDate">
                     End date
                 </label>
-                <input class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="endDate" type="date" name="endDate" required>
+                <input class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="endDate" type="date" th:field="*{endDate}" required>
+                <p th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}" class="text-red-500 text-xs italic mt-1"></p>
             </div>
         </div>
         <div class="mb-6">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="fileInput">
                 Attach files
             </label>
-            <input class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="fileInput" type="file" multiple>
+            <input class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="fileInput" type="file" multiple name="files">
             <div id="fileList" class="mt-2 file-list"></div>
         </div>
         <div class="mb-6">
@@ -66,12 +71,13 @@
             <div id="userList" class="mt-2 space-y-2">
                 <th:block th:each="user : ${involvedUsers}">
                     <div class="flex items-center">
-                        <input type="checkbox" id="user[[${user.id}]]" name="userEntitiesId" value="[[${user.id}]]" class="mr-2">
-                        <label for="user[[${user.id}]]" class="text-gray-700">[[${user.username}]]</label>
+                        <input type="checkbox" id="user[[${user.id}]]" th:field="*{userEntitiesId}" th:value="${user.id}" class="mr-2">
+                        <label th:for="'user' + ${user.id}" class="text-gray-700" th:text="${user.username}"></label>
                     </div>
                 </th:block>
             </div>
         </div>
+        <input type="hidden" name="authorId" th:value="${homeworkCreationRequest.authorId}">
         <div class="flex items-center justify-between">
             <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-110" type="submit">
                 Create homework
@@ -86,6 +92,8 @@
         const fileList = document.getElementById('fileList');
         const selectAllBtn = document.getElementById('selectAllBtn');
         const form = document.getElementById('homeworkForm');
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
 
         let files = [];
 
@@ -101,9 +109,9 @@
                 const fileItem = document.createElement('div');
                 fileItem.className = 'flex items-center justify-between bg-gray-100 p-2 mb-2 rounded';
                 fileItem.innerHTML = `
-                        <span>${file.name}</span>
-                        <button type="button" class="text-red-500 hover:text-red-700" data-index="${index}">×</button>
-                    `;
+            <span>${file.name}</span>
+            <button type="button" class="text-red-500 hover:text-red-700" data-index="${index}">×</button>
+        `;
                 fileList.appendChild(fileItem);
             });
         }
@@ -123,14 +131,51 @@
 
         form.addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Логируем значения полей формы в консоль
+            console.log('Start Date:', startDateInput.value);
+            console.log('End Date:', endDateInput.value);
+
             const formData = new FormData(form);
+
+            // Логируем содержимое FormData в консоль
+            for (const [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+
+            // Удаляем все существующие файлы из formData
+            formData.delete('files');
+
+            // Добавляем файлы из нашего массива
             files.forEach(file => formData.append('files', file));
 
             // Отправка данных на сервер
-            console.log('Отправка данных:', Object.fromEntries(formData));
-            alert('Домашнее задание создано!');
+            fetch('/homeworks/create/save', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else {
+                        return response.text();
+                    }
+                })
+                .then(html => {
+                    if (html) {
+                        // Если сервер вернул HTML (в случае ошибок валидации)
+                        document.body.innerHTML = html;
+                        // Перезапускаем наш скрипт для новой формы
+                        document.dispatchEvent(new Event('DOMContentLoaded'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка при отправке данных.');
+                });
         });
     });
+
 </script>
 </body>
 </html>

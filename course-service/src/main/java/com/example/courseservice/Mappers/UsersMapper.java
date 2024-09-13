@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.example.courseservice.Dto.Homework.HomeworkResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -29,7 +30,38 @@ public class UsersMapper {
     }
 
     // Convert UserEntityDto to UserEntityResponse
-   /* public static UserEntityResponse dtoToResponse(UserEntityDto dto) {
+    public static UserEntityResponse dtoToResponse(UserEntityDto dto) {
+        log.info("dtoToResponse user mapper is working");
+
+        List<Long> createdCoursesIds = new ArrayList<>();
+        List<Long> participatingCoursesIds = new ArrayList<>();
+        List<Long> completedHomeworksIds = new ArrayList<>();
+        List<Long> createdHomeworksIds = new ArrayList<>();
+
+        if (dto.getCourses() != null) {
+            createdCoursesIds = dto.getCourses().stream()
+                    .map(Course::getId)
+                    .collect(Collectors.toList());
+        }
+
+        if (dto.getParticipatingCourses() != null) {
+            participatingCoursesIds = dto.getParticipatingCourses().stream()
+                    .map(Course::getId)
+                    .collect(Collectors.toList());
+        }
+
+        if (dto.getCompletedHomeworks() != null) {
+            completedHomeworksIds = dto.getCompletedHomeworks().stream()
+                    .map(StudentHomeworkAttachmentDto::getId)
+                    .collect(Collectors.toList());
+        }
+
+        if (dto.getCreatedHomeworks() != null) {
+            createdHomeworksIds = dto.getCreatedHomeworks().stream()
+                    .map(HomeworkResponse::getId)
+                    .collect(Collectors.toList());
+        }
+
         return UserEntityResponse.builder()
                 .id(dto.getId())
                 .username(dto.getUsername())
@@ -39,15 +71,15 @@ public class UsersMapper {
                 .town(dto.getTown())
                 .phoneNumber(dto.getPhoneNumber())
                 .role(dto.getRole())
-                .createdCoursesIds(dto.getCourses().stream().map(Course::getId).collect(Collectors.toList()))
-                .participatingCourses(dto.getParticipatingCourses().stream().map(Course::getId).collect(Collectors.toList()))
-               //  .chatsIds(dto.getChats().stream().map(Chat::getId).collect(Collectors.toList()))
-                .completedHomeworksIds(dto.getCompletedHomeworks().stream().map(StudentHomeworkAttachment::getId).collect(Collectors.toList()))
-               //  .createdHomeworksIds(dto.getCreatedHomeworks().stream().map(Homework::getId).collect(Collectors.toList()))
+                .createdCoursesIds(createdCoursesIds)
+                .participatingCourses(participatingCoursesIds)
+                .completedHomeworksIds(completedHomeworksIds)
+                .createdHomeworksIds(createdHomeworksIds)
                 .build();
     }
 
-    */
+
+
 
     // Convert UserEntityResponse to UserEntityDto
     public static UserEntityDto responseToDto(UserEntityResponse response) {

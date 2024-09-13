@@ -1,7 +1,8 @@
-package com.example.mainservice.Dto.Homeworks;
+package com.example.mainservice.Dto.StudentAttachments;
 
 
 import com.example.mainservice.Dto.Homeworks.Enums.StudentAttachmentStatus;
+import com.example.mainservice.Dto.Homeworks.HomeworkDto;
 import com.example.mainservice.Model.Attachment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

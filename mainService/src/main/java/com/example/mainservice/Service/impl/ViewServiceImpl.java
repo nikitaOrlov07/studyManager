@@ -1,7 +1,7 @@
 package com.example.mainservice.Service.impl;
 
 import com.example.mainservice.Dto.Homeworks.HomeworkDto;
-import com.example.mainservice.Dto.Homeworks.StudentHomeworkAttachmentDto;
+import com.example.mainservice.Dto.StudentAttachments.StudentHomeworkAttachmentDto;
 import com.example.mainservice.Dto.User.UserEntityDto;
 import com.example.mainservice.Model.Course;
 import com.example.mainservice.Service.ViewService;
@@ -69,16 +69,19 @@ public class ViewServiceImpl implements ViewService {
 
         // download file
         @Override
-        public ResponseEntity<Resource> getDownloadLink(Long fileId) {
-            log.info("getDownloadLing service method is working");
+        public ResponseEntity<Resource> getDownloadLink(Long fileId, String username) {
+            log.info("getDownloadLink service method is working");
+            String uri = "http://course-service/files/download?fileId="+fileId+"&username="+username;
+            // Убедитесь, что передаете и {fileId}, и {username} в запросе
             return webClientBuilder.build()
                     .get()
-                    .uri("http://course-service/files/download/{fileId}", fileId)
+                    .uri(uri)
                     .retrieve()
                     .toEntity(Resource.class)
                     .block();
         }
-        // view file
+
+    // view file
         @Override
         public ResponseEntity<Resource> getFileView(Long fileId, String username) {
             return webClientBuilder.build()

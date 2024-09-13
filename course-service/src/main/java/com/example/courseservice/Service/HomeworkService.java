@@ -3,6 +3,7 @@ package com.example.courseservice.Service;
 import com.example.courseservice.Dto.Homework.HomeworkRequest;
 import com.example.courseservice.Dto.Homework.HomeworkResponse;
 import com.example.courseservice.Dto.Homework.Enums.StudentAttachmentStatus;
+import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentAttachmentRequest;
 import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentHomeworkAttachmentDto;
 import com.example.courseservice.Model.Homework;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,7 +15,7 @@ public interface HomeworkService {
 
     String uploadFile(MultipartFile file, Long id) throws Exception;
 
-    String uploadHomework(Long homeworkId, Long studentId, List<MultipartFile> files) throws Exception;
+    String uploadHomework(StudentAttachmentRequest studentAttachmentRequest) throws Exception;
 
     String checkHomework(Long studentHomeworkAttachmentId, StudentAttachmentStatus studentAttachmentStatus, String message, Integer mark) throws Exception;
 
@@ -28,5 +29,7 @@ public interface HomeworkService {
 
     StudentHomeworkAttachmentDto findStudentAttachmentsByHomeworkIdAndStudentId(Long homeworkId, Long studentId);
 
-    List<HomeworkResponse>  getHomeworksByAuthorIdAndHomeworkStatusAndCourse(Long authorId, String homeworkStatus , Long courseId);
+    List<HomeworkResponse>  findHomeworksByAuthorAndStatusAndCourseIdAndCourseTitle(Long authorId, String homeworkStatus , Long courseId, String courseTitle);
+
+    List<StudentHomeworkAttachmentDto> findHomeworkAttachmentsByHomeworkId(Long homeworkId);
 }

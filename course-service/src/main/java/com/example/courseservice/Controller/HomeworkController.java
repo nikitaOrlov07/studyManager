@@ -3,6 +3,7 @@ package com.example.courseservice.Controller;
 import com.example.courseservice.Dto.Homework.HomeworkRequest;
 import com.example.courseservice.Dto.Homework.HomeworkResponse;
 import com.example.courseservice.Dto.Homework.Enums.StudentAttachmentStatus;
+import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentAttachmentRequest;
 import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentHomeworkAttachmentDto;
 import com.example.courseservice.Model.Homework;
 import com.example.courseservice.Service.HomeworkService;
@@ -48,12 +49,9 @@ public class HomeworkController {
 
     // Student can upload
     @PostMapping("/upload")
-    public ResponseEntity<?> uploadHomework(
-            @RequestParam("homeworkId") Long homeworkId,
-            @RequestParam("studentId") Long studentId,
-            @RequestParam("files") List<MultipartFile> files) {
+    public ResponseEntity<?> uploadHomework(@ModelAttribute StudentAttachmentRequest studentAttachmentRequest) {
         try {
-            String str = homeworkService.uploadHomework(homeworkId, studentId, files);
+            String str = homeworkService.uploadHomework(studentAttachmentRequest);
             return ResponseEntity.ok(str);
         }
         catch (Exception e) {
@@ -86,14 +84,6 @@ public class HomeworkController {
         log.info("Homework title: " + homeworkResponse.getTitle());
         return homeworkResponse;
     }
-    @GetMapping("/studentAttachments")
-    public StudentHomeworkAttachmentDto findStudentHomeworkAttachmentDto(@RequestParam("homeworkId") Long homeworkId,
-                                                                         @RequestParam("studentId")  Long studentId)
-    {
-        log.info("Course Service \"findStudentHomeworkAttachmentDto\" method is working");
-        StudentHomeworkAttachmentDto studentHomeworkAttachmentDto = homeworkService.findStudentAttachmentsByHomeworkIdAndStudentId(homeworkId,studentId);
-        return studentHomeworkAttachmentDto;
-    }
     // Get students homework (for homeworks page)
     @GetMapping
     @Transactional(readOnly = true) // readOnly means that the annotated method will only perform a read operation
@@ -107,10 +97,29 @@ public class HomeworkController {
     @GetMapping("/getCreatedHomework")
     public List<HomeworkResponse> getHomeworksForTeacher(@RequestParam("authorId") Long authorId,
                                                          @RequestParam(value = "type",required = false) String homeworkStatus,
-                                                         @RequestParam(value = "courseId",required = false) Long courseId)
+                                                         @RequestParam(value = "courseId",required = false) Long courseId,
+                                                         @RequestParam(value = "title",required = false) String courseTitle)
     {
         log.info("Course service \"getHomeworksForTeacher\" controller method is working");
-        return homeworkService.getHomeworksByAuthorIdAndHomeworkStatusAndCourse(authorId , homeworkStatus,courseId);
+        return homeworkService.findHomeworksByAuthorAndStatusAndCourseIdAndCourseTitle(authorId , homeworkStatus,courseId,courseTitle);
     }
 
+
+    /// StudentAttachments
+    @GetMapping("/getStudentAttachment")
+    public StudentHomeworkAttachmentDto findStudentHomeworkAttachmentDtoByHomeworkIdAndStudentID(@RequestParam("homeworkId") Long homeworkId,
+                                                                                                 @RequestParam("studentId")  Long studentId)
+    {
+        log.info("Course Service \"findStudentHomeworkAttachmentDto\" method is working");
+        StudentHomeworkAttachmentDto studentHomeworkAttachmentDto = homeworkService.findStudentAttachmentsByHomeworkIdAndStudentId(homeworkId,studentId);
+        return studentHomeworkAttachmentDto;
+    }
+    @GetMapping("/studentAttachments")
+    public List<StudentHomeworkAttachmentDto> findStudentsAttachmentsByHomeworkId(@RequestParam("homeworkId") String homeworkIdStr)
+    {
+        log.info("Course Service \"findStudentsAttachmentsByHomeworkId\" method is working");
+        Long homeworkId = Long.parseLong(homeworkIdStr);
+        List<StudentHomeworkAttachmentDto> studentHomeworkAttachmentDtos = homeworkService.findHomeworkAttachmentsByHomeworkId(homeworkId);
+        return studentHomeworkAttachmentDtos;
+    }
 }
