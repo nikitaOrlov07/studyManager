@@ -3,10 +3,7 @@ package com.example.courseservice.Model;
 import com.example.courseservice.Dto.Homework.Enums.HomeworkStatus;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.ArrayList;
@@ -47,6 +44,7 @@ public class Homework {
     List<Long> rejectedHomeworkUserEntitiesId = new ArrayList<>();
 
     // Homework Attachments
+    @ToString.Exclude
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "homework_id")
     @JsonIgnore

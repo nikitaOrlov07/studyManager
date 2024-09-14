@@ -27,6 +27,7 @@ public class UserEntityDto {
     private String town;
     private String phoneNumber;
     private String role;
+    private String registrationDate;
 
     // created courses
     private List<Course> courses = new ArrayList<>();

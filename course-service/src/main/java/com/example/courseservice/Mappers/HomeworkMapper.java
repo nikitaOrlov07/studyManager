@@ -9,6 +9,7 @@ import com.example.courseservice.Model.Course;
 import com.example.courseservice.Model.Homework;
 import com.example.courseservice.Model.StudentHomeworkAttachment;
 import com.example.courseservice.Service.CourseService;
+import jakarta.transaction.Transactional;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,8 +52,12 @@ public class HomeworkMapper {
         response.setDescription(homework.getDescription());
         response.setStartDate(homework.getStartDate());
         response.setEndDate(homework.getEndDate());
-        response.setUserEntitiesId(new ArrayList<>(homework.getUserEntitiesId()));
         response.setAuthorId(homework.getAuthorId());
+
+        response.setUserEntitiesId(new ArrayList<>(homework.getUserEntitiesId()));
+        response.setSubmitHomeworkUserEntitiesId(new ArrayList<>(homework.getSubmitHomeworkUserEntitiesId()));
+        response.setRejectedHomeworkUserEntitiesId(new ArrayList<>(homework.getRejectedHomeworkUserEntitiesId()));
+        response.setGradedHomeworkUserEntitiesId(new ArrayList<>(homework.getGradedHomeworkUserEntitiesId()));
 
         // Map each Attachment to AttachmentDto objects
         response.setAttachmentList(homework.getAttachmentList().stream()
@@ -73,6 +78,7 @@ public class HomeworkMapper {
 
         return response;
     }
+
     public  static StudentHomeworkAttachmentDto studentHomeworkAttachmentToDto(StudentHomeworkAttachment studentHomeworkAttachment)
     {
         StudentHomeworkAttachmentDto studentHomeworkAttachmentDto = StudentHomeworkAttachmentDto.builder()

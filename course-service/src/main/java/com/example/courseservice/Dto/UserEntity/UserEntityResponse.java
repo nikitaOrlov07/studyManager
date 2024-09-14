@@ -19,6 +19,7 @@ public class UserEntityResponse {
     private String age;
     private String town;
     private String phoneNumber;
+    private String registrationDate;
     private String role;
     private List<Long> createdCoursesIds = new ArrayList<>();
     private List<Long> participatingCourses = new ArrayList<>();

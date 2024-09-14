@@ -30,6 +30,7 @@ public class UserServiceImpl implements UserService {
                 .bodyToFlux(UserEntityResponse.class)
                 .collectList()
                 .block();
+        System.out.println(result.get(0));
         return result;
     }
 

@@ -82,72 +82,6 @@
 </head>
 <body>
 <div layout:fragment="body">
-    <script>
-        // Массив для хранения выбранных файлов
-        let fileList = [];
-
-        // Обработчик выбора файлов
-        function handleFileSelect(event) {
-            const files = event.target.files;
-
-            // Добавление новых файлов в массив
-            for (let i = 0; i < files.length; i++) {
-                fileList.push(files[i]);
-            }
-
-            // Обновление списка файлов на странице
-            updateFileList();
-        }
-
-        // Функция для удаления файла из списка
-        function removeFile(index) {
-            fileList.splice(index, 1);
-            updateFileList();
-        }
-
-        // Обновление списка файлов на странице
-        function updateFileList() {
-            const fileListContainer = document.getElementById('fileList');
-            fileListContainer.innerHTML = ''; // Очистка текущего списка
-
-            fileList.forEach((file, index) => {
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-item';
-                fileItem.innerHTML = `
-                    <span>${file.name}</span>
-                    <button class="remove-file" onclick="removeFile(${index})">Remove</button>
-                `;
-                fileListContainer.appendChild(fileItem);
-            });
-        }
-
-        // Обработчик отправки формы
-        function prepareForm() {
-            const formData = new FormData(document.getElementById('uploadForm'));
-
-            // Добавление файлов в formData
-            fileList.forEach((file) => {
-                formData.append('files', file);
-            });
-
-            // Отправка данных на сервер
-            fetch('/homeworks/upload', {
-                method: 'POST',
-                body: formData
-            }).then(response => {
-                if (response.ok) {
-                    alert('Files uploaded successfully!');
-                } else {
-                    alert('Failed to upload files.');
-                }
-            }).catch(error => {
-                console.error('Error uploading files:', error);
-                alert('An error occurred while uploading files.');
-            });
-
-            return false; // Предотвращаем отправку формы обычным способом
-        }
-    </script>
     <div class="container px-5">
         <h1 class="mt-4">Homework</h1>
 
@@ -195,14 +129,7 @@
                 <button th:if="${pageType.equals('teacher')}" class="btn btn-primary" th:onclick="'location.href=\'/homeworks/teacherPage/' + ${homework.id} + '\''">Details</button>
             </div>
         </div>
-
-        <div class="file-upload-section">
-            <form id="uploadForm" method="post" enctype="multipart/form-data" onsubmit="return prepareForm()">
-                <input type="file" id="fileInput" multiple onchange="handleFileSelect(event)">
-                <div id="fileList"></div>
-                <button type="submit" class="btn btn-primary mt-3">Submit Homework</button>
-            </form>
-        </div>
+    </div>
     </div>
 </div>
 </body>

@@ -117,6 +117,23 @@
             font-size: 1.1rem;
             color: #7f8c8d;
         }
+        #fileList {
+            list-style-type: none;
+            padding: 0;
+        }
+        #fileList li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 10px;
+            margin-bottom: 5px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .remove-file {
+            cursor: pointer;
+            color: #e74c3c;
+        }
     </style>
 </head>
 <body>
@@ -167,22 +184,34 @@
                 <h5 class="card-title mb-0">Your Submission</h5>
             </div>
             <div class="card-body">
-                <div th:if="${studentAttachments != null}">
-                    <p>Status: <span class="status-badge" th:classappend="'status-' + ${#strings.toLowerCase(studentAttachments.status)}" th:text="${studentAttachments.status}"></span></p>
-                    <p th:if="${studentAttachments.mark != null}">Mark: <span class="badge bg-success" th:text="${studentAttachments.mark}"></span></p>
-                    <p th:if="${studentAttachments.message != null}">Teacher's Message: <span th:text="${studentAttachments.message}"></span></p>
+                <div th:if="${attachment != null}">
+                    <p>Status: <span class="status-badge" th:classappend="'status-' + ${#strings.toLowerCase(attachment.status)}" th:text="${attachment.status}"></span></p>
+                    <p>Mark: <span class="badge bg-success" th:text="${attachment.mark != null ? attachment.mark : 'Not specified'}"></span></p>
+                    <p>Teacher's Message: <span th:text="${attachment.message != null ? attachment.message : 'Not specified'}"></span></p>
+                    <p>Checked Time: <span th:text="${attachment.checkedDate != null ? attachment.checkedDate : 'Not specified'}"></span></p>
                     <ul class="list-group list-group-flush mt-3">
-                        <li th:each="attachment : ${studentAttachments.attachments}" class="list-group-item">
-                            <a th:href="${attachment.url}" th:text="${attachment.fileName}" class="attachment-link">
-                                <i class="bi bi-file-earmark me-2"></i>
-                                <span th:text="${attachment.fileName}"></span>
-                            </a>
-                        </li>
+                        <div th:if="${attachment.attachments != null and !attachment.attachments.isEmpty()}" th:each="file : ${attachment.getAttachments()}" class="col-md-6 mb-3">
+                            <div class="card h-100 shadow-sm attachment-card">
+                                <div th:if="${file != null}">
+                                    <img th:if="${file.fileType.startsWith('image/')}" th:src="${file.viewUrl}" class="card-img-top" th:alt="${file.fileName}" style="object-fit: cover; height: 200px;">
+                                    <div class="card-body" th:unless="${file.fileType.startsWith('image/')}">
+                                        <h5 class="card-title" th:text="${file.fileName}">File Name</h5>
+                                        <p class="card-text">Creator: <span th:text="${file.creator}">Creator Name</span></p>
+                                        <p class="card-text">Time: <small class="text-muted" th:text="${file.timestamp}">Timestamp</small></p>
+                                    </div>
+                                    <div class="card-footer text-center">
+                                        <a th:href="@{/files/view/{fileId}(fileId=${file.id})}" class="btn btn-custom me-2">View</a>
+                                        <a th:href="@{/files/download/{fileId}(fileId=${file.id})}" class="btn btn-custom">Download</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </ul>
                 </div>
-                <div th:unless="${studentAttachments != null}" class="alert alert-info" role="alert">
+
+                <div th:unless="${studentAttachment == null}" class="alert alert-info" role="alert">
                     You haven't submitted your homework yet.
-                    <form th:action="@{/upload}" method="post" enctype="multipart/form-data" id="uploadForm">
+                    <form th:action="@{/homeworks/upload}" method="post" enctype="multipart/form-data" id="uploadForm">
                         <input type="hidden" name="homeworkId" th:value="${homework.id}">
                         <div class="mb-3">
                             <label for="fileInput" class="form-label">Choose files to upload:</label>
@@ -191,6 +220,64 @@
                         <ul id="fileList" class="file-list mb-3"></ul>
                         <button type="submit" class="btn btn-primary">Submit Homework</button>
                     </form>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const fileInput = document.getElementById('fileInput');
+                            const fileList = document.getElementById('fileList');
+                            const uploadForm = document.getElementById('uploadForm');
+                            let files = new DataTransfer();
+
+                            fileInput.addEventListener('change', function(e) {
+                                const newFiles = Array.from(e.target.files);
+                                newFiles.forEach(file => {
+                                    files.items.add(file);
+                                    addFileToList(file);
+                                });
+                                updateFileInput();
+                            });
+
+                            function addFileToList(file) {
+                                const li = document.createElement('li');
+                                li.innerHTML = `
+                ${file.name}
+                <span class="remove-file" data-name="${file.name}">&times;</span>
+            `;
+                                fileList.appendChild(li);
+                            }
+
+                            function updateFileInput() {
+                                fileInput.files = files.files;
+                                fileInput.value = ''; // Reset the file input
+                            }
+
+                            fileList.addEventListener('click', function(e) {
+                                if (e.target.classList.contains('remove-file')) {
+                                    const fileName = e.target.getAttribute('data-name');
+                                    removeFile(fileName);
+                                    e.target.parentElement.remove();
+                                }
+                            });
+
+                            function removeFile(fileName) {
+                                const newFiles = new DataTransfer();
+                                for (let i = 0; i < files.files.length; i++) {
+                                    const file = files.files[i];
+                                    if (file.name !== fileName) {
+                                        newFiles.items.add(file);
+                                    }
+                                }
+                                files = newFiles;
+                                updateFileInput();
+                            }
+
+                            uploadForm.addEventListener('submit', function(e) {
+                                if (files.files.length === 0) {
+                                    e.preventDefault();
+                                    alert('Please select at least one file to upload.');
+                                }
+                            });
+                        });
+                    </script>
                 </div>
             </div>
         </div>
@@ -246,53 +333,6 @@
             </div>
         </div>
     </div>
-    <script th:if="${pageType == 'student'}">
-        document.addEventListener('DOMContentLoaded', function() {
-            const fileInput = document.getElementById('fileInput');
-            const fileList = document.getElementById('fileList');
-            const uploadForm = document.getElementById('uploadForm');
-
-            fileInput.addEventListener('change', updateFileList);
-
-            function updateFileList() {
-                fileList.innerHTML = '';
-                for (let i = 0; i < fileInput.files.length; i++) {
-                    const file = fileInput.files[i];
-                    const li = document.createElement('li');
-                    li.className = 'file-item';
-                    li.innerHTML = `
-                    <span>${file.name}</span>
-                    <span class="remove-file" data-index="${i}">&times;</span>
-                `;
-                    fileList.appendChild(li);
-                }
-            }
-
-            fileList.addEventListener('click', function(e) {
-                if (e.target.classList.contains('remove-file')) {
-                    const index = parseInt(e.target.dataset.index);
-                    const dt = new DataTransfer();
-                    const { files } = fileInput;
-
-                    for (let i = 0; i < files.length; i++) {
-                        if (i !== index) {
-                            dt.items.add(files[i]);
-                        }
-                    }
-
-                    fileInput.files = dt.files;
-                    updateFileList();
-                }
-            });
-
-            uploadForm.addEventListener('submit', function(e) {
-                if (fileInput.files.length === 0) {
-                    e.preventDefault();
-                    alert('Please select at least one file to upload.');
-                }
-            });
-        });
-    </script>
 </div>
 </body>
 </html>

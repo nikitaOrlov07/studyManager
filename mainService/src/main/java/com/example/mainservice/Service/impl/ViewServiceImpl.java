@@ -12,6 +12,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
@@ -176,7 +177,7 @@ public class ViewServiceImpl implements ViewService {
                   .uri(uriBuilder -> uriBuilder
                           .scheme("http")
                           .host("course-service")
-                          .path("/homeworks/studentAttachments")
+                          .path("/homeworks/getStudentAttachment")
                           .queryParam("homeworkId", homeworkId)
                           .queryParam("studentId",userId)
                           .build())

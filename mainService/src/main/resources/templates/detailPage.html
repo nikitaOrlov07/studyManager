@@ -130,6 +130,35 @@
             border-radius: 10px;
             text-align: center;
         }
+        .author-info {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .author-info h3 {
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+        .author-info p {
+            margin-bottom: 10px;
+        }
+        .btn-chat {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .btn-chat:hover {
+            background-color: #5a6268;
+            text-decoration: none;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -150,6 +179,13 @@
                 <p th:if="${user != null and course.getInvolvedUserIds().contains(user.getId())}"><strong>Chat ID:</strong> <span th:text="${course.chatId != null ? course.chatId : 'Not specified'}">Chat ID</span></p>
             </div>
 
+            <div class="author-info">
+                <h3>Author Information</h3>
+                <p><strong>Username:</strong> <span th:text="${courseAuthor.username}">Author Username</span></p>
+                <p><strong>Registration Date:</strong> <span th:text="${courseAuthor.registrationDate}">Registration Date</span></p>
+                <a href="#" class="btn-chat">Chat with Author</a>
+            </div>
+
             <div th:if="${course.tags != null and !course.tags.isEmpty()}" class="mt-4">
                 <h3 class="section-title">Tags</h3>
                 <div th:each="tag : ${course.tags}" class="tag" th:text="${tag}">Tag</div>
@@ -160,12 +196,15 @@
                 <div th:if="${involvedUsers == null or involvedUsers.isEmpty()}" class="alert alert-success">
                     There are no users in this course yet
                 </div>
-            <div th:if="${involvedUsers != null and !involvedUsers.isEmpty()}" class="mt-4">
-                <ul class="list-group">
-                    <li th:each="user : ${involvedUsers}" class="list-group-item" th:text="${user.username}">User</li>
-                </ul>
-            </div>
 
+                <div th:if="${involvedUsers != null and !involvedUsers.isEmpty()}" class="mt-4">
+                    <ul class="list-group">
+                        <li th:each="User : ${involvedUsers}" class="list-group-item">
+                            <span th:if="${User.username == user.username}" th:text="'you'">You</span>
+                            <span th:if="${User.username != user.username}" th:text="${User.username}">User</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
 
             <div class="mt-5">
@@ -192,7 +231,7 @@
                     </div>
                 </div>
             </div>
-            <div class="text-center mt-4">
+            <div class="text-center mt-4" th:if="${course.getAuthorId().equals(user.getId())}">
                 <a th:if="${involvedUsers != null and !involvedUsers.isEmpty()}" th:href="@{/homeworks/create/course/{courseId}(courseId=${course.getId()})}" class="btn-create-homework">
                     Create Homework
                 </a>
@@ -207,7 +246,7 @@
                 <h3>Enter Password</h3>
                 <input type="password" id="coursePassword" class="form-control mb-3" placeholder="Пароль">
                 <button onclick="validatePassword()" class="btn btn-primary">Confirm</button>
-                <button onclick="closeModal()" class="btn btn-secondary">Cansel</button>
+                <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
             </div>
         </div>
 
@@ -222,7 +261,7 @@
                 <button type="submit" class="btn-action btn-leave">Leave Course</button>
             </form>
         </div>
-        
+
         <script>
             function handleJoin() {
                 var courseType = /*[[${'PRIVATE' == course.courseType}]]*/ 'PUBLIC' ? 'PRIVATE' : 'PUBLIC';
@@ -239,17 +278,16 @@
                 var enteredPassword = document.getElementById('coursePassword').value;
                 var correctPassword = document.getElementById('coursePasswordHidden').value;
 
-                console.log("Введённый пароль:", enteredPassword);
-                console.log("Правильный пароль:", correctPassword);
+                console.log("Entered password:", enteredPassword);
+                console.log("Correct password:", correctPassword);
 
                 if (enteredPassword === correctPassword) {
                     document.getElementById('passwordInput').value = enteredPassword;
                     document.getElementById('joinForm').submit();
                 } else {
-                    alert('Неверный пароль');
+                    alert('Incorrect password');
                 }
             }
-
 
             function closeModal() {
                 // Close the password modal

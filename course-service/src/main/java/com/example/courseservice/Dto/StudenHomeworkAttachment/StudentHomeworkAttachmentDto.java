@@ -3,6 +3,8 @@ package com.example.courseservice.Dto.StudenHomeworkAttachment;
 import com.example.courseservice.Dto.Attachment.AttachmentDto;
 import com.example.courseservice.Dto.Homework.Enums.StudentAttachmentStatus;
 import com.example.courseservice.Model.Homework;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Lob;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +21,10 @@ public class StudentHomeworkAttachmentDto {
     private Long id;
     private Homework homework;
     private Long studentId;
-    private List<AttachmentDto> attachments = new ArrayList<>();
+
+    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+    private List<AttachmentDto> attachments;
+
 
     private String uploadedDate;
 

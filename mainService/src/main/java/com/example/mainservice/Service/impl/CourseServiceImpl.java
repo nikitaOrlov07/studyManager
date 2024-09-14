@@ -31,7 +31,7 @@ public class CourseServiceImpl implements CourseService {
         request.setAuthor(SecurityUtil.getSessionUser());
         MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
 
-        // Добавляем CourseCreationRequest как JSON часть
+        // Add CourseCreationRequest  in json
         bodyBuilder.part("courseData", request, MediaType.APPLICATION_JSON);
 
         // Add files

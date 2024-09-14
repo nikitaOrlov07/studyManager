@@ -102,13 +102,20 @@ public class Controller {
 
     /// Method for updating user information when user creates a new course or a new homework (or a new studentAttachment)
     @PostMapping("/{action}/{type}/{id}")
-    public void createOrDeleteItems(@PathVariable("type") String type,     // type can be homework or course
+    public Boolean createOrDeleteItems(@PathVariable("type") String type,     // type can be homework or course
                                     @PathVariable("id") Long id,
                                     @PathVariable("action") String action,
                                     @RequestParam("userId") Long userId) // action can be "create","update", "submit"
     {
         log.info("createOrDeleteItems controller method is working");
+
+        log.info("Type: "+type);
+        log.info("Action: "+ action);
+        log.info("UserId: "+ userId);
+        log.info("Item id: " + id);
+
         userService.updateCreatedItems(action,type,id,userId);
+        return true;
     }
     @PostMapping("/assignHomeworks")
     public void assignHomework(@RequestParam("usersId") List<Long> userEntities,

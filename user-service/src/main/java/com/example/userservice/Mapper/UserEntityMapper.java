@@ -18,6 +18,7 @@ public class UserEntityMapper {
                 .age(userEntity.getAge())
                 .town(userEntity.getTown())
                 .phoneNumber(userEntity.getPhoneNumber())
+                .registrationDate(userEntity.getRegistrationDate())
                 .role(userEntity.getRole())
                 .createdCoursesIds(userEntity.getCreatedCoursesIds())
                 .homeworkIds(userEntity.getHomeworksIds())

@@ -21,6 +21,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Controller
@@ -129,7 +130,7 @@ public class HomeworkController {
         }
         UserEntityDto user = userService.findUserByUsername(username);
         HomeworkDto homeworkDto = viewService.findHomeworkByHomeworkId(homeworkId);
-        StudentHomeworkAttachmentDto studentAttachments = viewService.findStudentAttachmentsByHomeworkAndStudentId(homeworkDto.getId(),user.getId());
+        StudentHomeworkAttachmentDto studentAttachment = viewService.findStudentAttachmentsByHomeworkAndStudentId(homeworkDto.getId(),user.getId());
 
         // Check that the user ID is present in at least one of the possible lists.
         if (!(homeworkDto.getGradedHomeworkUserEntitiesId().contains(user.getId()) ||
@@ -138,11 +139,18 @@ public class HomeworkController {
                 homeworkDto.getSubmitHomeworkUserEntitiesId().contains(user.getId()))) {
             return "redirect:/home?notAllowed";
         }
+        if(studentAttachment != null)
+        {
+            log.info("Attachment status :"+ studentAttachment.getStatus());
+            log.info("Attachment id "+ studentAttachment.getId());
+            log.info("Attachment upload date "+ studentAttachment.getUploadedDate());
+
+        }
 
         log.info("getHomeworkDetailPage is working");
         model.addAttribute("user", user); // maybe not needed
         model.addAttribute("homework",homeworkDto);
-        model.addAttribute("studentAttachments", studentAttachments);
+        model.addAttribute("attachment", studentAttachment);
 
         model.addAttribute("pageType","student");
         return "homeworkDetailPage";
@@ -219,7 +227,7 @@ public class HomeworkController {
     @PostMapping("/upload")
     public String submitHomeworkForStudent(@ModelAttribute("studentAttachment") StudentAttachmentRequest studentAttachmentRequest,
                                            @RequestParam(value = "files" ,required = false) List<MultipartFile> files,
-                                           Model model) {
+                                           Model model) throws IOException {
 
         UserEntityDto currentUser = userService.findUserByUsername(SecurityUtil.getSessionUser());
 
@@ -238,8 +246,7 @@ public class HomeworkController {
         }
 
         studentAttachmentRequest.setStudentId(currentUser.getId());
-        studentAttachmentRequest.setFiles(files);
-        Boolean result = homeworkService.uploadStudentAttachment(studentAttachmentRequest);
+        Boolean result = homeworkService.uploadStudentAttachment(studentAttachmentRequest,files);
 
         if(!result)
         {

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -73,7 +74,10 @@ public class MainController {
 
         model.addAttribute("user",userEntityDto);
         log.info("Detail Page Main controller method is working");
-        System.out.println(course.getAttachments().isEmpty());
+
+        // Find course author information
+        UserEntityDto courseAuthor = userService.findUsersByIds(Arrays.asList(course.getAuthorId())).get(0);
+        model.addAttribute("courseAuthor",courseAuthor);
         return "detailPage";
     }
 

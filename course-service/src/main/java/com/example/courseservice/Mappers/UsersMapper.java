@@ -91,20 +91,24 @@ public class UsersMapper {
         log.info("responseToDto user mapper is  working");
         if(response.getCreatedCoursesIds() != null)
         {courses = courseService.getCourseByIds(response.getCreatedCoursesIds());}
-
+        log.info("Converted the created course ID to a course object.");
         if(response.getParticipatingCourses() != null) {
             participatingCourses = courseService.getCourseByIds(response.getParticipatingCourses());
         }
+        log.info("Converted the participated course ID to a course object.");
         /* List<Chat> chats = response.getChatsIds().stream()
                 .map(id -> fetchChatById(id)) // Replace with actual method to fetch Chat
                 .collect(Collectors.toList()); */
 
-        if(response.getCompletedHomeworksIds() != null)
+        if(response.getCompletedHomeworksIds() != null && response.getCompletedHomeworksIds().isEmpty())
         {completedHomeworks = homeworkService.findHomeworkAttachmentsByIds(response.getCompletedHomeworksIds());}
-          //
-        if(response.getCreatedHomeworksIds() != null) {
+        log.info("Converted  completed homeworks ID to a homework object.");
+
+        if(response.getCreatedHomeworksIds() != null && response.getCompletedHomeworksIds().isEmpty()) {
            createdHomeworks = homeworkService.getCreatedHomeworksByIds(response.getCreatedHomeworksIds());
         }
+        log.info("Converted  created homeworks ID to a homework object.");
+
         return UserEntityDto.builder()
                 .id(response.getId())
                 .username(response.getUsername())
@@ -115,6 +119,7 @@ public class UsersMapper {
                 .phoneNumber(response.getPhoneNumber())
                 .role(response.getRole())
                 .courses(courses)
+                .registrationDate(response.getRegistrationDate())
                 .participatingCourses(participatingCourses)
                 // .chats(chats)
                 .homeworks(createdHomeworks)

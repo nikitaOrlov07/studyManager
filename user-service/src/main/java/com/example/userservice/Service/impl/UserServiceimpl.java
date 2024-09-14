@@ -11,6 +11,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -46,7 +48,11 @@ public class UserServiceimpl implements UserService {
 
         userEntity.setPassword(passwordEncoder.encode(userEntityDto.getPassword()));
 
-
+        // Set registration date attribute
+        LocalDate date = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        userEntity.setRegistrationDate(date.format(formatter));
+        // Save user
         userRepository.save(userEntity);
         kafkaTemplate.send("notificationTopic",UserEntityMapper.userEntityToUserEntityDto(userEntity));
     }
@@ -94,10 +100,12 @@ public class UserServiceimpl implements UserService {
             if(type.equals("courses"))
             {
                 userEntity.getCreatedCoursesIds().add(id);
+                log.info("User created course");
             }
             if(type.equals("homeworks"))
             {
                 userEntity.getCreatedHomeworksIds().add(id);
+                log.info("User created homework");
             }
         }
         else if(action.equals("delete"))
@@ -105,16 +113,19 @@ public class UserServiceimpl implements UserService {
             if(type.equals("courses"))
             {
                 userEntity.getCreatedCoursesIds().remove(id);
+                log.info("User delete course");
             }
             if(type.equals("homeworks"))
             {
                 userEntity.getCreatedHomeworksIds().remove(id);
+                log.info("User delete homework");
             }
         }
-        else if(action.equals("submit") && type.equals("homework"))
+        else if(action.equals("submit") && type.equals("homeworks"))
         {
             userEntity.getHomeworksIds().remove(id);
             userEntity.getCompletedHomeworksIds().add(id);
+            log.info("Homework was successfully submitted");
         }
 
         userRepository.save(userEntity);

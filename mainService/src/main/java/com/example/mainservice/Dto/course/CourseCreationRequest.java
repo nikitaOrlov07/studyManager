@@ -15,9 +15,11 @@ import java.util.List;
 public class CourseCreationRequest {
     @NotEmpty(message = "You must enter a course title")
     private String title;
+
     @NotEmpty(message = "You must enter a course description")
     private String description;
     private Double price;
+
     @NotEmpty(message = "You must enter a course language")
     private String language;
     private String  tags; // will be listed comma-separated, and in the course service we will do string parsing (convert to List<String>)

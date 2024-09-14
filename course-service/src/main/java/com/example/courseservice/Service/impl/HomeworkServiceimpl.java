@@ -27,6 +27,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.example.courseservice.Dto.Homework.Enums.StudentAttachmentStatus;
+
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -43,7 +45,7 @@ import java.util.stream.Collectors;
         private final CourseService courseService;
         private final HomeworkRepository homeworkRepository;
         private final AttachmentService attachmentService;
-        private final StudentHomeworkRepository studentHomeworkRepository;
+        private final StudentHomeworkRepository studentHomeworkAttachmentRepository;
         private final UserService userService;
         private final HomeworkMapper mapper;
 
@@ -116,6 +118,7 @@ import java.util.stream.Collectors;
     }
 
     @Transactional
+    @Override
     public String uploadHomework(StudentAttachmentRequest studentAttachmentRequest) throws Exception {
         log.info("Uploading homework for student");
 
@@ -124,28 +127,46 @@ import java.util.stream.Collectors;
 
         // HTTP request to userService to find user by userId
         UserEntityDto student = UsersMapper.responseToDto(userService.findUsersById(Arrays.asList(studentAttachmentRequest.getStudentId())).get(0));
-
+        log.info("mapper is working good ");
         if (student == null || !homework.getUserEntitiesId().contains(studentAttachmentRequest.getStudentId())) {
+            log.error("User cannot upload this homework");
             throw new Exception("Student is not allowed to submit this homework");
         }
+        log.info("Student is allowed to upload homework");
 
         // check if this job has been submitted before (working good)
         boolean homeworkAlreadySubmitted = student.getCompletedHomeworks().stream()
                 .anyMatch(attachment -> attachment.getHomework().getId().equals(studentAttachmentRequest.getHomeworkId()));
 
+        log.info("The student has not taken this assignment before");
+
         if (homeworkAlreadySubmitted) {
+            log.error("Homework already submitted");
             throw new Exception("Homework has already been submitted by this student");
         }
 
-       StudentHomeworkAttachment studentHomework = StudentHomeworkAttachment.builder()
+        // Get homework endDate and attachment upload date in LocalDateFormat
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate uploadDate = LocalDate.now();
+        LocalDate endDate = LocalDate.parse(homework.getEndDate(), formatter);
+
+        // Set studentAttachment status
+        StudentAttachmentStatus status = StudentAttachmentStatus.Submitted;
+        if(uploadDate.isAfter(endDate))
+        {
+             status = StudentAttachmentStatus.Late;
+        }
+       log.info("Create student attachment object");
+       StudentHomeworkAttachment studentUploadedHomework = StudentHomeworkAttachment.builder()
                 .homework(homework)
                 .studentId(student.getId())
-                .status(StudentAttachmentStatus.Submitted)
-                .uploadedDate(getCurrentDate())
+                .status(status)
+                .uploadedDate(uploadDate.format(formatter))
                 .build();
 
         List<Attachment> attachments = new ArrayList<>();
 
+        log.info("Saving files");
         for (MultipartFile file : studentAttachmentRequest.getFiles()) {
             Attachment attachment = attachmentService.saveAttachment(file, homework.getCourse(), homework, student);
 
@@ -165,17 +186,27 @@ import java.util.stream.Collectors;
             attachments.add(attachment);
         }
 
-        studentHomework.setAttachments(attachments);
-        student.getCompletedHomeworks().add(HomeworkMapper.studentHomeworkAttachmentToDto(studentHomework));
+        studentUploadedHomework.setAttachments(attachments);
+        student.getCompletedHomeworks().add(HomeworkMapper.studentHomeworkAttachmentToDto(studentUploadedHomework));
+        // homework entity changing
+        homework.getUserEntitiesId().remove(student.getId());
+        homework.getSubmitHomeworkUserEntitiesId().add(student.getId());
 
-        studentHomeworkRepository.save(studentHomework);
+        StudentHomeworkAttachment savedStudentHomeworkAttachment = studentHomeworkAttachmentRepository.save(studentUploadedHomework);
+        if(savedStudentHomeworkAttachment== null)
+            log.error("Error in saving homework Attachment with id: "+ studentUploadedHomework.getId());
+
+        // Update homework information
+        homeworkRepository.save(homework);
+
         // Http request to update user (student)
+        log.info("Start to update user information is user Service");
         Boolean result = webClientBuilder.build()
-                .get()
+                .post()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("http")
                         .host("user-service")
-                        .path("/users/homework/upload/"+homework.getId())
+                        .path("/users/submit/homeworks/"+homework.getId())
                         .queryParam("userId",student.getId())
                         .build())
                 .retrieve()
@@ -194,7 +225,7 @@ import java.util.stream.Collectors;
 
     @Override
     public String checkHomework(Long  studentHomeworkAttachmentId, StudentAttachmentStatus studentAttachmentStatus, String message, Integer mark) throws Exception {
-        StudentHomeworkAttachment studentHomeworkAttachment = studentHomeworkRepository.findById(studentHomeworkAttachmentId)
+        StudentHomeworkAttachment studentHomeworkAttachment = studentHomeworkAttachmentRepository.findById(studentHomeworkAttachmentId)
                 .orElseThrow(() -> new Exception("Homework not found"));
         Homework homework = studentHomeworkAttachment.getHomework();
 
@@ -233,7 +264,7 @@ import java.util.stream.Collectors;
             studentHomeworkAttachment.setStatus(studentAttachmentStatus);
 
         studentHomeworkAttachment.setCheckedDate(getCurrentDate());
-        studentHomeworkRepository.save(studentHomeworkAttachment);
+        studentHomeworkAttachmentRepository.save(studentHomeworkAttachment);
         return "homework was successfully checked";
     }
 
@@ -242,7 +273,7 @@ import java.util.stream.Collectors;
     @Override
     public List<StudentHomeworkAttachmentDto> findHomeworkAttachmentsByIds(List<Long> studentAttachmentsIds) {
         List<StudentHomeworkAttachmentDto> studentHomeworkAttachmentsDtos = studentAttachmentsIds.stream()
-                .map(id -> HomeworkMapper.studentHomeworkAttachmentToDto(studentHomeworkRepository.findById(id).get()))
+                .map(id -> HomeworkMapper.studentHomeworkAttachmentToDto(studentHomeworkAttachmentRepository.findById(id).get()))
                 .collect(Collectors.toList());
 
         return studentHomeworkAttachmentsDtos;
@@ -269,14 +300,16 @@ import java.util.stream.Collectors;
     }
 
     @Override
+    @Transactional
     public StudentHomeworkAttachmentDto findStudentAttachmentsByHomeworkIdAndStudentId(Long homeworkId, Long studentId) {
+
        Homework homework = homeworkRepository.findById(homeworkId).get();
        if(homework == null)
        {
            log.error("Homework is null");
            return null;
        }
-       StudentHomeworkAttachment  studentHomeworkAttachment = studentHomeworkRepository.findByStudentIdAndHomework(studentId,homework);
+       StudentHomeworkAttachment  studentHomeworkAttachment = studentHomeworkAttachmentRepository.findByStudentIdAndHomework(studentId,homework);
        if(studentHomeworkAttachment == null)
        {
            log.error("StudentHomeworkAttachment is null");
@@ -323,8 +356,9 @@ import java.util.stream.Collectors;
         return homeworks.stream().map(mapper::convertToHomeworkResponse).collect(Collectors.toList());
     }
 
-        @Override
-        public List<StudentHomeworkAttachmentDto> findHomeworkAttachmentsByHomeworkId(Long homeworkId) {
+    @Override
+    @Transactional
+    public List<StudentHomeworkAttachmentDto> findHomeworkAttachmentsByHomeworkId(Long homeworkId) {
             if(homeworkId == null)
             {return null;}
 
@@ -335,7 +369,7 @@ import java.util.stream.Collectors;
                 return null;
             }
 
-            List<StudentHomeworkAttachment> studentHomeworkAttachments = studentHomeworkRepository.findAllByHomework(homework);
+            List<StudentHomeworkAttachment> studentHomeworkAttachments = studentHomeworkAttachmentRepository.findAllByHomework(homework);
 
             if(studentHomeworkAttachments == null || studentHomeworkAttachments.isEmpty())
                 return null;

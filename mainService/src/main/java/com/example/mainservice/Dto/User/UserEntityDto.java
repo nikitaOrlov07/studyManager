@@ -21,6 +21,7 @@ public class UserEntityDto {
     private String town;
     private String phoneNumber;
     private String role;
+    private String registrationDate;
     private List<Long> createdCoursesIds = new ArrayList<>();
     private List<Long> participatingCourses = new ArrayList<>();
     private List<Long> chatsIds = new ArrayList<>();

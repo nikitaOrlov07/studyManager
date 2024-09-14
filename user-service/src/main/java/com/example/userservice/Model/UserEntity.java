@@ -24,6 +24,7 @@ public class UserEntity {
     private String town;
     private String phoneNumber;
     private String role;
+    private String registrationDate;
 
     // created courses
     @ElementCollection

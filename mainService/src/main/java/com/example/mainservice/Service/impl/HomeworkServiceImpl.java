@@ -1,5 +1,6 @@
 package com.example.mainservice.Service.impl;
 
+import com.example.mainservice.Dto.Homeworks.Enums.StudentAttachmentStatus;
 import com.example.mainservice.Dto.Homeworks.HomeworkDto;
 import com.example.mainservice.Dto.Homeworks.HomeworkRequest;
 import com.example.mainservice.Dto.StudentAttachments.StudentAttachmentRequest;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -17,6 +19,8 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,7 +91,27 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     @Override
-    public Boolean uploadStudentAttachment(StudentAttachmentRequest studentAttachmentRequest) {
+    public Boolean uploadStudentAttachment(StudentAttachmentRequest studentAttachmentRequest,List<MultipartFile> files) throws IOException {
+        MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
+
+        // Add JSON data (besides files)
+        bodyBuilder.part("homeworkId", studentAttachmentRequest.getHomeworkId().toString());
+        bodyBuilder.part("studentId", studentAttachmentRequest.getStudentId().toString());
+        // Add files to JSON
+        if (files != null) {
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    bodyBuilder.part("files", new ByteArrayResource(file.getBytes()) {
+                        @Override
+                        public String getFilename() {
+                            return file.getOriginalFilename();
+                        }
+                    });
+                }
+            }
+        }
+
+        // HTTP request
         String response = webClientBuilder.build()
                 .post()
                 .uri(uriBuilder -> uriBuilder
@@ -95,21 +119,19 @@ public class HomeworkServiceImpl implements HomeworkService {
                         .host("course-service")
                         .path("/homeworks/upload")
                         .build())
-                .bodyValue(studentAttachmentRequest)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(BodyInserters.fromMultipartData(bodyBuilder.build())) // Add json
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
 
-        if(response.equals("Homework was upload successfully"))
-        {
+        if ("Homework was upload successfully".equals(response)) {
             log.info(response);
             return true;
-        }
-        else{
+        } else {
             log.error(response);
             return false;
         }
-
     }
 
 

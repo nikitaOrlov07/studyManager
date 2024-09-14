@@ -49,12 +49,26 @@ public class HomeworkController {
 
     // Student can upload
     @PostMapping("/upload")
-    public ResponseEntity<?> uploadHomework(@ModelAttribute StudentAttachmentRequest studentAttachmentRequest) {
+    public ResponseEntity<?> uploadHomework(@RequestParam("homeworkId") Long homeworkId ,
+                                            @RequestParam("studentId") Long studentId,
+                                            @RequestParam(value = "files" , required = false) List<MultipartFile> files)
+    {
+        StudentAttachmentRequest studentAttachmentRequest = StudentAttachmentRequest.builder()
+                .homeworkId(homeworkId)
+                .studentId(studentId)
+                .files(files)
+                .build();
+
+        log.info("Homework id is :" + homeworkId);
+        log.info("Student id is :" + studentId);
+
         try {
             String str = homeworkService.uploadHomework(studentAttachmentRequest);
             return ResponseEntity.ok(str);
         }
         catch (Exception e) {
+            log.error("Failed to upload");
+            log.error(String.valueOf(e));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading homework: " + e.getMessage());
         }
     }

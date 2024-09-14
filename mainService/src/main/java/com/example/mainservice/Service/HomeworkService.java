@@ -4,6 +4,7 @@ import com.example.mainservice.Dto.Homeworks.HomeworkDto;
 import com.example.mainservice.Dto.Homeworks.HomeworkRequest;
 import com.example.mainservice.Dto.StudentAttachments.StudentAttachmentRequest;
 import com.example.mainservice.Dto.StudentAttachments.StudentHomeworkAttachmentDto;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,5 +16,5 @@ public interface HomeworkService {
 
     List<StudentHomeworkAttachmentDto> findStudentsAttachmentsByHomeworkId(Long homeworkId);
 
-    Boolean uploadStudentAttachment(StudentAttachmentRequest studentAttachmentRequest);
+    Boolean uploadStudentAttachment(StudentAttachmentRequest studentAttachmentRequest, List<MultipartFile> files) throws IOException;
 }
