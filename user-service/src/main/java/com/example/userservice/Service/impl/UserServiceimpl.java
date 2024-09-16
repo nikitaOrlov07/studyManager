@@ -127,7 +127,6 @@ public class UserServiceimpl implements UserService {
             userEntity.getCompletedHomeworksIds().add(id);
             log.info("Homework was successfully submitted");
         }
-
         userRepository.save(userEntity);
     }
 

@@ -1,11 +1,13 @@
 package com.example.mainservice.Service.impl;
 
-import com.example.mainservice.Dto.Homeworks.Enums.StudentAttachmentStatus;
 import com.example.mainservice.Dto.Homeworks.HomeworkDto;
 import com.example.mainservice.Dto.Homeworks.HomeworkRequest;
 import com.example.mainservice.Dto.StudentAttachments.StudentAttachmentRequest;
 import com.example.mainservice.Dto.StudentAttachments.StudentHomeworkAttachmentDto;
+import com.example.mainservice.Dto.User.UserEntityDto;
+import com.example.mainservice.Security.SecurityUtil;
 import com.example.mainservice.Service.HomeworkService;
+import com.example.mainservice.Service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -19,8 +21,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +30,8 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     @Autowired
     private WebClient.Builder webClientBuilder; // for http request
+    @Autowired
+    private UserService userService;
 
     @Override
     public Boolean createHomework(HomeworkRequest homeworkRequest) throws IOException {
@@ -53,7 +55,8 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     @Override
-    public List<HomeworkDto> findHomeworksByAuthorAndStatusAndCourseIdAndCourseTitle(Long authorId, String homeworkStatus, Long courseId, String courseTitle) {
+    public List<HomeworkDto> findHomeworksByAuthorAndStatusAndCourseIdAndCourseTitle(Long authorId, String homeworkStatus, String courseTitle, String homeworkTitle) {
+
         List<HomeworkDto> result = webClientBuilder.build()
                 .get()
                 .uri(uriBuilder -> uriBuilder
@@ -62,8 +65,8 @@ public class HomeworkServiceImpl implements HomeworkService {
                         .path("/homeworks/getCreatedHomework")
                         .queryParam("authorId", authorId)
                         .queryParam("type", homeworkStatus)
-                        .queryParam("courseId", courseId)
                         .queryParam("courseTitle", courseTitle)
+                        .queryParam("homeworkTitle", homeworkTitle)
                         .build())
                 .retrieve()
                 .bodyToFlux(HomeworkDto.class)
@@ -132,6 +135,74 @@ public class HomeworkServiceImpl implements HomeworkService {
             log.error(response);
             return false;
         }
+    }
+
+    @Override
+    public String checkStudentAttachment(Long homeworkId, Long studentAttachmentId , Integer mark , String message, String status) {
+        // Security (studentAttachment can only check homework author)
+        UserEntityDto userEntityDto = userService.findUserByUsername(SecurityUtil.getSessionUser());
+        StudentHomeworkAttachmentDto studentHomeworkAttachmentDto  = findStudentAttachmentById(studentAttachmentId);
+
+        if(userEntityDto == null || !userEntityDto.getCreatedHomeworksIds().contains(studentHomeworkAttachmentDto.getHomework().getId()))
+        {
+            return "notAllowed"; // Only the person who created the homework can check it.
+        }
+
+        String result = webClientBuilder.build()
+                .post()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("course-service")
+                        .path("/homeworks/checkHomework/{studentAttachmentId}")
+                        .queryParam("mark", mark)
+                        .queryParam("message", message)
+                        .queryParam("status", status)
+                        .build(studentAttachmentId)) // add as pathVariable
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+
+        if("Student attachment successfully checked".equals(result))
+            log.info(result);
+        else
+            log.error(result);
+
+        return result;
+    }
+
+    private StudentHomeworkAttachmentDto findStudentAttachmentById(Long studentAttachmentId) {
+
+        log.info("findStudentAttachmentById with id {} is working" ,studentAttachmentId);
+        return webClientBuilder.build()
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("course-service")
+                        .path("/homeworks/getStudentAttachmentById")
+                        .queryParam("studentAttachmentId",studentAttachmentId)
+                        .build())
+                .retrieve()
+                .bodyToMono(StudentHomeworkAttachmentDto.class)
+                .block();
+    }
+
+    @Override
+    public StudentHomeworkAttachmentDto findStudentAttachmentsByHomeworkAndStudentId(Long homeworkId, Long userId) {
+        StudentHomeworkAttachmentDto studentHomeworkAttachmentDto = webClientBuilder.build()
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("course-service")
+                        .path("/homeworks/getStudentAttachment")
+                        .queryParam("homeworkId", homeworkId)
+                        .queryParam("studentId",userId)
+                        .build())
+                .retrieve()
+                .bodyToMono(StudentHomeworkAttachmentDto.class)
+                .block();
+
+        return  studentHomeworkAttachmentDto;
     }
 
 

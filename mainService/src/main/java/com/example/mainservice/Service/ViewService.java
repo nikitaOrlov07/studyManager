@@ -30,5 +30,4 @@ public interface ViewService {
 
     HomeworkDto findHomeworkByHomeworkId(Long homeworkId);
 
-    StudentHomeworkAttachmentDto findStudentAttachmentsByHomeworkAndStudentId(Long homeworkId, Long userId);
 }

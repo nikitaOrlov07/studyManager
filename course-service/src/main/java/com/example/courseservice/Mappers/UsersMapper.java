@@ -13,6 +13,7 @@ import com.example.courseservice.Dto.Homework.HomeworkResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.example.courseservice.Service.StudentAttachmentService;
 
 @Service
 @Slf4j
@@ -22,6 +23,7 @@ public class UsersMapper {
     private static CourseService courseService;
 
     private static HomeworkService homeworkService;
+    private static StudentAttachmentService studentAttachmentService;
 
     @Autowired
     public UsersMapper(CourseService courseService, HomeworkService homeworkService) {
@@ -101,12 +103,13 @@ public class UsersMapper {
                 .collect(Collectors.toList()); */
 
         if(response.getCompletedHomeworksIds() != null && response.getCompletedHomeworksIds().isEmpty())
-        {completedHomeworks = homeworkService.findHomeworkAttachmentsByIds(response.getCompletedHomeworksIds());}
+        {completedHomeworks = studentAttachmentService.findHomeworkAttachmentsByIds(response.getCompletedHomeworksIds());}
         log.info("Converted  completed homeworks ID to a homework object.");
 
         if(response.getCreatedHomeworksIds() != null && response.getCompletedHomeworksIds().isEmpty()) {
            createdHomeworks = homeworkService.getCreatedHomeworksByIds(response.getCreatedHomeworksIds());
         }
+
         log.info("Converted  created homeworks ID to a homework object.");
 
         return UserEntityDto.builder()

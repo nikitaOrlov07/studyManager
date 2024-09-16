@@ -12,9 +12,13 @@ import java.util.List;
 public interface HomeworkService {
     Boolean createHomework(HomeworkRequest homeworkRequest) throws IOException;
 
-    List<HomeworkDto>  findHomeworksByAuthorAndStatusAndCourseIdAndCourseTitle(Long authorId, String homeworkStatus, Long courseId, String courseTitle);
+    List<HomeworkDto>  findHomeworksByAuthorAndStatusAndCourseIdAndCourseTitle(Long authorId, String homeworkStatus, String courseTitle, String homeworkTitle);
 
     List<StudentHomeworkAttachmentDto> findStudentsAttachmentsByHomeworkId(Long homeworkId);
 
     Boolean uploadStudentAttachment(StudentAttachmentRequest studentAttachmentRequest, List<MultipartFile> files) throws IOException;
+
+     String checkStudentAttachment(Long homeworkId, Long studentAttachmentId , Integer mark , String message , String status);
+
+    StudentHomeworkAttachmentDto findStudentAttachmentsByHomeworkAndStudentId(Long homeworkId, Long userId);
 }

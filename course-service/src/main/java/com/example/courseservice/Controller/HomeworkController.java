@@ -6,6 +6,7 @@ import com.example.courseservice.Dto.Homework.Enums.StudentAttachmentStatus;
 import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentAttachmentRequest;
 import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentHomeworkAttachmentDto;
 import com.example.courseservice.Model.Homework;
+import com.example.courseservice.Model.StudentHomeworkAttachment;
 import com.example.courseservice.Service.HomeworkService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
+import com.example.courseservice.Service.StudentAttachmentService;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,7 +24,7 @@ import java.util.List;
 @RequestMapping("/homeworks")
 public class HomeworkController {
     private final HomeworkService homeworkService;
-
+    private final StudentAttachmentService  studentAttachmentService;
     // Create homework Entity
     @PostMapping("/create/save")
     @ResponseStatus(HttpStatus.CREATED)
@@ -37,7 +39,7 @@ public class HomeworkController {
             for (MultipartFile file : request.getFiles()) {
                 if (!file.isEmpty()) {
                     try {
-                        homeworkService.uploadFile(file, homework.getId());
+                        homeworkService.uploadFile(file, homework.getId(),homework.getAuthorId());
                     } catch (Exception e) {
                         log.error("Error uploading file", e);
                     }
@@ -74,14 +76,20 @@ public class HomeworkController {
     }
     // Homework author (teacher) can check the homework
     @PostMapping("/checkHomework/{studentAttachmentId}")
-    public ResponseEntity<?> checkHomework(
-            @PathVariable Long studentAttachmentId,
-            @RequestParam(required = false) StudentAttachmentStatus studentAttachmentStatus,
-            @RequestParam(required = false) String message,
-            @RequestParam(required = false) Integer mark) {
+    public ResponseEntity<?> checkHomework(@PathVariable Long studentAttachmentId,
+                                           @RequestParam(value = "mark", required = false) Integer mark,
+                                           @RequestParam(value = "message" , required = false) String message,
+                                           @RequestParam(value = "status") String status) {
 
         try {
-            String result = homeworkService.checkHomework(studentAttachmentId, studentAttachmentStatus, message, mark);
+            String result = homeworkService.checkHomework(studentAttachmentId,mark,message,status);
+            log.info("Status: "+status + "\nstudentAttachmentId: "+studentAttachmentId);
+
+            if(mark != null)
+                log.info("Mark: "+mark);
+            if(message != null)
+                log.info("Message: "+ message);
+
             return ResponseEntity.ok(result);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Invalid homework status provided");
@@ -110,12 +118,16 @@ public class HomeworkController {
     // Get homeworks by authorId
     @GetMapping("/getCreatedHomework")
     public List<HomeworkResponse> getHomeworksForTeacher(@RequestParam("authorId") Long authorId,
-                                                         @RequestParam(value = "type",required = false) String homeworkStatus,
-                                                         @RequestParam(value = "courseId",required = false) Long courseId,
-                                                         @RequestParam(value = "title",required = false) String courseTitle)
+                                                         @RequestParam(value = "type") String homeworkStatus,
+                                                         @RequestParam(value = "courseTitle",required = false) String courseTitle,
+                                                         @RequestParam(value = "homeworkTitle",required = false) String homeworkTitle )
     {
         log.info("Course service \"getHomeworksForTeacher\" controller method is working");
-        return homeworkService.findHomeworksByAuthorAndStatusAndCourseIdAndCourseTitle(authorId , homeworkStatus,courseId,courseTitle);
+
+        log.info("Author id: "+ authorId);
+        log.info("Homework status: "+ homeworkStatus);
+
+        return homeworkService.findHomeworksByAuthorAndStatusAndCourseIdAndCourseTitle(authorId , homeworkStatus,courseTitle,homeworkTitle);
     }
 
 
@@ -125,15 +137,23 @@ public class HomeworkController {
                                                                                                  @RequestParam("studentId")  Long studentId)
     {
         log.info("Course Service \"findStudentHomeworkAttachmentDto\" method is working");
-        StudentHomeworkAttachmentDto studentHomeworkAttachmentDto = homeworkService.findStudentAttachmentsByHomeworkIdAndStudentId(homeworkId,studentId);
+        StudentHomeworkAttachmentDto studentHomeworkAttachmentDto = studentAttachmentService.findStudentAttachmentsByHomeworkIdAndStudentId(homeworkId,studentId);
         return studentHomeworkAttachmentDto;
     }
+
     @GetMapping("/studentAttachments")
     public List<StudentHomeworkAttachmentDto> findStudentsAttachmentsByHomeworkId(@RequestParam("homeworkId") String homeworkIdStr)
     {
         log.info("Course Service \"findStudentsAttachmentsByHomeworkId\" method is working");
         Long homeworkId = Long.parseLong(homeworkIdStr);
-        List<StudentHomeworkAttachmentDto> studentHomeworkAttachmentDtos = homeworkService.findHomeworkAttachmentsByHomeworkId(homeworkId);
+        List<StudentHomeworkAttachmentDto> studentHomeworkAttachmentDtos = studentAttachmentService.findHomeworkAttachmentsByHomeworkId(homeworkId);
         return studentHomeworkAttachmentDtos;
+    }
+
+    @GetMapping("/getStudentAttachmentById")
+    public StudentHomeworkAttachmentDto findStudentAttachmentById(@RequestParam Long studentAttachmentId)
+    {
+        log.info("Course Service \"findStudentAttachmentById \" controller method is working");
+        return studentAttachmentService.findStudentAttachmentById(studentAttachmentId);
     }
 }

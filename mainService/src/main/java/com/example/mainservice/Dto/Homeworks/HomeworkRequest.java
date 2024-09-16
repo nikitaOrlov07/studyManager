@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 
+// Request for homework creation
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

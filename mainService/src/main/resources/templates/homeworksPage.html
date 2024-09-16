@@ -89,7 +89,7 @@
         <div th:if="${pageType == 'student'}">
             <button th:class="${type == 'All'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks?type=All'">All</button>
             <button th:class="${type == 'Submitted'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks?type=Submitted'">Submitted</button>
-            <button th:class="${type == 'Graded'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks?type=Graded'">Graded</button>
+            <button th:class="${type == 'Checked'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks?type=Checked'">Checked</button>
             <button th:class="${type == 'Rejected'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks?type=Rejected'">Rejected</button>
         </div>
 
@@ -100,14 +100,41 @@
                 <button th:class="${type == 'Checked'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks/teacherPage?type=Checked'">Checked</button>
                 <button th:class="${type == 'Unchecked'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks/teacherPage?type=Unchecked'">Unchecked</button>
             </div>
-            <form id="searchForm" class="search-form" action="/homeworks/teacherPage" method="get" onsubmit="return prepareForm()">
-                <input type="text" name="courseId" placeholder="Course ID">
-                <input type="text" name="courseTitle" placeholder="course title">
-                <input type="text" name="homeworkTitle" placeholder="Homework title">
-                <input type="hidden" name="type" th:value="${type != null ? type : 'All'}">
+            <form id="searchForm" class="search-form" action="/homeworks/teacherPage" method="get" onsubmit="return removeEmptyParams()">
+                <input type="text" name="courseTitle" id="courseTitle" placeholder="Course Title">
+                <input type="text" name="homeworkTitle" id="homeworkTitle" placeholder="Homework Title">
                 <button type="submit" class="btn btn-primary">Search</button>
             </form>
         </div>
+
+        <script>
+            function removeEmptyParams() {
+                const form = document.getElementById('searchForm');
+                const courseTitle = document.getElementById('courseTitle').value.trim();
+                const homeworkTitle = document.getElementById('homeworkTitle').value.trim();
+
+                const url = new URL(form.action);
+                const params = new URLSearchParams(url.search);
+
+                if (courseTitle) {
+                    params.set('courseTitle', courseTitle);
+                } else {
+                    params.delete('courseTitle');
+                }
+
+                if (homeworkTitle) {
+                    params.set('homeworkTitle', homeworkTitle);
+                } else {
+                    params.delete('homeworkTitle');
+                }
+
+                // Updat e the action attribute to include only the relevant parameters
+                form.action = `${url.pathname}?${params.toString()}`;
+
+                return true; // Continue with form submission
+            }
+        </script>
+
 
         <div th:if="${homeworks == null or homeworks.isEmpty()}" style="width: 100% ; margin: 5px" class="alert alert-success">
             Your homework list is empty
@@ -123,7 +150,13 @@
                     <span th:if="${#lists.contains(homework.submitHomeworkUserEntitiesId, user.id)}">Submitted</span>
                     <span th:if="${#lists.contains(homework.rejectedHomeworkUserEntitiesId, user.id)}">Rejected</span>
                     <span th:if="${#lists.contains(homework.gradedHomeworkUserEntitiesId, user.id)}">Graded</span>
-                    <span th:if="${!#lists.contains(homework.submitHomeworkUserEntitiesId, user.id) && !#lists.contains(homework.rejectedHomeworkUserEntitiesId, user.id) && !#lists.contains(homework.gradedHomeworkUserEntitiesId, user.id)}">Not Submitted</span>
+                    <span th:if="${#lists.contains(homework.acceptedHomeworkEntitiesId, user.id)}">Completed</span>
+                    <span th:if="${!#lists.contains(homework.submitHomeworkUserEntitiesId, user.id) && !#lists.contains(homework.rejectedHomeworkUserEntitiesId, user.id) && !#lists.contains(homework.gradedHomeworkUserEntitiesId, user.id) && !#lists.contains(homework.acceptedHomeworkEntitiesId, user.id)}">Not Submitted</span>
+                </p>
+                <p class="status" th:if="${pageType == 'teacher'}">
+                    Status:
+                    <span th:class="${homework.status == 'Checked' ? 'badge bg-success' : 'badge bg-secondary'}"
+                          th:text="${homework.status == 'Checked' ? 'Checked' : 'Unchecked'}"></span>
                 </p>
                 <button th:if="${pageType.equals('student')}" class="btn btn-primary" th:onclick="'location.href=\'/homeworks/' + ${homework.id} + '\''">Details</button>
                 <button th:if="${pageType.equals('teacher')}" class="btn btn-primary" th:onclick="'location.href=\'/homeworks/teacherPage/' + ${homework.id} + '\''">Details</button>

@@ -1,5 +1,6 @@
 package com.example.mainservice.Dto.Homeworks;
 
+import com.example.mainservice.Dto.Homeworks.Enums.HomeworkStatus;
 import com.example.mainservice.Dto.Homeworks.Enums.StudentAttachmentStatus;
 import com.example.mainservice.Dto.StudentAttachments.StudentHomeworkAttachmentDto;
 import com.example.mainservice.Model.Attachment;
@@ -34,6 +35,9 @@ public class HomeworkDto {
     // Who  submit homework
     List<Long> submitHomeworkUserEntitiesId = new ArrayList<Long>();
 
+    // Accepted homework (without grade)
+    List<Long> acceptedHomeworkEntitiesId = new ArrayList<>();
+
     // Graded homework
     List<Long> gradedHomeworkUserEntitiesId = new ArrayList<>();
 
@@ -51,5 +55,5 @@ public class HomeworkDto {
     private Long authorId;
 
     // Homework status
-    private StudentAttachmentStatus status; // if all students attachments are checked -> homework is checked , if noy -> unchecked
+    private HomeworkStatus status; // if all students attachments are checked -> homework is checked , if noy -> unchecked
 }

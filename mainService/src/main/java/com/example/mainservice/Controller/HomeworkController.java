@@ -1,5 +1,6 @@
 package com.example.mainservice.Controller;
 
+import com.example.mainservice.Dto.Homeworks.Enums.StudentAttachmentStatus;
 import com.example.mainservice.Dto.Homeworks.HomeworkDto;
 import com.example.mainservice.Dto.Homeworks.HomeworkRequest;
 import com.example.mainservice.Dto.StudentAttachments.StudentAttachmentRequest;
@@ -71,8 +72,8 @@ public class HomeworkController {
     @GetMapping("/teacherPage")  // Get teacher page
     public String getTeacherPage(Model model,
                                  @RequestParam(value = "type",required = false ) String homeworkStatus,
-                                 @RequestParam(value = "courseId",required = false) Long courseId ,
-                                 @RequestParam(value=  "title" , required = false) String courseTitle)
+                                 @RequestParam(value = "courseTitle",required = false) String courseTitle ,
+                                 @RequestParam(value=  "homeworkTitle" , required = false) String homeworkTitle)
     {
       String username = SecurityUtil.getSessionUser();
       if(username == null || username.isEmpty() || userService.findUserByUsername(username).getCreatedCoursesIds().isEmpty())
@@ -80,12 +81,16 @@ public class HomeworkController {
           log.error("The user does not have permission to access the teacher's page ");
           return "redirect:/home?notAllowed";
       }
+      if(homeworkStatus == null || homeworkStatus.isEmpty())
+      {
+          homeworkStatus = "All";
+      }
       UserEntityDto userEntityDto = userService.findUserByUsername(SecurityUtil.getSessionUser());
-      List<HomeworkDto> createdHomeworks =  homeworkService.findHomeworksByAuthorAndStatusAndCourseIdAndCourseTitle(userEntityDto.getId(),homeworkStatus,courseId,courseTitle);
+      List<HomeworkDto> createdHomeworks =  homeworkService.findHomeworksByAuthorAndStatusAndCourseIdAndCourseTitle(userEntityDto.getId(),homeworkStatus,courseTitle,homeworkTitle);
       log.info("User created homeworks size is :"+createdHomeworks.size());
 
-         model.addAttribute("pageType","teacher"); // for view
-         model.addAttribute("homeworks",createdHomeworks);
+        model.addAttribute("pageType","teacher"); // for view
+        model.addAttribute("homeworks",createdHomeworks);
 
       return "homeworksPage";
 
@@ -112,6 +117,7 @@ public class HomeworkController {
         model.addAttribute("homeworks",homeworks);
         model.addAttribute("type",type);
         model.addAttribute("user",user);
+
         model.addAttribute("pageType","student"); // for view
 
         return "homeworksPage";
@@ -130,15 +136,17 @@ public class HomeworkController {
         }
         UserEntityDto user = userService.findUserByUsername(username);
         HomeworkDto homeworkDto = viewService.findHomeworkByHomeworkId(homeworkId);
-        StudentHomeworkAttachmentDto studentAttachment = viewService.findStudentAttachmentsByHomeworkAndStudentId(homeworkDto.getId(),user.getId());
+        StudentHomeworkAttachmentDto studentAttachment = homeworkService.findStudentAttachmentsByHomeworkAndStudentId(homeworkId,user.getId());
 
         // Check that the user ID is present in at least one of the possible lists.
         if (!(homeworkDto.getGradedHomeworkUserEntitiesId().contains(user.getId()) ||
+                homeworkDto.getAcceptedHomeworkEntitiesId().contains(user.getId()) ||
                 homeworkDto.getUserEntitiesId().contains(user.getId()) ||
                 homeworkDto.getRejectedHomeworkUserEntitiesId().contains(user.getId()) ||
                 homeworkDto.getSubmitHomeworkUserEntitiesId().contains(user.getId()))) {
             return "redirect:/home?notAllowed";
         }
+
         if(studentAttachment != null)
         {
             log.info("Attachment status :"+ studentAttachment.getStatus());
@@ -162,49 +170,48 @@ public class HomeworkController {
     {
         HomeworkDto homeworkDto = viewService.findHomeworkByHomeworkId(homeworkId);
         List<StudentHomeworkAttachmentDto> studentsAttachments = homeworkService.findStudentsAttachmentsByHomeworkId(homeworkId);
+        List<UserEntityDto> notSubmittedUsers = userService.findUsersByIds(homeworkDto.getUserEntitiesId());
+        log.info("getHomeworkDetailPage is working");
 
+        if(studentsAttachments == null)
+        {
+            log.error("studentsAttachments is null");
+        }
+        if(studentsAttachments != null) {
+            log.info("student attachments is empty: " + studentsAttachments.isEmpty());
+            log.info("students attachments size is: " + studentsAttachments.size());
+        }
 
         model.addAttribute("homework",homeworkDto);
-        model.addAttribute("studentAttachments",studentsAttachments);
+        model.addAttribute("homeworkAttachments",studentsAttachments);
+        model.addAttribute("pageType","teacher");
+        model.addAttribute("notSubmittedUsers",notSubmittedUsers);
 
-        model.addAttribute("pageType");
         return "homeworkDetailPage";
     }
+    // Check studentAttachment
+    @PostMapping("/teacherPage/checkHomeworks/{studentAttachmentId}")
+    public String checkStudentAttachment(@PathVariable Long studentAttachmentId,
+                                         @RequestParam(value="mark",required = false) Integer mark,
+                                         @RequestParam(value = "message",required = false)  String message,
+                                         @RequestParam("homeworkId") Long homeworkId,
+                                         @RequestParam(value = "status",required = false) String status )
 
+    {
+        log.info("checkStudentAttachment Controller method is working with studentAttachmentId: " + studentAttachmentId);
+        homeworkService.checkStudentAttachment(homeworkId,studentAttachmentId , mark , message, status);
+        return "redirect:/homeworks/teacherPage/"+homeworkId+"?homeworkChecked";
+    }
     //// Homework activities
     /// For teacher
     // Saving homework
     @PostMapping("/create/save")
-    public String saveHomework(@RequestParam("courseId") Long courseId,
-                               @RequestParam(value = "title",required = false) String title,
-                               @RequestParam(value = "description",required = false) String description,
-                               @RequestParam(value = "startDate",required = false) String startDate,
-                               @RequestParam(value = "endDate",required = false) String endDate,
-                               @RequestParam(value = "userEntitiesId",required = false) List<Long> userEntitiesId,
-                               @RequestParam(value = "files" ,required = false) List<MultipartFile> files,
-                               @RequestParam(value = "authorId",required = false) Long authorId,
+    public String saveHomework(@Valid @ModelAttribute("homeworkCreationRequest") HomeworkRequest homeworkRequest,
+                               BindingResult bindingResult,
+                               @RequestParam("courseId") Long courseId,
                                Model model) throws Exception {
 
-
-        HomeworkRequest homeworkRequest = new HomeworkRequest();
-        homeworkRequest.setCourseId(courseId);
-        homeworkRequest.setTitle(title);
-        homeworkRequest.setDescription(description);
-        homeworkRequest.setStartDate(startDate);
-        homeworkRequest.setEndDate(endDate);
-        homeworkRequest.setUserEntitiesId(userEntitiesId);
-        homeworkRequest.setFiles(files);
-        homeworkRequest.setAuthorId(authorId);
-
-        log.info("Start date: "+ homeworkRequest.getStartDate());
-        log.info("End date: "+ homeworkRequest.getEndDate());
-        // Validate manually if necessary
-        BindingResult bindingResult = new BeanPropertyBindingResult(homeworkRequest, "homeworkRequest");
-
-        // Add validation logic here if needed
-
-        if(bindingResult.hasErrors()) {
-            model.addAttribute("homeworkCreationRequest", homeworkRequest);
+        if (bindingResult.hasErrors()) {
             model.addAttribute("involvedUsers", userService.findUsersByIds(viewService.findCourse(courseId).getInvolvedUserIds()));
             model.addAttribute("course", viewService.findCourse(courseId));
             return "homeworkCreation";
@@ -212,7 +219,7 @@ public class HomeworkController {
 
         Boolean result = homeworkService.createHomework(homeworkRequest);
 
-        if(result == null || !result) {
+        if (result == null || !result) {
             log.error("Homework creation failed");
             return "redirect:/home?error";
         }

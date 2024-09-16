@@ -231,7 +231,7 @@
                     </div>
                 </div>
             </div>
-            <div class="text-center mt-4" th:if="${course.getAuthorId().equals(user.getId())}">
+            <div class="text-center mt-4" th:if="${user != null and course.getAuthorId().equals(user.getId())}">
                 <a th:if="${involvedUsers != null and !involvedUsers.isEmpty()}" th:href="@{/homeworks/create/course/{courseId}(courseId=${course.getId()})}" class="btn-create-homework">
                     Create Homework
                 </a>

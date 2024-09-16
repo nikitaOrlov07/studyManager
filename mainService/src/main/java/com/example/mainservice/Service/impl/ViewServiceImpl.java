@@ -82,7 +82,7 @@ public class ViewServiceImpl implements ViewService {
                     .block();
         }
 
-    // view file
+        // view file
         @Override
         public ResponseEntity<Resource> getFileView(Long fileId, String username) {
             return webClientBuilder.build()
@@ -169,24 +169,5 @@ public class ViewServiceImpl implements ViewService {
                 .block();
         return homeworkDto;
     }
-
-    @Override
-    public StudentHomeworkAttachmentDto findStudentAttachmentsByHomeworkAndStudentId(Long homeworkId, Long userId) {
-          StudentHomeworkAttachmentDto studentHomeworkAttachmentDto = webClientBuilder.build()
-                  .get()
-                  .uri(uriBuilder -> uriBuilder
-                          .scheme("http")
-                          .host("course-service")
-                          .path("/homeworks/getStudentAttachment")
-                          .queryParam("homeworkId", homeworkId)
-                          .queryParam("studentId",userId)
-                          .build())
-                  .retrieve()
-                  .bodyToMono(StudentHomeworkAttachmentDto.class)
-                  .block();
-
-          return  studentHomeworkAttachmentDto;
-    }
-
 
 }

@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 @Observed
-public interface StudentHomeworkRepository extends JpaRepository<StudentHomeworkAttachment, Long> {
+public interface StudentAttachmentRepository extends JpaRepository<StudentHomeworkAttachment, Long> {
     StudentHomeworkAttachment findByStudentIdAndHomework(Long studentId, Homework homework);
     List<StudentHomeworkAttachment> findAllByHomework(Homework homework);
 }

@@ -5,5 +5,5 @@ public enum StudentAttachmentStatus {
     Submitted ,
     Late,
     Rejected,
-    Rated
+    Graded
 }

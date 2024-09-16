@@ -1,7 +1,6 @@
 package com.example.courseservice.Model;
 
 import com.example.courseservice.Dto.Homework.Enums.HomeworkStatus;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -35,9 +34,13 @@ public class Homework {
     @ElementCollection
     List<Long> submitHomeworkUserEntitiesId = new ArrayList<Long>();
 
-    // Graded homework
+    // Rated homework
     @ElementCollection
     List<Long> gradedHomeworkUserEntitiesId = new ArrayList<>();
+
+    // Accepted homework (without grade)
+    @ElementCollection
+    List<Long> acceptedHomeworkEntitiesId = new ArrayList<>();
 
     // Rejected homework
     @ElementCollection

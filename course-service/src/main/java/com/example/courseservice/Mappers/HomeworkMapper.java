@@ -3,21 +3,16 @@ package com.example.courseservice.Mappers;
 import com.example.courseservice.Dto.Attachment.AttachmentDto;
 import com.example.courseservice.Dto.Homework.HomeworkRequest;
 import com.example.courseservice.Dto.Homework.HomeworkResponse;
-import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentAttachmentRequest;
 import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentHomeworkAttachmentDto;
 import com.example.courseservice.Model.Course;
 import com.example.courseservice.Model.Homework;
 import com.example.courseservice.Model.StudentHomeworkAttachment;
 import com.example.courseservice.Service.CourseService;
-import jakarta.transaction.Transactional;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 @Slf4j
 @Service
@@ -58,6 +53,7 @@ public class HomeworkMapper {
         response.setSubmitHomeworkUserEntitiesId(new ArrayList<>(homework.getSubmitHomeworkUserEntitiesId()));
         response.setRejectedHomeworkUserEntitiesId(new ArrayList<>(homework.getRejectedHomeworkUserEntitiesId()));
         response.setGradedHomeworkUserEntitiesId(new ArrayList<>(homework.getGradedHomeworkUserEntitiesId()));
+        response.setAcceptedHomeworkEntitiesId(new ArrayList<>(homework.getAcceptedHomeworkEntitiesId()));
 
         // Map each Attachment to AttachmentDto objects
         response.setAttachmentList(homework.getAttachmentList().stream()

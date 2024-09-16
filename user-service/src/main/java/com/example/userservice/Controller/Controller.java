@@ -102,10 +102,10 @@ public class Controller {
 
     /// Method for updating user information when user creates a new course or a new homework (or a new studentAttachment)
     @PostMapping("/{action}/{type}/{id}")
-    public Boolean createOrDeleteItems(@PathVariable("type") String type,     // type can be homework or course
-                                    @PathVariable("id") Long id,
-                                    @PathVariable("action") String action,
-                                    @RequestParam("userId") Long userId) // action can be "create","update", "submit"
+    public Boolean updateItemsInformation(@PathVariable("type") String type,     // type can be homework or course
+                                          @PathVariable("id") Long id,
+                                          @PathVariable("action") String action, // action can be "create","update", "submit" , "check"
+                                          @RequestParam("userId") Long userId)
     {
         log.info("createOrDeleteItems controller method is working");
 

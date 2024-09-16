@@ -1,6 +1,7 @@
 package com.example.courseservice.Dto.Homework;
 
 import com.example.courseservice.Dto.Attachment.AttachmentDto;
+import com.example.courseservice.Dto.Homework.Enums.HomeworkStatus;
 import com.example.courseservice.Dto.StudenHomeworkAttachment.StudentHomeworkAttachmentDto;
 import com.example.courseservice.Model.Attachment;
 import com.example.courseservice.Model.Course;
@@ -28,12 +29,16 @@ public class HomeworkResponse {
     // Duration
     private String startDate;
     private String endDate;
+    private HomeworkStatus status;
 
     // Who need to do homework
     List<Long> userEntitiesId = new ArrayList<Long>();
 
     // Who  submit homework
     List<Long> submitHomeworkUserEntitiesId = new ArrayList<Long>();
+
+    // Accepted homework (without grade)
+    List<Long> acceptedHomeworkEntitiesId = new ArrayList<>();
 
     // Graded homework
     List<Long> gradedHomeworkUserEntitiesId = new ArrayList<>();

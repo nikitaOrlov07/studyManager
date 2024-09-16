@@ -20,7 +20,7 @@ import java.util.List;
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
-        @ManyToOne(fetch = FetchType.LAZY)
+        @ManyToOne(fetch = FetchType.EAGER)
         @JoinColumn(name = "homework_id")
         private Homework homework;
 
@@ -35,7 +35,7 @@ import java.util.List;
 
         // For teacher
         private StudentAttachmentStatus status;
-        private Integer mark;
+        private Integer mark; // int cant be null so i make this variable Integer type
         private String message;
         private String checkedDate ;
 

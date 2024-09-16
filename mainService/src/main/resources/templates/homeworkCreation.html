@@ -109,9 +109,9 @@
                 const fileItem = document.createElement('div');
                 fileItem.className = 'flex items-center justify-between bg-gray-100 p-2 mb-2 rounded';
                 fileItem.innerHTML = `
-            <span>${file.name}</span>
-            <button type="button" class="text-red-500 hover:text-red-700" data-index="${index}">×</button>
-        `;
+                <span>${file.name}</span>
+                <button type="button" class="text-red-500 hover:text-red-700" data-index="${index}">×</button>
+            `;
                 fileList.appendChild(fileItem);
             });
         }
@@ -129,27 +129,40 @@
             checkboxes.forEach(checkbox => checkbox.checked = true);
         });
 
+        function validateDates() {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+
+            if (endDate < startDate) {
+                endDateInput.setCustomValidity('End date must be after start date');
+            } else {
+                endDateInput.setCustomValidity('');
+            }
+        }
+
+        startDateInput.addEventListener('change', validateDates);
+        endDateInput.addEventListener('change', validateDates);
+
         form.addEventListener('submit', function(e) {
             e.preventDefault();
 
-            // Логируем значения полей формы в консоль
-            console.log('Start Date:', startDateInput.value);
-            console.log('End Date:', endDateInput.value);
+            validateDates();
+
+            if (!form.checkValidity()) {
+                e.stopPropagation();
+                form.classList.add('was-validated');
+                return;
+            }
 
             const formData = new FormData(form);
 
-            // Логируем содержимое FormData в консоль
-            for (const [key, value] of formData.entries()) {
-                console.log(`${key}: ${value}`);
-            }
-
-            // Удаляем все существующие файлы из formData
+            // Remove all existing files from formData
             formData.delete('files');
 
-            // Добавляем файлы из нашего массива
+            // Add files from our array
             files.forEach(file => formData.append('files', file));
 
-            // Отправка данных на сервер
+            // Send data to server
             fetch('/homeworks/create/save', {
                 method: 'POST',
                 body: formData
@@ -163,19 +176,18 @@
                 })
                 .then(html => {
                     if (html) {
-                        // Если сервер вернул HTML (в случае ошибок валидации)
+                        // If server returned HTML (in case of validation errors)
                         document.body.innerHTML = html;
-                        // Перезапускаем наш скрипт для новой формы
+                        // Restart our script for the new form
                         document.dispatchEvent(new Event('DOMContentLoaded'));
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Произошла ошибка при отправке данных.');
+                    alert('An error occurred while sending data.');
                 });
         });
     });
-
 </script>
 </body>
 </html>
