@@ -152,5 +152,38 @@ public class UserServiceimpl implements UserService {
         userRepository.saveAll(users);
     }
 
+    @Override
+    public boolean addChatIds(List<Long> usersIds,Long chatId, String operationType) { // operationType can be "delete" or add chatId  to users list
+        if(usersIds == null || usersIds.isEmpty())
+        {
+            log.error("usersIds list is empty");
+            return false;
+        }
+        log.info("Chat id: "+ chatId + "operationType: "+ operationType);
+        UserEntity user = null;
+        for (Long userId : usersIds){
+            user = userRepository.findById(userId).get();
+            if(user == null)
+            {
+                log.error("User with id: {} was not found ",userId);
+                continue;
+            }
+            if(operationType.equals("add")) {
+                user.getChatsIds().add(chatId);
+                log.info("Chat with id : {} was successfully added to user chats",chatId);
+            }
+            if(operationType.equals("delete"))
+            {
+                if(user.getChatsIds().contains(chatId))
+                {
+                    user.getChatsIds().remove(chatId);
+                    log.info("Chat with id : {} was successfully removed from user chats",chatId);
+                }
+            }
+            userRepository.save(user);
+        }
+        return true;
+    }
+
 
 }

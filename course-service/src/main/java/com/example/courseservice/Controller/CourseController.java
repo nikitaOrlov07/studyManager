@@ -110,6 +110,13 @@ public class CourseController {
         log.info("CourseServive \"actionCourse\" controller method is working");
         return courseService.actionCourse(courseId,username,action);
     }
+    @PostMapping("/addCourseChat")
+    public void addChatId(@RequestParam("courseId") Long courseId ,
+                          @RequestParam("chatId") Long chatId)
+    {
+        log.info(" \"addChatId\" Course Service method is working");
+        courseService.addChatId(courseId,chatId);
+    }
 
 
 

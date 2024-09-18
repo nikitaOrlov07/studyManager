@@ -16,6 +16,7 @@
         <module>user-service</module>
         <module>notification-service</module>
         <module>AuthenticationService</module>
+        <module>chat-service</module>
     </modules>
     <groupId>com.example</groupId>
     <artifactId>studyManager</artifactId>

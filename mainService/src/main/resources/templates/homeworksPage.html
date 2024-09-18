@@ -156,7 +156,7 @@
                 <p class="status" th:if="${pageType == 'teacher'}">
                     Status:
                     <span th:class="${homework.status == 'Checked' ? 'badge bg-success' : 'badge bg-secondary'}"
-                          th:text="${homework.status == 'Checked' ? 'Checked' : 'Unchecked'}"></span>
+                          th:text= "${homework.status == 'Checked' ? 'Checked' : 'Unchecked'}"></span>
                 </p>
                 <button th:if="${pageType.equals('student')}" class="btn btn-primary" th:onclick="'location.href=\'/homeworks/' + ${homework.id} + '\''">Details</button>
                 <button th:if="${pageType.equals('teacher')}" class="btn btn-primary" th:onclick="'location.href=\'/homeworks/teacherPage/' + ${homework.id} + '\''">Details</button>

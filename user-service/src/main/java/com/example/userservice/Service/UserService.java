@@ -21,4 +21,6 @@ public interface UserService {
     void updateCreatedItems(String action, String type, Long id,Long userId);
 
     void assignHomeworks(List<Long> userEntities, Long homeworkId, String type);
+
+    boolean addChatIds(List<Long> usersIds,Long chatId, String operationType);
 }

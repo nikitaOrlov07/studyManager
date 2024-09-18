@@ -28,4 +28,6 @@ public interface CourseService {
     Course findCourseById(Long courseId);
 
     Course findByTitle(String courseTitle);
+
+    void addChatId(Long courseId, Long chatId);
 }

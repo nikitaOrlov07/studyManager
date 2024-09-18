@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -268,6 +267,25 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Course findByTitle(String courseTitle) {
         return courseRepository.findByTitle(courseTitle);
+    }
+
+    @Override
+    public void addChatId(Long courseId, Long chatId) {
+        Course course = courseRepository.findById(courseId).get();
+        if(course == null)
+        {
+            log.error("Course with id " + courseId + "was not found");
+        }
+        course.setChatId(chatId);
+
+        // Update chat
+        Course savedCourse = courseRepository.save(course);
+        if(savedCourse == null)
+        {
+            log.error("Error while saving course");
+        }
+
+        log.info("Course was successfully saved");
     }
 
 
