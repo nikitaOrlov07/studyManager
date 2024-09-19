@@ -9,7 +9,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface AttachmentService {
-    public Attachment saveAttachment(MultipartFile file, Course course, Homework homework , UserEntityDto user) throws Exception;
+    public Attachment saveAttachment(MultipartFile file, Course course, Homework homework , UserEntityDto user, String fileStatus) throws Exception;
 
     @Transactional
     void updateAttachmentUrls(Long id, String downloadUrl, String viewUrl);

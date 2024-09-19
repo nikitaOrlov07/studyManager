@@ -77,6 +77,7 @@ public class MainController {
 
         // Find course author information
         UserEntityDto courseAuthor = userService.findUsersByIds(Arrays.asList(course.getAuthorId())).get(0);
+
         model.addAttribute("courseAuthor",courseAuthor);
         return "detailPage";
     }

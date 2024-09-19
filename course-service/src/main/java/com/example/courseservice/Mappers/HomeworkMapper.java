@@ -48,6 +48,7 @@ public class HomeworkMapper {
         response.setStartDate(homework.getStartDate());
         response.setEndDate(homework.getEndDate());
         response.setAuthorId(homework.getAuthorId());
+        response.setStatus(homework.getStatus());
 
         response.setUserEntitiesId(new ArrayList<>(homework.getUserEntitiesId()));
         response.setSubmitHomeworkUserEntitiesId(new ArrayList<>(homework.getSubmitHomeworkUserEntitiesId()));

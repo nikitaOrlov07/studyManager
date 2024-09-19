@@ -24,7 +24,7 @@ public class Course {
     private Double price;
     private String language;
     @ElementCollection
-    private List<String> tags;
+    private List<String> tags= new ArrayList<String>();
     private String format;
 
     // Dates

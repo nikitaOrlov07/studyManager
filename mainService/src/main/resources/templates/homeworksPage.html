@@ -100,38 +100,69 @@
                 <button th:class="${type == 'Checked'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks/teacherPage?type=Checked'">Checked</button>
                 <button th:class="${type == 'Unchecked'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks/teacherPage?type=Unchecked'">Unchecked</button>
             </div>
-            <form id="searchForm" class="search-form" action="/homeworks/teacherPage" method="get" onsubmit="return removeEmptyParams()">
-                <input type="text" name="courseTitle" id="courseTitle" placeholder="Course Title">
-                <input type="text" name="homeworkTitle" id="homeworkTitle" placeholder="Homework Title">
-                <button type="submit" class="btn btn-primary">Search</button>
-            </form>
+            <div class="search-inputs">
+                <input type="text" id="courseTitle" placeholder="Course Title">
+                <input type="text" id="homeworkTitle" placeholder="Homework Title">
+                <button onclick="submitSearch()" class="btn btn-primary">Search</button>
+            </div>
+            <form id="searchForm" class="search-form" action="/homeworks/teacherPage" method="get"></form>
         </div>
 
         <script>
+            function submitSearch() {
+                var courseTitle = document.getElementById('courseTitle').value.trim();
+                var homeworkTitle = document.getElementById('homeworkTitle').value.trim();
+                var currentType = new URLSearchParams(window.location.search).get('type');
+
+                if (!courseTitle && !homeworkTitle && (!currentType || currentType === 'All')) {
+                    // If all parameters are empty or type is 'All', redirect to the base page
+                    window.location.href = '/homeworks/teacherPage';
+                } else if (removeEmptyParams()) {
+                    // If there are non-empty parameters, submit the form
+                    var searchForm = document.getElementById('searchForm');
+
+                    // Add the current 'type' parameter if it exists and is not 'All'
+                    if (currentType && currentType !== 'All') {
+                        var typeInput = document.createElement('input');
+                        typeInput.type = 'hidden';
+                        typeInput.name = 'type';
+                        typeInput.value = currentType;
+                        searchForm.appendChild(typeInput);
+                    }
+
+                    searchForm.submit();
+                }
+            }
+
             function removeEmptyParams() {
-                const form = document.getElementById('searchForm');
-                const courseTitle = document.getElementById('courseTitle').value.trim();
-                const homeworkTitle = document.getElementById('homeworkTitle').value.trim();
+                var courseTitle = document.getElementById('courseTitle').value.trim();
+                var homeworkTitle = document.getElementById('homeworkTitle').value.trim();
+                var searchForm = document.getElementById('searchForm');
 
-                const url = new URL(form.action);
-                const params = new URLSearchParams(url.search);
+                // Remove all existing inputs from the form
+                while (searchForm.firstChild) {
+                    searchForm.removeChild(searchForm.firstChild);
+                }
 
+                // Add non-empty parameters as hidden inputs
                 if (courseTitle) {
-                    params.set('courseTitle', courseTitle);
-                } else {
-                    params.delete('courseTitle');
+                    var courseTitleInput = document.createElement('input');
+                    courseTitleInput.type = 'hidden';
+                    courseTitleInput.name = 'courseTitle';
+                    courseTitleInput.value = courseTitle;
+                    searchForm.appendChild(courseTitleInput);
                 }
 
                 if (homeworkTitle) {
-                    params.set('homeworkTitle', homeworkTitle);
-                } else {
-                    params.delete('homeworkTitle');
+                    var homeworkTitleInput = document.createElement('input');
+                    homeworkTitleInput.type = 'hidden';
+                    homeworkTitleInput.name = 'homeworkTitle';
+                    homeworkTitleInput.value = homeworkTitle;
+                    searchForm.appendChild(homeworkTitleInput);
                 }
 
-                // Updat e the action attribute to include only the relevant parameters
-                form.action = `${url.pathname}?${params.toString()}`;
-
-                return true; // Continue with form submission
+                // If both inputs are empty, prevent form submission
+                return courseTitle || homeworkTitle;
             }
         </script>
 
@@ -155,8 +186,8 @@
                 </p>
                 <p class="status" th:if="${pageType == 'teacher'}">
                     Status:
-                    <span th:class="${homework.status == 'Checked' ? 'badge bg-success' : 'badge bg-secondary'}"
-                          th:text= "${homework.status == 'Checked' ? 'Checked' : 'Unchecked'}"></span>
+                    <span th:class="${homework.status.toString() == 'Checked' ? 'badge bg-success' : 'badge bg-secondary'}"
+                          th:text= "${homework.status.toString() == 'Checked' ? 'Checked' : 'Unchecked'}"></span>
                 </p>
                 <button th:if="${pageType.equals('student')}" class="btn btn-primary" th:onclick="'location.href=\'/homeworks/' + ${homework.id} + '\''">Details</button>
                 <button th:if="${pageType.equals('teacher')}" class="btn btn-primary" th:onclick="'location.href=\'/homeworks/teacherPage/' + ${homework.id} + '\''">Details</button>

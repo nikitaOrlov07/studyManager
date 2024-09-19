@@ -26,9 +26,10 @@ public class UsersMapper {
     private static StudentAttachmentService studentAttachmentService;
 
     @Autowired
-    public UsersMapper(CourseService courseService, HomeworkService homeworkService) {
+    public UsersMapper(CourseService courseService, HomeworkService homeworkService ,StudentAttachmentService studentAttachmentService) {
         UsersMapper.courseService = courseService;
         UsersMapper.homeworkService = homeworkService;
+        UsersMapper.studentAttachmentService = studentAttachmentService;
     }
 
     // Convert UserEntityDto to UserEntityResponse

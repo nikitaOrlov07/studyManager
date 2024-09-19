@@ -124,6 +124,7 @@ public class HomeworkController {
     {
         log.info("Course service \"getHomeworksForTeacher\" controller method is working");
 
+        log.info("Homework status: " + homeworkStatus);
         log.info("Author id: "+ authorId);
         log.info("Homework status: "+ homeworkStatus);
 

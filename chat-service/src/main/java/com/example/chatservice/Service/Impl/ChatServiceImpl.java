@@ -4,6 +4,7 @@ import com.example.chatservice.Model.Chat;
 import com.example.chatservice.Repository.ChatRepository;
 import com.example.chatservice.Service.ChatService;
 import com.example.chatservice.Service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,13 +21,14 @@ public class ChatServiceImpl implements ChatService {
     private ChatRepository chatRepository;
     private UserService userService;
     private WebClient.Builder webClientBuilder;
-
+    private ObjectMapper objectMapper;
 
     @Autowired
-    public ChatServiceImpl(ChatRepository chatRepository,UserService userService , WebClient.Builder webClientBuilder) {
+    public ChatServiceImpl(ChatRepository chatRepository,UserService userService , WebClient.Builder webClientBuilder,ObjectMapper objectMapper) {
         this.chatRepository = chatRepository;
         this.userService = userService;
         this.webClientBuilder = webClientBuilder;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -55,28 +57,17 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public Boolean saveChat(Long courseId, Long currentId) {
+    public Long  saveChat(Long courseId, Long currentId) {
         Chat chat = Chat.builder()
-                .participantsIds(new ArrayList<>(Arrays.asList(courseId)))
+                .participantsIds(new ArrayList<>(Arrays.asList(currentId)))
                 .courseId(courseId)
                 .build();
 
         Chat savedChat = chatRepository.save(chat);
-        // Set this chat in course model
-        webClientBuilder.build()
-                .post()
-                .uri(uriBuilder -> uriBuilder
-                        .scheme("http")
-                        .host("course-service")
-                        .path("/courses/addCourseChat")
-                        .queryParam("courseId",courseId)
-                        .queryParam("currentId",currentId)
-                        .build())
-                .retrieve()
-                .bodyToMono(Void.class)
-                .block();
 
-        return true;
+        // Http request to userService to save chatId
+        userService.saveChatIds(Arrays.asList(currentId),chat.getId(),"add");
+        return savedChat.getId();
     }
     @Override
     public Chat getChatById(Long chatId) throws Exception {

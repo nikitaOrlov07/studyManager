@@ -168,6 +168,7 @@
     </div>
     <div class="container py-5">
         <div class="course-detail">
+
             <h1 class="mb-4" th:text="${course.title}">Course Title</h1>
             <div class="course-info">
                 <p><strong>Description:</strong> <span th:text="${course.description != null ? course.description : 'Not specified'}">Description</span></p>
@@ -183,7 +184,7 @@
                 <h3>Author Information</h3>
                 <p><strong>Username:</strong> <span th:text="${courseAuthor.username}">Author Username</span></p>
                 <p><strong>Registration Date:</strong> <span th:text="${courseAuthor.registrationDate}">Registration Date</span></p>
-                <a href="#" class="btn-chat">Chat with Author</a>
+                <a th:href="@{/chats/findOrCreateChat(secondUserId=${courseAuthor.id})}" class="btn-chat">Chat with Author</a>
             </div>
 
             <div th:if="${course.tags != null and !course.tags.isEmpty()}" class="mt-4">
@@ -207,14 +208,20 @@
                 </div>
             </div>
 
+            <div class="card-footer text-center"
+                 th:if="${user != null and courseAuthor != null and
+             (course.authorId == user.id or course.involvedUserIds.contains(user.id)) and user.id != courseAuthor.id}">
+                <a th:href="@{/chats/{chatId}(chatId=${course.chatId})}">Button</a>
+            </div>
+
             <div class="mt-5">
                 <h3 class="section-title">Attachments</h3>
                 <div class="row" style="margin-right: 5px">
-                    <div th:if="${course != null and course.getAttachments().isEmpty()}" class="alert alert-info" style="margin-top: 5px;margin-left: 5px">
+                    <div th:if="${course == null || course.getAttachments().?[accessType == 'course'].empty}" class="alert alert-info" style="margin-top: 5px;margin-left: 5px">
                         No attachments available
                     </div>
-                    <div th:if="${course.getAttachments() != null and !course.getAttachments().isEmpty()}" th:each="file : ${course.getAttachments()}" class="col-md-6 mb-3">
-                        <div class="card h-100 shadow-sm attachment-card">
+                    <div th:if="${course != null && !course.getAttachments().?[accessType == 'course'].empty}" th:each="file : ${course.getAttachments()}" class="col-md-6 mb-3">
+                        <div class="card h-100 shadow-sm attachment-card" th:if="${file.accessType == 'course'}">
                             <div th:if="${file != null}">
                                 <img th:if="${file.fileType.startsWith('image/')}" th:src="${file.viewUrl}" class="card-img-top" th:alt="${file.fileName}" style="object-fit: cover; height: 200px;">
                                 <div class="card-body" th:unless="${file.fileType.startsWith('image/')}">
@@ -238,7 +245,9 @@
                 <strong th:if="${involvedUsers == null or involvedUsers.isEmpty()}">* Can create homeworks , only when there are users in course</strong>
             </div>
         </div>
+
         <input type="hidden" id="coursePasswordHidden" th:value="${course.coursePassword}" />
+        <input type="hidden" id="courseTypeHidden" th:value="${course.courseType}" />
 
         <!-- Window for entering password -->
         <div id="passwordModal" class="modal">
@@ -262,9 +271,12 @@
             </form>
         </div>
 
-        <script>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            var courseType = /*[[${course.courseType}]]*/ 'PUBLIC';
+
             function handleJoin() {
-                var courseType = /*[[${'PRIVATE' == course.courseType}]]*/ 'PUBLIC' ? 'PRIVATE' : 'PUBLIC';
+                console.log("Course type:", courseType);
                 if (courseType === 'PRIVATE') {
                     // If the course is private, display the modal for password input
                     document.getElementById('passwordModal').style.display = 'block';
@@ -293,9 +305,11 @@
                 // Close the password modal
                 document.getElementById('passwordModal').style.display = 'none';
             }
+
             document.addEventListener('DOMContentLoaded', function() {
                 hideAlertAfterDelay('successHomeworkCreated');
             });
+            /*]]>*/
         </script>
     </div>
 </div>

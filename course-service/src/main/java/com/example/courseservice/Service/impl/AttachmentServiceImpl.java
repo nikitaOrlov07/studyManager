@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 public class AttachmentServiceImpl implements AttachmentService {
     private final AttachmentRepository attachmentRepository;
     @Override
-    public Attachment saveAttachment(MultipartFile file, Course course, Homework homework , UserEntityDto user) throws Exception {
+    public Attachment saveAttachment(MultipartFile file, Course course, Homework homework , UserEntityDto user, String fileStatus) throws Exception {
 
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         try {
@@ -48,7 +48,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             LocalDateTime currentDateTime = LocalDateTime.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             attachment.setTimestamp(currentDateTime.format(formatter));
-            attachment.setAccessType("open"); // temporary
+            attachment.setAccessType(fileStatus);
 
             return attachmentRepository.save(attachment);
 

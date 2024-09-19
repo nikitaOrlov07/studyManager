@@ -47,12 +47,12 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional
     public Course createCourse(CourseCreationRequest courseCreationRequest) {
         // Parsing tags string to List
-        List<String> tags = new ArrayList<String>();
-        if(courseCreationRequest.getTags() != null && !courseCreationRequest.getTags().isEmpty())
-        {
-            tags = Arrays.asList(courseCreationRequest.getTags().split(","));
+        List<String> tags = new ArrayList<>();
+        if (courseCreationRequest.getTags() != null && !courseCreationRequest.getTags().isEmpty()) {
+            tags.addAll(Arrays.asList(courseCreationRequest.getTags().split(",")));
         }
         // check if course with this title is already exists
         Course existingCourse = courseRepository.findByTitle(courseCreationRequest.getTitle());
@@ -82,8 +82,6 @@ public class CourseServiceImpl implements CourseService {
             throw new CourseCreationException("Author not found");
         }
 
-        // Http request to Chat service to create a new chat for current course
-        // Chat chat =
 
         Course course = Course.builder()
                 .title(courseCreationRequest.getTitle())
@@ -95,7 +93,6 @@ public class CourseServiceImpl implements CourseService {
                 .endDate(courseCreationRequest.getEndDate())
                 .courseType(courseCreationRequest.getCourseType())
                 .coursePassword(courseCreationRequest.getCoursePassword())
-                // .chatId(chat.getId())
                 .creationDate(formattedDate)
                 .authorId(response.getBody().getId())
                 .build();
@@ -104,16 +101,38 @@ public class CourseServiceImpl implements CourseService {
 
         Course savedCourse = courseRepository.save(course);
 
-
         if(savedCourse == null)
             log.error("Course creation failed");
         else
             log.info("Course was created successfully");
+        // Http request to Chat service to create a new chat for current course
+        Long chatId = webClientBuilder.build()
+                .post()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("chat-service")
+                        .path("/chats/saveChat")
+                        .queryParam("courseId",savedCourse.getId())
+                        .queryParam("currentId", savedCourse.getAuthorId())
+                        .build()
+                )
+                .retrieve()
+                .bodyToMono(Long.class)
+                .block();
+        if(chatId == null || chatId == 0)
+        {
+            log.error("Error while creating chat");
+        }
+        savedCourse.setChatId(chatId);
+        Course updatedCourse = courseRepository.save(savedCourse);
+        if(updatedCourse == null || (updatedCourse.getId() != savedCourse.getId()))
+            log.error("Error while updating course chatID");
 
-        if(savedCourse != null)
+        if(savedCourse != null && updatedCourse != null)
         {
             userService.updateUserItems("courses","create",savedCourse.getId(),response.getBody().getId());
         }
+
         return savedCourse;
     }
 
@@ -143,7 +162,7 @@ public class CourseServiceImpl implements CourseService {
            return "error";
         }
 
-      Attachment attachment = attachmentService.saveAttachment(file, course,null, UsersMapper.responseToDto(userEntityResponse.getBody())); // upload course attachments
+      Attachment attachment = attachmentService.saveAttachment(file, course,null, UsersMapper.responseToDto(userEntityResponse.getBody()), "course"); // upload course attachments
 
         String downloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/files/download/")
@@ -269,24 +288,7 @@ public class CourseServiceImpl implements CourseService {
         return courseRepository.findByTitle(courseTitle);
     }
 
-    @Override
-    public void addChatId(Long courseId, Long chatId) {
-        Course course = courseRepository.findById(courseId).get();
-        if(course == null)
-        {
-            log.error("Course with id " + courseId + "was not found");
-        }
-        course.setChatId(chatId);
 
-        // Update chat
-        Course savedCourse = courseRepository.save(course);
-        if(savedCourse == null)
-        {
-            log.error("Error while saving course");
-        }
-
-        log.info("Course was successfully saved");
-    }
 
 
 }

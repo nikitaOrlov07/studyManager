@@ -96,7 +96,7 @@ import java.util.stream.Collectors;
                 return "error";
             }
 
-            Attachment attachment = attachmentService.saveAttachment(file, homework.getCourse(), homework, UsersMapper.responseToDto(userEntityDto));
+            Attachment attachment = attachmentService.saveAttachment(file, homework.getCourse(), homework, UsersMapper.responseToDto(userEntityDto), "homework");
 
             String downloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
                     .path("/files/download/")
@@ -164,7 +164,7 @@ import java.util.stream.Collectors;
 
             log.info("Saving files");
             for (MultipartFile file : studentAttachmentRequest.getFiles()) {
-                Attachment attachment = attachmentService.saveAttachment(file, homework.getCourse(), homework, student);
+                Attachment attachment = attachmentService.saveAttachment(file, homework.getCourse(), homework, student , "studentAttachment");
 
                 String downloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
                         .path("/files/download/")
@@ -273,6 +273,10 @@ import java.util.stream.Collectors;
                 if (course != null) {
                     log.info("Course id: " + course.getId());
                     spec = spec.and((root, query, cb) -> cb.equal(root.get("course"), course));
+                }
+                if(course == null)
+                {
+                    return null;
                 }
             }
 

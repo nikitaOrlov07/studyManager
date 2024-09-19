@@ -24,9 +24,11 @@ public class ChatController {
         return chat;
     }
     @PostMapping("/saveChat") // save chat for course
-    public Boolean saveChat(@RequestParam("courseId") Long courseId , @RequestParam("currentId") Long currentId) // save chat for course
+    public Long saveChat(@RequestParam(value = "courseId",required = false) Long courseId , @RequestParam(value = "currentId",required = false) Long currentId) // save chat for course
     {
-        return chatService.saveChat(courseId,currentId); // return true if chat was successfully saved
+        Long chatId =  chatService.saveChat(courseId,currentId); // return true if chat was successfully saved
+        log.info("For course with id : "+ courseId + " was created chat with id: "+ chatId);
+        return chatId;
     }
     @GetMapping("/findChatById")
     public Chat findChatById(@RequestParam("chatId") Long chatId)

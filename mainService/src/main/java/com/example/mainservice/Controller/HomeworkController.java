@@ -1,11 +1,13 @@
 package com.example.mainservice.Controller;
 
+import com.example.mainservice.Dto.Homeworks.Enums.HomeworkStatus;
 import com.example.mainservice.Dto.Homeworks.Enums.StudentAttachmentStatus;
 import com.example.mainservice.Dto.Homeworks.HomeworkDto;
 import com.example.mainservice.Dto.Homeworks.HomeworkRequest;
 import com.example.mainservice.Dto.StudentAttachments.StudentAttachmentRequest;
 import com.example.mainservice.Dto.StudentAttachments.StudentHomeworkAttachmentDto;
 import com.example.mainservice.Dto.User.UserEntityDto;
+import com.example.mainservice.Model.Attachment;
 import com.example.mainservice.Model.Course;
 import com.example.mainservice.Security.SecurityUtil;
 import com.example.mainservice.Service.CourseService;
@@ -85,6 +87,7 @@ public class HomeworkController {
       {
           homeworkStatus = "All";
       }
+
       UserEntityDto userEntityDto = userService.findUserByUsername(SecurityUtil.getSessionUser());
       List<HomeworkDto> createdHomeworks =  homeworkService.findHomeworksByAuthorAndStatusAndCourseIdAndCourseTitle(userEntityDto.getId(),homeworkStatus,courseTitle,homeworkTitle);
       log.info("User created homeworks size is :"+createdHomeworks.size());
@@ -172,7 +175,7 @@ public class HomeworkController {
         List<StudentHomeworkAttachmentDto> studentsAttachments = homeworkService.findStudentsAttachmentsByHomeworkId(homeworkId);
         List<UserEntityDto> notSubmittedUsers = userService.findUsersByIds(homeworkDto.getUserEntitiesId());
         log.info("getHomeworkDetailPage is working");
-
+        log.info("Homework status: "+ homeworkDto.getStatus());
         if(studentsAttachments == null)
         {
             log.error("studentsAttachments is null");

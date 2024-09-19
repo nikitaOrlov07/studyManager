@@ -29,5 +29,5 @@ public interface CourseService {
 
     Course findByTitle(String courseTitle);
 
-    void addChatId(Long courseId, Long chatId);
+
 }

@@ -57,7 +57,12 @@
 </head>
 <body layout:fragment="body">
 <div class="bg-gray-100 py-10">
+
     <div class="container mx-auto p-6">
+        <div id="existingTitle" th:if="${param.existingTitle}" class="alert alert-success">
+            Course with this tittle is already exist
+        </div>
+
         <h1 class="text-4xl font-bold mb-8 text-center">Create New Course</h1>
         <form id="courseForm" class="bg-white shadow-lg rounded-lg px-8 pt-6 pb-8 mb-4">
             <div class="mb-6">
@@ -114,6 +119,11 @@
         </form>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        hideAlertAfterDelay('existingTitle');
+    });
+</script>
 
 <script>
     const courseTypeSelect = document.getElementById('courseType');
