@@ -184,7 +184,7 @@
                 <h3>Author Information</h3>
                 <p><strong>Username:</strong> <span th:text="${courseAuthor.username}">Author Username</span></p>
                 <p><strong>Registration Date:</strong> <span th:text="${courseAuthor.registrationDate}">Registration Date</span></p>
-                <a th:href="@{/chats/findOrCreateChat(secondUserId=${courseAuthor.id})}" class="btn-chat">Chat with Author</a>
+                <a th:if="${user != null and user.getId() != courseAuthor.getId()}" th:href="@{/chats/findOrCreateChat(secondUserId=${courseAuthor.id})}" class="btn-chat">Chat with Author</a>
             </div>
 
             <div th:if="${course.tags != null and !course.tags.isEmpty()}" class="mt-4">
@@ -203,6 +203,7 @@
                         <li th:each="User : ${involvedUsers}" class="list-group-item">
                             <span th:if="${User.username == user.username}" th:text="'you'">You</span>
                             <span th:if="${User.username != user.username}" th:text="${User.username}">User</span>
+                            <a th:href="@{/chats/findOrCreateChat(secondUserId=${courseAuthor.id})}" class="btn-chat"> chat</a>
                         </li>
                     </ul>
                 </div>

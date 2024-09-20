@@ -16,4 +16,11 @@ public class SecurityUtil {
         }
         return null;
     }
+    public static  String getSessionUser(Principal principal) // for Websocket
+    {
+        if (principal != null) {
+            return principal.getName();
+        }
+        return null;
+    }
 }

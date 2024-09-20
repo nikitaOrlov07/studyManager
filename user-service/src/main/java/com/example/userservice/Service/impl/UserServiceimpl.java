@@ -153,7 +153,7 @@ public class UserServiceimpl implements UserService {
     }
 
     @Override
-    public boolean addChatIds(List<Long> usersIds,Long chatId, String operationType) { // operationType can be "delete" or add chatId  to users list
+    public boolean changeChatIds(List<Long> usersIds,Long chatId, String operationType) { // operationType can be "delete" or add chatId  to users list
         if(usersIds == null || usersIds.isEmpty())
         {
             log.error("usersIds list is empty");

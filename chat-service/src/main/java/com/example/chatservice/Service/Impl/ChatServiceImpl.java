@@ -52,7 +52,7 @@ public class ChatServiceImpl implements ChatService {
             return null;
         }
         // Request to userService to save chat id
-        userService.saveChatIds(new ArrayList<>(Arrays.asList(currentId,secondId)) , chat.getId(),"add");
+        userService.changeChatIds(new ArrayList<>(Arrays.asList(currentId,secondId)) , chat.getId(),"add");
         return  chat;
     }
 
@@ -66,11 +66,28 @@ public class ChatServiceImpl implements ChatService {
         Chat savedChat = chatRepository.save(chat);
 
         // Http request to userService to save chatId
-        userService.saveChatIds(Arrays.asList(currentId),chat.getId(),"add");
+        userService.changeChatIds(Arrays.asList(currentId),chat.getId(),"add");
         return savedChat.getId();
     }
     @Override
     public Chat getChatById(Long chatId) throws Exception {
         return  chatRepository.findById(chatId).orElseThrow(() -> new Exception("Chat not found"));
+    }
+
+    @Override
+    public Boolean deleteChatById(Long chatId) throws Exception {
+        Chat chat = chatRepository.findById(chatId).orElseThrow(() -> new Exception("Chat not found"));
+        // Make http request to delete chat in userService user information
+        List<Long> usersInChat =  chat.getParticipantsIds();
+        Boolean result = userService.changeChatIds(usersInChat,chatId,"delete");
+        if(result)
+            log.info("Users chat ids was successfully changed");
+        else {
+            log.error("Error while deleting chat id {} from users information", chatId);
+            return false;
+        }
+        // Delete chat
+        chatRepository.delete(chat);
+        return true;
     }
 }

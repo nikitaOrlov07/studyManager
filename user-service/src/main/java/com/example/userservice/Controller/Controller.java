@@ -129,7 +129,7 @@ public class Controller {
     public boolean addChatId(@PathVariable(value="operationType",required = false) String operationType, @RequestParam(value = "usersIds", required = false) List<Long> userIds ,@RequestParam(value = "chatId",required = false) Long chatId )
     {
         log.info("\"addChatId\" Controller method is working");
-        return userService.addChatIds(userIds,chatId,operationType);
+        return userService.changeChatIds(userIds,chatId,operationType);
     }
 
 }

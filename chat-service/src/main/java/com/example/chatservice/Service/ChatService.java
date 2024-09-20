@@ -8,4 +8,6 @@ public interface ChatService {
     Long saveChat(Long courseId, Long currentId);
 
     Chat getChatById(Long chatId) throws Exception;
+
+    Boolean deleteChatById(Long chatId) throws Exception;
 }

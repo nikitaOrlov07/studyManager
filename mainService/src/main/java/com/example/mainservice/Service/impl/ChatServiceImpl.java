@@ -54,5 +54,17 @@ public class ChatServiceImpl implements ChatService {
         return chatDto.getId();
     }
 
+    @Override
+    public Boolean deleteChat(ChatDto chat) {
+        // Make http request with chat id to chat-service for chat deleting
+        Boolean result = webClientBuilder.build()
+                .post()
+                .uri("http://chat-service/chats/delete/"+chat.getId())
+                .retrieve()
+                .bodyToMono(Boolean.class)
+                .block();
+        return result;
+    }
+
 
 }

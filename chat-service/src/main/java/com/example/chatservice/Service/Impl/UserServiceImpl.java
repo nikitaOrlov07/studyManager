@@ -18,7 +18,7 @@ public class UserServiceImpl implements UserService {
     private WebClient.Builder webClientBuilder;
 
     @Override
-    public Boolean saveChatIds(List<Long> userIds, Long id, String operationType) { // operation type can be delete or add
+    public Boolean changeChatIds(List<Long> userIds, Long id, String operationType) { // operation type can be delete or add
        Boolean result = webClientBuilder.build()
                .post()
                .uri(uriBuilder -> uriBuilder

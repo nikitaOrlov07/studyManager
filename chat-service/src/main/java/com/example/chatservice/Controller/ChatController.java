@@ -1,7 +1,10 @@
 package com.example.chatservice.Controller;
 
+import com.example.chatservice.Dto.ChatDto;
 import com.example.chatservice.Dto.UserEntityDto;
+import com.example.chatservice.Mapper.ChatMapper;
 import com.example.chatservice.Model.Chat;
+import com.example.chatservice.Model.Message;
 import com.example.chatservice.Service.ChatService;
 import com.example.chatservice.Service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -31,10 +34,10 @@ public class ChatController {
         return chatId;
     }
     @GetMapping("/findChatById")
-    public Chat findChatById(@RequestParam("chatId") Long chatId)
+    public ChatDto findChatById(@RequestParam("chatId") Long chatId)
     {
         try {
-            return chatService.getChatById(chatId);
+            return ChatMapper.chatToChatDto(chatService.getChatById(chatId));
         }
         catch (Exception e)
         {
@@ -42,6 +45,25 @@ public class ChatController {
             return null;
         }
     }
+    @PostMapping("/delete/{chatId}")
+    public Boolean deleteChatById(@PathVariable Long chatId){
+        log.info("Chat service \"deleteChatById\" controller method is working");
+        try {
+            Boolean result = chatService.deleteChatById(chatId);
+            if (result)
+                log.info("Chat was deleted successfully");
+            else
+                log.error("Error occurred while deleting a chat");
+
+            return result;
+        }
+        catch (Exception e)
+        {
+            log.error("Error :"+e.getMessage());
+            return false;
+        }
+    }
+
 
 
 }

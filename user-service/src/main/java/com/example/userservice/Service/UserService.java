@@ -22,5 +22,5 @@ public interface UserService {
 
     void assignHomeworks(List<Long> userEntities, Long homeworkId, String type);
 
-    boolean addChatIds(List<Long> usersIds,Long chatId, String operationType);
+    boolean changeChatIds(List<Long> usersIds,Long chatId, String operationType);
 }
