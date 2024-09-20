@@ -24,7 +24,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/homeworks","/findCourses", "/courses/{courseId}", "/courses", "/home", "/login", "/users/login", "/register/**", "/download/{fileId}", "/view/{fileId}", "/js/**")
+                        .requestMatchers("/homeworks","/findCourses", "/courses/{courseId}", "/courses", "/home", "/login", "/users/login", "/register/**", "/download/{fileId}", "/view/{fileId}", "/js/**","/css/**")
                         .permitAll()
                         .anyRequest().authenticated()
                 )
