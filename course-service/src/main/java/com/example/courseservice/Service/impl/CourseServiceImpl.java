@@ -288,7 +288,20 @@ public class CourseServiceImpl implements CourseService {
         return courseRepository.findByTitle(courseTitle);
     }
 
+    @Override
+    public List<CourseResponse> searchCourses(String courseTitle, Long authorId) {
+        List<Course> courses = (courseTitle == null || courseTitle.isEmpty())
+                ? courseRepository.findAllByAuthorId(authorId)
+                : courseRepository.searchCoursesByTitleAndAuthorId(courseTitle, authorId);
 
+        if(courses == null || courses.isEmpty())
+        {
+            log.error("No courses found");
+            return  null;
+        }
+        log.info(courses.size()+" courses found");
+        return  courses.stream().map(CourseMapper::getCourseResponseFromCourse).collect(Collectors.toList());
+    }
 
 
 }

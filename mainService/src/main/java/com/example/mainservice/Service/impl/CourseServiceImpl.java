@@ -1,6 +1,7 @@
 package com.example.mainservice.Service.impl;
 
 import com.example.mainservice.Dto.course.CourseCreationRequest;
+import com.example.mainservice.Model.Course;
 import com.example.mainservice.Security.SecurityUtil;
 import com.example.mainservice.Service.CourseService;
 import lombok.extern.slf4j.Slf4j;
@@ -84,6 +85,26 @@ public class CourseServiceImpl implements CourseService {
                 .block();
 
         return result;
+    }
+
+
+    // Cabinet page for users who have created courses
+    @Override
+    public List<Course> searchCoursesByTitleAndAuthor(String courseTitle, Long id) {
+        List<Course> courses = webClientBuilder.build()
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("course-service")
+                        .path("/courses/searchUsersCourses")
+                        .queryParam("courseTitle",courseTitle)
+                        .queryParam("authorId",id)
+                        .build())
+                .retrieve()
+                .bodyToFlux(Course.class)
+                .collectList()
+                .block();
+        return courses;
     }
 
 }

@@ -131,5 +131,11 @@ public class Controller {
         log.info("\"addChatId\" Controller method is working");
         return userService.changeChatIds(userIds,chatId,operationType);
     }
-
+    // Method for admin cabinet page for "finding users by username"
+    @GetMapping("/searchUsersByQuery")
+    public List<UserEntityDto> searchUsersByTitle(@RequestParam String query)
+    {
+        log.info("\"searchUsersByTitle\" Controller method is working");
+        return userService.searchUsersByTitle(query);
+    }
 }

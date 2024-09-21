@@ -185,5 +185,18 @@ public class UserServiceimpl implements UserService {
         return true;
     }
 
+    @Override
+    public List<UserEntityDto> searchUsersByTitle(String query) {
+        List<UserEntity> userEntities =  userRepository.searchUserByQuery(query);
+        if(userEntities == null || userEntities.size() == 0)
+        {
+          log.error("user search result for the query {} is empty",query);
+          return  null;
+        }
+        else {
+            return userEntities.stream().map(UserEntityMapper::userEntityToUserEntityDto).collect(Collectors.toList());
+        }
+    }
+
 
 }

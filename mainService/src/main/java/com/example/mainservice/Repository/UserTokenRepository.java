@@ -16,4 +16,5 @@ public interface UserTokenRepository extends JpaRepository<UserToken, Long> {
 
     UserToken findByUsernameAndDeviceTypeAndIpAddress(String username, String deviceType, String ipAddress);
     List<UserToken> findByExpirationTimeBefore(LocalDateTime localDateTime);
+    Optional<UserToken> findUserTokenByUsername(String username);
 }

@@ -4,6 +4,7 @@ import com.example.mainservice.Dto.User.UserEntityDto;
 import com.example.mainservice.Model.Course;
 import com.example.mainservice.Security.SecurityUtil;
 import com.example.mainservice.Service.AuthService;
+import com.example.mainservice.Service.CourseService;
 import com.example.mainservice.Service.UserService;
 import com.example.mainservice.Service.ViewService;
 import com.example.mainservice.Service.impl.JwtDecoderImpl;
@@ -28,6 +29,7 @@ public class MainController {
     final private UserService userService;
     final private AuthService authService;
     final private JwtDecoderImpl jwtDecoder;
+    final private CourseService courseService;
 
 
     @GetMapping("/home")
@@ -95,6 +97,41 @@ public class MainController {
         coursesList.forEach(System.out::println);
         model.addAttribute("courses", coursesList);
         return "mainPage";
+    }
+    // Cabinet Page
+    @GetMapping("/cabinet")
+    public String getCabinetPage(@RequestParam(required = false ,value = "courseTitle") String courseTitle, // for course creator -> find course by title
+                                 @RequestParam(required = false,value = "userTitle") String userTitle,
+                                 Model model) // for Admin -> find user by title
+    {
+        UserEntityDto currentUserEntity = userService.findUserByUsername(SecurityUtil.getSessionUser());
+        if(currentUserEntity == null)
+        {
+            return "redirect:/home?notAllowed"; // if user is unauthorised -> he can`t reach cabinet page
+        }
+        if(userTitle != null)
+        {
+            if(!currentUserEntity.getRole().equals("ADMIN")) {
+                return "redirect:/home?notAllowed"; // if user is not ADMIN -> he can`t use search user by title logic
+            }
+            else {
+                List<UserEntityDto> foundUsers =  userService.findUsersByUsernames(userTitle);
+                log.info("found users list size is: " + foundUsers.size());
+                model.addAttribute("foundUsers",foundUsers);
+                return "cabinet :: usersList"; // update only userList fragment?
+            }
+        }
+        List<Course> courses = null;
+        if(!currentUserEntity.getCreatedCoursesIds().isEmpty())
+        {
+                courses = courseService.searchCoursesByTitleAndAuthor(courseTitle,currentUserEntity.getId());
+                log.info("find courses list size is: " + courses.size());
+                model.addAttribute("courses",courses);
+                return "cabinet :: coursesList"; // update only
+        }
+
+        model.addAttribute("currentUser",currentUserEntity);
+        return "cabinet";
     }
 
 

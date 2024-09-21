@@ -13,4 +13,5 @@ public interface UserService {
 
     List<UserEntityDto> findUsersByIds(List<Long> involvedUserIds);
 
+    List<UserEntityDto> findUsersByUsernames(String query);
 }

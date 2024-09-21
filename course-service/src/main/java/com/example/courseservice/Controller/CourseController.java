@@ -111,6 +111,14 @@ public class CourseController {
         return courseService.actionCourse(courseId,username,action);
     }
 
+    // Find courses for CabinetPage
+    @GetMapping("/searchUsersCourses")
+    public List<CourseResponse> searchCourses(@RequestParam("courseTitle") String courseTitle ,
+                                              @RequestParam(required = false,value = "authorId") Long authorId)
+    {
+        log.info("CourseServive \"searchUsersCourses\" controller method is working with parameters: courseTitle: {} and authorId: {}",courseTitle,authorId);
+        return courseService.searchCourses(courseTitle,authorId);
+    }
 
 
 

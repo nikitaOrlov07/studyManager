@@ -48,10 +48,10 @@ public class ChatController {
 
     @GetMapping("/{chatId}")
     public String getChatPage(@PathVariable Long chatId,
-                              Model model) throws JsonProcessingException {
+                              Model model) throws Exception {
         UserEntityDto user = userService.findUserByUsername(SecurityUtil.getSessionUser());
         // Get chat
-        ChatDto chat = chatService.getChatById(chatId);
+        ChatDto chat = chatService.getChatById(chatId,user.getUsername());
         if(user == null || !chat.getParticipantsIds().contains(user.getId()))
         {
             log.error("the user cannot access the chat with the id: " + chatId);
@@ -68,8 +68,7 @@ public class ChatController {
         return "chat";
     }
     @GetMapping("/findOrCreateChat")
-    public String findOrCreateChat(@RequestParam(required = false) Long secondUserId)
-    {
+    public String findOrCreateChat(@RequestParam(required = false) Long secondUserId) throws Exception {
         log.info("Main Service \"findOrCreateChat\" controller method is working");
         UserEntityDto currentUser = userService.findUserByUsername(SecurityUtil.getSessionUser());
         if (currentUser == null)
@@ -77,7 +76,7 @@ public class ChatController {
             log.error("unauthorised user try reach chat page");
             return "redirect:/home?notAllowed";
         }
-        Long chatId = chatService.findOrCreateChat(secondUserId, currentUser.getId());
+        Long chatId = chatService.findOrCreateChat(secondUserId, currentUser.getUsername());
         return "redirect:/chats/"+chatId;
     }
 
@@ -109,12 +108,12 @@ public class ChatController {
     @MessageMapping("/chats/{chatId}/addUser")
     @SendTo("/topic/chat/{chatId}")
     public MessageDto addUser(@DestinationVariable Long chatId, @Payload MessageDto message,
-                              SimpMessageHeaderAccessor headerAccessor) {
+                              SimpMessageHeaderAccessor headerAccessor) throws Exception {
         String username = message.getAuthor();
         headerAccessor.getSessionAttributes().put("username", username);
 
         UserEntityDto currentUser = userService.findUserByUsername(username);
-        ChatDto chat = chatService.getChatById(chatId);
+        ChatDto chat = chatService.getChatById(chatId,username);
         if (chat == null) {
             throw new IllegalStateException("Chat with id " + chatId + " does not exist");
         }
@@ -133,7 +132,7 @@ public class ChatController {
             }
             UserEntityDto otherUser = users.get(0);
 
-            chat = chatService.getChatById(chatService.findOrCreateChat(currentUser.getId(), otherUser.getId()));
+            chat = chatService.getChatById(chatService.findOrCreateChat(otherUserId,currentUser.getUsername()),username);
 
             // if a new chat was created -> update id
             if (!chat.getId().equals(chatId)) {
@@ -147,10 +146,10 @@ public class ChatController {
     }
     @MessageMapping("/chats/{chatId}/delete")
     @SendTo("/topic/chat/{chatId}")
-    public MessageDto deleteChat(@DestinationVariable Long chatId, Principal principal) {
+    public MessageDto deleteChat(@DestinationVariable Long chatId, Principal principal) throws Exception {
         String username = SecurityUtil.getSessionUser(principal);
         UserEntityDto user = userService.findUserByUsername(username);
-        ChatDto chat = chatService.getChatById(chatId);
+        ChatDto chat = chatService.getChatById(chatId,username);
         log.info("Delete chat controller method is working");
 
         // implement "List.contains()" logic -> if i use regular contains method -> won`t working
@@ -159,7 +158,7 @@ public class ChatController {
         boolean chatInUserChats = user.getChatsIds().contains(chatId);
 
         if (chat != null && userInChat && chatInUserChats) {
-            Boolean result = chatService.deleteChat(chat);
+            Boolean result = chatService.deleteChat(chat.getId(),username);
             if(result) {
                 log.info("Chat was deleted successfully");
                 return MessageDto.builder()
@@ -185,12 +184,12 @@ public class ChatController {
     @SendTo("/topic/chat/{chatId}")
     @Transactional
     public MessageDto deleteMessage(@DestinationVariable Long chatId, @Payload DeleteMessageRequest request,
-                                 SimpMessageHeaderAccessor headerAccessor) {
+                                 SimpMessageHeaderAccessor headerAccessor) throws Exception {
         log.info("Delete message controller in working");
         String username = (String) headerAccessor.getSessionAttributes().get("username");
         UserEntityDto user = userService.findUserByUsername(username);
         MessageDto message = messageService.findById(request.getMessageId());
-        ChatDto chat = chatService.getChatById(chatId);
+        ChatDto chat = chatService.getChatById(chatId,username);
         if (message != null && chat != null && message.getAuthor().equals(user.getUsername())) {
             messageService.deleteMessage(message, user);
             log.info("Message deleted successfully");

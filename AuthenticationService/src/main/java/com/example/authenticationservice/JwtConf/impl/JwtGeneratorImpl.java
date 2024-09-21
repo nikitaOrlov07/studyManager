@@ -17,11 +17,17 @@ public class JwtGeneratorImpl implements JwtGenerator {
     private String secret;
     @Value("${app.jwttoken.message}")
     private String message;
+    @Value("${jwt.expiration}")
+    private Long expiration;
     @Override
     public Map<String, Object> generateToken(UserEntityDto user) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + expiration * 1000);
+
         String jwtToken = Jwts.builder()
                 .setSubject(user.getUsername())
-                .setIssuedAt(new Date())
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
                 .claim("id", user.getId())
                 .claim("email", user.getEmail())
                 .claim("age", user.getAge())

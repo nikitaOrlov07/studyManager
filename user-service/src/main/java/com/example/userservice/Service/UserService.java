@@ -23,4 +23,6 @@ public interface UserService {
     void assignHomeworks(List<Long> userEntities, Long homeworkId, String type);
 
     boolean changeChatIds(List<Long> usersIds,Long chatId, String operationType);
+
+    List<UserEntityDto> searchUsersByTitle(String query);
 }

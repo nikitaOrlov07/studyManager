@@ -29,5 +29,5 @@ public interface CourseService {
 
     Course findByTitle(String courseTitle);
 
-
+    List<CourseResponse> searchCourses(String courseTitle, Long authorId);
 }

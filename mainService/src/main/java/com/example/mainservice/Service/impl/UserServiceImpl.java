@@ -13,7 +13,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -85,6 +87,23 @@ public class UserServiceImpl implements UserService {
         return users;
     }
 
-
+    // Method for "ADMIN" cabinet page
+    @Override
+    public List<UserEntityDto> findUsersByUsernames(String query) {
+        List<UserEntityDto> users = webClientBuilder.build()
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("user-service")
+                        .path("/users/searchUsersByQuery")
+                        .queryParam("query",query)
+                        .build())
+                .retrieve()
+                .bodyToFlux(UserEntityDto.class)
+                .collectList()
+                .onErrorReturn(Collections.emptyList())
+                .block();
+        return users;
+    }
 
 }

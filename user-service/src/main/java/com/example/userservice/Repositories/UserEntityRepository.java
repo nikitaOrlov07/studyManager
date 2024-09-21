@@ -1,8 +1,11 @@
 package com.example.userservice.Repositories;
 
+import com.example.userservice.Dto.UserEntityDto;
 import com.example.userservice.Model.UserEntity;
 import io.micrometer.observation.annotation.Observed;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,5 +18,8 @@ public interface UserEntityRepository extends JpaRepository<UserEntity,Long> {
     UserEntity findByUsername(String username);
     UserEntity findByEmail(String email);
     List<UserEntity> findByIdIn(List<Long> ids);
+
+    @Query("SELECT u FROM UserEntity u WHERE u.username LIKE %:query%")
+    List<UserEntity> searchUserByQuery(@Param("query") String query);
 
 }
