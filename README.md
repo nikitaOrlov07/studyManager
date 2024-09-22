@@ -86,7 +86,7 @@
 
 2. **Build and run each service**:
    ```bash
-mvn clean install
+   mvn clean install
 
 Access the application:
  Main service at: http://localhost:8080
