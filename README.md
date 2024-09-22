@@ -111,4 +111,4 @@ Access Grafana at http://localhost:3000 for logs, metrics, and tracing.
 - **UserService database** (database, which contains detailed information about the user)
 - **CourseService database** (database, which contains detailed information about courses , homeworks)
 - **ChatService database** (database, which contains detailed information about the chats and messages)
-- **MainService databasee** (database, which contains users jwt tokens)
+- **MainService database** (database, which contains users jwt tokens)
