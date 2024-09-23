@@ -1,9 +1,8 @@
 package com.example.mainservice.Service;
 
 import com.example.mainservice.Dto.Homeworks.HomeworkDto;
-import com.example.mainservice.Dto.StudentAttachments.StudentHomeworkAttachmentDto;
 import com.example.mainservice.Dto.User.UserEntityDto;
-import com.example.mainservice.Model.Course;
+import com.example.mainservice.Dto.course.Course;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 

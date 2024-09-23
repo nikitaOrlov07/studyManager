@@ -1,7 +1,6 @@
-package com.example.mainservice.Model;
+package com.example.mainservice.Dto.course;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.ArrayList;
@@ -29,5 +28,8 @@ public class Course {
 
     // Author
     private Long  authorId;
+
+    // Course ID key
+    private String courseIdentifier;
 }
 

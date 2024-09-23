@@ -48,7 +48,6 @@ public class JwtUtil {
             user.setTown(claims.get("town").toString());
             user.setPhoneNumber(claims.get("phoneNumber").toString());
             user.setRole(claims.get("role").toString());
-
             user.setCreatedCoursesIds((List<Long>) claims.get("createdCoursesIds"));
             user.setParticipatingCourses((List<Long>) claims.get("participatingCourses"));
             user.setChatsIds((List<Long>) claims.get("chatsIds"));

@@ -1,5 +1,6 @@
-package com.example.mainservice.Model;
+package com.example.mainservice.Dto.course;
 
+import com.example.mainservice.Dto.course.Course;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

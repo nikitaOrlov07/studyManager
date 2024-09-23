@@ -207,9 +207,11 @@ public class CourseServiceImpl implements CourseService {
 
         List<CourseResponse> result = new ArrayList<>();
         if (type.equalsIgnoreCase("identifier")) {
-            CourseResponse course = CourseMapper.getCourseResponseFromCourse(courseRepository.findCourseByCourseKey(searchBar));
+            Course course = courseRepository.findCourseByCourseKey(searchBar);
             if (course != null) {
-                result.add(course);
+                CourseResponse courseResponse = CourseMapper.getCourseResponseFromCourse(course);
+                log.info("Was found course with title: "+courseResponse.getTitle());
+                result.add(courseResponse);
             } else {
                 log.warn("No course found with identifier: " + searchBar);
             }
@@ -289,17 +291,32 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseResponse> searchCourses(String courseTitle, Long authorId) {
+    @Transactional
+    public List<CourseResponse> searchCreatedCourses(String courseTitle, Long authorId) {
         List<Course> courses = (courseTitle == null || courseTitle.isEmpty())
                 ? courseRepository.findAllByAuthorId(authorId)
-                : courseRepository.searchCoursesByTitleAndAuthorId(courseTitle, authorId);
+                : courseRepository.searchCreatedCoursesByTitleAndAuthorId(courseTitle, authorId);
 
         if(courses == null || courses.isEmpty())
         {
-            log.error("No courses found");
+            log.error("No created courses found");
             return  null;
         }
-        log.info(courses.size()+" courses found");
+        log.info(courses.size()+" created courses found");
+        return  courses.stream().map(CourseMapper::getCourseResponseFromCourse).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CourseResponse> searchParticipatedCourses(String courseTitle, Long userId) {
+        List<Course> courses = (courseTitle == null || courseTitle.isEmpty())
+                ? courseRepository.findAllByInvolvedUserIdsContaining(userId)
+                : courseRepository.searchParticipatingCoursesByTitleAndUserId(courseTitle,userId);
+        if(courses == null || courses.isEmpty())
+        {
+            log.error("No participating  courses found");
+            return null;
+        }
+        log.info(courses.size()+" participating courses found");
         return  courses.stream().map(CourseMapper::getCourseResponseFromCourse).collect(Collectors.toList());
     }
 

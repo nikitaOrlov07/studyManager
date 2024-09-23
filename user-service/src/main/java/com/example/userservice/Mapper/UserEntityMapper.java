@@ -2,6 +2,7 @@ package com.example.userservice.Mapper;
 
 import com.example.userservice.Dto.Registration.RegistrationDto;
 import com.example.userservice.Dto.UserEntityDto;
+import com.example.userservice.Model.RoleEntity;
 import com.example.userservice.Model.UserEntity;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,7 +20,7 @@ public class UserEntityMapper {
                 .town(userEntity.getTown())
                 .phoneNumber(userEntity.getPhoneNumber())
                 .registrationDate(userEntity.getRegistrationDate())
-                .role(userEntity.getRole())
+                .role(userEntity.getRole().toString())
                 .createdCoursesIds(userEntity.getCreatedCoursesIds())
                 .homeworkIds(userEntity.getHomeworksIds())
                 .participatingCourses(userEntity.getParticipatingCourses())
@@ -30,6 +31,20 @@ public class UserEntityMapper {
     }
     
     public static UserEntity userEntityDtoToUserEntity(UserEntityDto userEntityDto) {
+        RoleEntity userRole = null;
+        if(userEntityDto.getRole().equals("ADMIN"))
+        {
+            userRole = RoleEntity.builder()
+                    .id(0L)
+                    .name("ADMIN")
+                    .build();
+        }
+        else {
+            userRole = RoleEntity.builder()
+                    .id(0L)
+                    .name("USER")
+                    .build();
+        }
         return UserEntity.builder()
                 .id(userEntityDto.getId())
                 .username(userEntityDto.getUsername())
@@ -38,7 +53,7 @@ public class UserEntityMapper {
                 .age(userEntityDto.getAge())
                 .town(userEntityDto.getTown())
                 .phoneNumber(userEntityDto.getPhoneNumber())
-                .role(userEntityDto.getRole())
+                .role(userRole)
                 .createdCoursesIds(userEntityDto.getCreatedCoursesIds())
                 .participatingCourses(userEntityDto.getParticipatingCourses())
                 .chatsIds(userEntityDto.getChatsIds())

@@ -1,9 +1,8 @@
 package com.example.mainservice.Service.impl;
 
 import com.example.mainservice.Dto.Homeworks.HomeworkDto;
-import com.example.mainservice.Dto.StudentAttachments.StudentHomeworkAttachmentDto;
 import com.example.mainservice.Dto.User.UserEntityDto;
-import com.example.mainservice.Model.Course;
+import com.example.mainservice.Dto.course.Course;
 import com.example.mainservice.Service.ViewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +11,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 

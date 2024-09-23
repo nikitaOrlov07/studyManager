@@ -24,10 +24,17 @@ public class NotificationServiceApplication {
 
     // Define kafka Listener
     @KafkaListener(topics = "notificationTopic")
-    public void handleNotification(UserEntityDto userEntityDto)
+    public void handleNotification(HashMap<String,UserEntityDto> kafkaData)
     {
-       // send out an email notification
-       log.info("User {} was registered successfully" ,userEntityDto.getId());
+        String operation = null;
+        UserEntityDto user = null;
+        for (Map.Entry<String, UserEntityDto> entry : kafkaData.entrySet()) {
+            operation = entry.getKey();
+            user = entry.getValue();
+        }
+        if(user == null)
+            log.error("User is null");
+        log.info("User with username :"+ user.getUsername() + " and id :"+ user.getId()+" made operation: "+operation);
     }
 
 

@@ -17,8 +17,15 @@ public interface CourseRepository extends JpaRepository<Course,Long> {
     @Query("SELECT c FROM Course c WHERE LOWER(c.title) LIKE LOWER(CONCAT('%', :query, '%'))")
     List<Course> searchCourses(String query);
     Course findCourseByCourseKey(String courseKey);
+    //// Find courses
+    // by creator
     @Query("SELECT c FROM Course c WHERE c.authorId = :authorId AND LOWER(c.title) LIKE LOWER(CONCAT('%', :query, '%'))")
-    List<Course> searchCoursesByTitleAndAuthorId(@Param("query") String query, @Param("authorId") Long authorId);
+    List<Course> searchCreatedCoursesByTitleAndAuthorId(@Param("query") String query, @Param("authorId") Long authorId);
     List<Course> findAllByAuthorId(Long authorId);
+    // by participating user
+    List<Course> findAllByInvolvedUserIdsContaining(Long userID);
+    @Query("SELECT c FROM Course c WHERE :userId MEMBER OF c.involvedUserIds AND LOWER(c.title) LIKE LOWER(CONCAT('%', :query, '%'))")
+    List<Course> searchParticipatingCoursesByTitleAndUserId(@Param("query") String query, @Param("userId") Long userId);
+
 
 }

@@ -1,4 +1,4 @@
-package com.example.mainservice.Entity;
+package com.example.mainservice.Model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

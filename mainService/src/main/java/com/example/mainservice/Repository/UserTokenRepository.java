@@ -1,6 +1,6 @@
 package com.example.mainservice.Repository;
 
-import com.example.mainservice.Entity.UserToken;
+import com.example.mainservice.Model.UserToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

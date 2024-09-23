@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -111,13 +112,24 @@ public class CourseController {
         return courseService.actionCourse(courseId,username,action);
     }
 
-    // Find courses for CabinetPage
-    @GetMapping("/searchUsersCourses")
-    public List<CourseResponse> searchCourses(@RequestParam("courseTitle") String courseTitle ,
-                                              @RequestParam(required = false,value = "authorId") Long authorId)
+    //// Find courses for CabinetPage
+    // Created
+    @GetMapping("/search/{type}")
+    public List<CourseResponse> searchCourses(@PathVariable String type,
+                                              @RequestParam(value = "courseTitle") String courseTitle ,
+                                              @RequestParam(value = "authorId") Long userId)
     {
-        log.info("CourseServive \"searchUsersCourses\" controller method is working with parameters: courseTitle: {} and authorId: {}",courseTitle,authorId);
-        return courseService.searchCourses(courseTitle,authorId);
+        log.info("CourseServive \"searchUsersCourses\" controller method is working with parameters: courseTitle: {} and authorId: {}",courseTitle,userId);
+        List<CourseResponse> courseResponses = new ArrayList<>();
+        if(type.equals("created"))
+        {
+            courseResponses = courseService.searchCreatedCourses(courseTitle,userId);
+        }
+        if(type.equals("participating"))
+        {
+            courseResponses = courseService.searchParticipatedCourses(courseTitle,userId);
+        }
+        return courseResponses;
     }
 
 

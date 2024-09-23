@@ -21,8 +21,8 @@
                 <p><strong>Language:</strong> <span th:text="${course.language != null ? course.language : 'Not specified'}">Language</span></p>
                 <p><strong>Format:</strong> <span th:text="${course.format != null ? course.format : 'Not specified'}">Format</span></p>
                 <p><strong>Creation Date:</strong> <span th:text="${course.creationDate != null ? course.creationDate : 'Not specified'}">Creation Date</span></p>
-                <p><strong>End Date:</strong> <span th:text="${course.endDate != null ? course.endDate : 'Not specified'}">End Date</span></p>
-                <p th:if="${user != null and course.getInvolvedUserIds().contains(user.getId())}"><strong>Chat ID:</strong> <span th:text="${course.chatId != null ? course.chatId : 'Not specified'}">Chat ID</span></p>
+                <p><strong>End Date:</strong> <span th:text="${(course.endDate != null and  !course.endDate.isEmpty())? course.endDate : 'Not specified'}">End Date</span></p>
+                <p><strong>Course IDENTIFIER:</strong> <span th:text="${course.courseIdentifier != null ? course.courseIdentifier : 'Not specified'}">Course identifier</span></p>
             </div>
 
             <div class="author-info">
@@ -30,6 +30,7 @@
                 <p><strong>Username:</strong> <span th:text="${courseAuthor.username}">Author Username</span></p>
                 <p><strong>Registration Date:</strong> <span th:text="${courseAuthor.registrationDate}">Registration Date</span></p>
                 <a th:if="${user != null and user.getId() != courseAuthor.getId()}" th:href="@{/chats/findOrCreateChat(secondUserId=${courseAuthor.id})}" class="btn-chat">Chat with Author</a>
+                <a th:if="${user != null and (course.getInvolvedUserIds().contains(user.id) or user.getRole().equals('ADMIN') or course.authorId.equals(user.id))}" th:href="@{/chats/{chatId}(chatId=${course.getChatId()})}" class="btn-chat">Course chat</a>
             </div>
 
             <div th:if="${course.tags != null and !course.tags.isEmpty()}" class="mt-4">
@@ -37,7 +38,7 @@
                 <div th:each="tag : ${course.tags}" class="tag" th:text="${tag}">Tag</div>
             </div>
 
-            <div th:if="${user != null and (course.getInvolvedUserIds().contains(user.getId()) or course.getAuthorId().equals(user.getId()))}">
+            <div th:if="${user != null and (course.getInvolvedUserIds().contains(user.getId()) or course.getAuthorId().equals(user.getId()) or user.getRole().equals('ADMIN'))}">
                 <h3 class="section-title">Users</h3>
                 <div th:if="${involvedUsers == null or involvedUsers.isEmpty()}" class="alert alert-success">
                     There are no users in this course yet
@@ -54,11 +55,6 @@
                 </div>
             </div>
 
-            <div class="card-footer text-center"
-                 th:if="${user != null and courseAuthor != null and
-             (course.authorId == user.id or course.involvedUserIds.contains(user.id)) and user.id != courseAuthor.id}">
-                <a th:href="@{/chats/{chatId}(chatId=${course.chatId})}">Button</a>
-            </div>
 
             <div class="mt-5">
                 <h3 class="section-title">Attachments</h3>

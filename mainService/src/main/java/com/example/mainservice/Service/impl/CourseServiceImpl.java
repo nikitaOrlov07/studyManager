@@ -1,7 +1,7 @@
 package com.example.mainservice.Service.impl;
 
 import com.example.mainservice.Dto.course.CourseCreationRequest;
-import com.example.mainservice.Model.Course;
+import com.example.mainservice.Dto.course.Course;
 import com.example.mainservice.Security.SecurityUtil;
 import com.example.mainservice.Service.CourseService;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -90,15 +89,33 @@ public class CourseServiceImpl implements CourseService {
 
     // Cabinet page for users who have created courses
     @Override
-    public List<Course> searchCoursesByTitleAndAuthor(String courseTitle, Long id) {
+    public List<Course> searchCreatedCoursesByTitleAndAuthor(String courseTitle, Long id) {
         List<Course> courses = webClientBuilder.build()
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("http")
                         .host("course-service")
-                        .path("/courses/searchUsersCourses")
+                        .path("/courses/search/created")
                         .queryParam("courseTitle",courseTitle)
-                        .queryParam("authorId",id)
+                        .queryParam("userId",id)
+                        .build())
+                .retrieve()
+                .bodyToFlux(Course.class)
+                .collectList()
+                .block();
+        return courses;
+    }
+
+    @Override
+    public List<Course> searchParticipatedCoursesByTitleAndUserId(String courseTitle, Long id) {
+        List<Course> courses = webClientBuilder.build()
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("course-service")
+                        .path("/courses/search/participating")
+                        .queryParam("courseTitle",courseTitle)
+                        .queryParam("userId",id)
                         .build())
                 .retrieve()
                 .bodyToFlux(Course.class)

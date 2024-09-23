@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -33,9 +35,11 @@ import java.util.List;
 public class Controller {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private KafkaTemplate<String, HashMap<String,UserEntityDto>> kafkaTemplate;
 
 
-    @GetMapping("/get") // working
+    @GetMapping("/get")
     public UserEntityDto getUserByUserId(@RequestParam Long userId) {
         return userService.findUserById(userId);
     }
@@ -71,6 +75,13 @@ public class Controller {
         }
         Boolean result = passwordEncoder.matches(loginRequestDto.getPassword(), user.getPassword());
         log.info("Password correct: " + result);
+        if(true == result)
+        {
+            log.info("Start sending kafka message");
+            HashMap<String,UserEntityDto> kafkaData = new HashMap<String, UserEntityDto>();
+            kafkaData.put("login",UserEntityMapper.userEntityToUserEntityDto(user));
+            kafkaTemplate.send("notificationTopic",kafkaData);
+        }
         return result;
     }
 

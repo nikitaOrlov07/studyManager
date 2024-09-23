@@ -23,50 +23,62 @@ public class CustomDeserializer implements Deserializer<Object> {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+
     @Override
     public Object deserialize(String topic, byte[] data) {
         try {
-            // Десериализуем в Map
-            Map<String, Object> map = objectMapper.readValue(data, new TypeReference<Map<String, Object>>() {});
+            // Deserialize Map<String, Map<String, Object>>
+            Map<String, Map<String, Object>> outerMap = objectMapper.readValue(data, new TypeReference<Map<String, Map<String, Object>>>() {});
 
-            // Helper function to safely convert to Long
-            Function<Object, Long> toLong = (obj) -> {
-                if (obj instanceof Integer) {
-                    return ((Integer) obj).longValue();
-                } else if (obj instanceof Long) {
-                    return (Long) obj;
-                } else if (obj instanceof String) {
-                    return Long.parseLong((String) obj);
-                }
-                return null;
-            };
+            HashMap<String, UserEntityDto> result = new HashMap<>();
 
-            // Helper function to safely convert List to List<Long>
-            Function<Object, List<Long>> toListOfLong = (obj) -> {
-                if (obj instanceof List) {
-                    return ((List<?>) obj).stream()
-                            .map(toLong)
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.toList());
-                }
-                return new ArrayList<>();
-            };
+            for (Map.Entry<String, Map<String, Object>> entry : outerMap.entrySet()) {
+                String key = entry.getKey();
+                Map<String, Object> userMap = entry.getValue();
 
-            return new UserEntityDto(
-                    toLong.apply(map.get("id")),
-                    (String) map.get("username"),
-                    (String) map.get("email"),
-                    (String) map.get("password"),
-                    (String) map.get("age"),
-                    (String) map.get("town"),
-                    (String) map.get("phoneNumber"),
-                    (String) map.get("role"),
-                    toListOfLong.apply(map.get("createdCoursesIds")),
-                    toListOfLong.apply(map.get("participatingCourses")),
-                    toListOfLong.apply(map.get("chatsIds")),
-                    toListOfLong.apply(map.get("completedHomeworksIds")),
-                    toListOfLong.apply(map.get("createdHomeworksIds"))
-            );
+                // Helper function to safely convert to Long
+                Function<Object, Long> toLong = (obj) -> {
+                    if (obj instanceof Integer) {
+                        return ((Integer) obj).longValue();
+                    } else if (obj instanceof Long) {
+                        return (Long) obj;
+                    } else if (obj instanceof String) {
+                        return Long.parseLong((String) obj);
+                    }
+                    return null;
+                };
+
+                // Helper function to safely convert List to List<Long>
+                Function<Object, List<Long>> toListOfLong = (obj) -> {
+                    if (obj instanceof List) {
+                        return ((List<?>) obj).stream()
+                                .map(toLong)
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList());
+                    }
+                    return new ArrayList<>();
+                };
+
+                UserEntityDto userDto = new UserEntityDto(
+                        toLong.apply(userMap.get("id")),
+                        (String) userMap.get("username"),
+                        (String) userMap.get("email"),
+                        (String) userMap.get("password"),
+                        (String) userMap.get("age"),
+                        (String) userMap.get("town"),
+                        (String) userMap.get("phoneNumber"),
+                        (String) userMap.get("role"),
+                        toListOfLong.apply(userMap.get("createdCoursesIds")),
+                        toListOfLong.apply(userMap.get("participatingCourses")),
+                        toListOfLong.apply(userMap.get("chatsIds")),
+                        toListOfLong.apply(userMap.get("completedHomeworksIds")),
+                        toListOfLong.apply(userMap.get("createdHomeworksIds"))
+                );
+
+                result.put(key, userDto);
+            }
+
+            return result;
 
         } catch (Exception e) {
             throw new SerializationException("Error deserializing JSON message", e);

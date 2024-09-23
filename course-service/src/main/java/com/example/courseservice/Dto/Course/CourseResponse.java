@@ -32,4 +32,5 @@ public class CourseResponse {
 
     // Author
     private Long authorId;
+    private String courseIdentifier;
 }

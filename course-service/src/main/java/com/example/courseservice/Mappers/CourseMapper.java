@@ -20,6 +20,7 @@ public class CourseMapper {
                 .involvedUserIds(course.getInvolvedUserIds())
                 .chatId(course.getChatId())
                 .courseType(course.getCourseType())
+                .courseIdentifier(course.getCourseKey())
                 .coursePassword(course.getCoursePassword())
                 .authorId(course.getAuthorId())
                 .build();

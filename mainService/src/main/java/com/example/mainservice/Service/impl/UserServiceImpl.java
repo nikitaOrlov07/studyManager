@@ -106,4 +106,20 @@ public class UserServiceImpl implements UserService {
         return users;
     }
 
+    @Override
+    public UserEntityDto findUserById(Long userId) {
+        log.info("Finding user with id " + userId);
+        return  webClientBuilder.build()
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("user-service")
+                        .path("/users/get")
+                        .queryParam("userId" ,userId)
+                        .build())
+                .retrieve()
+                .bodyToMono(UserEntityDto.class)
+                .block();
+    }
+
 }

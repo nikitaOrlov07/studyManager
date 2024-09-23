@@ -10,16 +10,17 @@ import java.io.IOException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Serializer;
 
+import java.util.HashMap;
 import java.util.Map;
 
-public class UserEntityDtoSerializer implements Serializer<UserEntityDto> {
+public class UserEntityDtoSerializer implements Serializer<HashMap<String,UserEntityDto>> {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public byte[] serialize(String topic, UserEntityDto data) {
+    public byte[] serialize(String topic, HashMap<String,UserEntityDto> kafkaData) { // String value is type of notification (can be register , log in or delete account)
         try {
-            return objectMapper.writeValueAsBytes(data);
+            return objectMapper.writeValueAsBytes(kafkaData);
         } catch (Exception e) {
             throw new RuntimeException("Error serializing UserEntityDto", e);
         }

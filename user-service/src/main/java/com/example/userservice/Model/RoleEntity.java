@@ -1,26 +1,23 @@
 package com.example.userservice.Model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity(name = "roles")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name ="roles")
 public class RoleEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  Long id;
+    private Long id;
     private String name;
 
-    @ManyToMany(mappedBy = "roles")
+    @OneToMany(mappedBy = "role")
+    @ToString.Exclude
     private List<UserEntity> users = new ArrayList<>();
-
 }

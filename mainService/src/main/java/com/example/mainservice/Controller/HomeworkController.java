@@ -1,14 +1,11 @@
 package com.example.mainservice.Controller;
 
-import com.example.mainservice.Dto.Homeworks.Enums.HomeworkStatus;
-import com.example.mainservice.Dto.Homeworks.Enums.StudentAttachmentStatus;
 import com.example.mainservice.Dto.Homeworks.HomeworkDto;
 import com.example.mainservice.Dto.Homeworks.HomeworkRequest;
 import com.example.mainservice.Dto.StudentAttachments.StudentAttachmentRequest;
 import com.example.mainservice.Dto.StudentAttachments.StudentHomeworkAttachmentDto;
 import com.example.mainservice.Dto.User.UserEntityDto;
-import com.example.mainservice.Model.Attachment;
-import com.example.mainservice.Model.Course;
+import com.example.mainservice.Dto.course.Course;
 import com.example.mainservice.Security.SecurityUtil;
 import com.example.mainservice.Service.CourseService;
 import com.example.mainservice.Service.HomeworkService;
@@ -19,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;

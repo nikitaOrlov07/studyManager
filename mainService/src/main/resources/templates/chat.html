@@ -31,7 +31,7 @@
             <button type="submit" class="btn">Send</button>
         </div>
     </form>
-    <th:block>
+    <th:block th:if="${chat.courseId == null}">
         <form class="delete-btn delete" id="deleteChatForm" style="display: inline-block;">
             <input type="submit" value="Delete" class="btn btn-danger">
         </form>

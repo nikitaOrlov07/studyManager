@@ -1,7 +1,7 @@
 package com.example.mainservice.Controller;
 
 import com.example.mainservice.Dto.User.UserEntityDto;
-import com.example.mainservice.Model.Course;
+import com.example.mainservice.Dto.course.Course;
 import com.example.mainservice.Security.SecurityUtil;
 import com.example.mainservice.Service.AuthService;
 import com.example.mainservice.Service.CourseService;
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -43,6 +42,7 @@ public class MainController {
         if(SecurityUtil.getSessionUser() != null && !SecurityUtil.getSessionUser().isEmpty()) {
            UserEntityDto userEntityDto = jwtDecoder.decodeToken(authService.getUserTokenByIpAdressAndUsername(ipAddress,SecurityUtil.getSessionUser()).getToken());
            log.info("User: "+ userEntityDto.getUsername()+ " was logged in");
+           log.info("User role is "+userEntityDto.getRole());
         }
         model.addAttribute("courses", courses);
         return "mainPage";
@@ -65,6 +65,7 @@ public class MainController {
         log.info("Course type: " + course.getCourseType());
         log.info("Course authorId is :" + course.getAuthorId());
 
+
         // Get current user information
         UserEntityDto userEntityDto = null;
         if(SecurityUtil.getSessionUser() != null && !SecurityUtil.getSessionUser().isEmpty())
@@ -78,7 +79,7 @@ public class MainController {
         log.info("Detail Page Main controller method is working");
 
         // Find course author information
-        UserEntityDto courseAuthor = userService.findUsersByIds(Arrays.asList(course.getAuthorId())).get(0);
+        UserEntityDto courseAuthor =  userService.findUserById(course.getAuthorId());
 
         model.addAttribute("courseAuthor",courseAuthor);
         return "detailPage";
@@ -92,7 +93,11 @@ public class MainController {
         if (searchBar == null || searchBar.trim().isEmpty()) {
             return "redirect:/home";
         }
-
+        if(searchBar != null)
+        {
+            log.info("Search query is :" + searchBar);
+            log.info("Search type is :" + type);
+        }
         List<Course> coursesList = viewService.searchCourses(type, searchBar);
         coursesList.forEach(System.out::println);
         model.addAttribute("courses", coursesList);
@@ -109,27 +114,31 @@ public class MainController {
         {
             return "redirect:/home?notAllowed"; // if user is unauthorised -> he can`t reach cabinet page
         }
-        if(userTitle != null)
-        {
-            if(!currentUserEntity.getRole().equals("ADMIN")) {
-                return "redirect:/home?notAllowed"; // if user is not ADMIN -> he can`t use search user by title logic
-            }
-            else {
-                List<UserEntityDto> foundUsers =  userService.findUsersByUsernames(userTitle);
-                log.info("found users list size is: " + foundUsers.size());
-                model.addAttribute("foundUsers",foundUsers);
-                return "cabinet :: usersList"; // update only userList fragment?
-            }
-        }
-        List<Course> courses = null;
-        if(!currentUserEntity.getCreatedCoursesIds().isEmpty())
-        {
-                courses = courseService.searchCoursesByTitleAndAuthor(courseTitle,currentUserEntity.getId());
-                log.info("find courses list size is: " + courses.size());
-                model.addAttribute("courses",courses);
-                return "cabinet :: coursesList"; // update only
+
+
+        if(currentUserEntity.getRole().equals("ADMIN")) {
+            List<UserEntityDto> foundUsers =  userService.findUsersByUsernames(userTitle);
+            log.info("found users list size is: " + foundUsers.size());
+            model.addAttribute("foundUsers",foundUsers);
+            return "cabinet :: usersList"; // update only userList fragment?
         }
 
+        List<Course> createdCourses= null;
+        if(!currentUserEntity.getCreatedCoursesIds().isEmpty())
+        {
+            createdCourses = courseService.searchCreatedCoursesByTitleAndAuthor(courseTitle,currentUserEntity.getId());
+            log.info("found created courses list size is: " + createdCourses.size());
+            model.addAttribute("courses",createdCourses);
+            return "cabinet :: createdCoursesList";
+        }
+        List<Course> participatingCourses= null;
+        if(!currentUserEntity.getParticipatingCourses().isEmpty())
+        {
+            participatingCourses = courseService.searchParticipatedCoursesByTitleAndUserId(courseTitle,currentUserEntity.getId());
+            log.info("find participated courses list size is: " + createdCourses.size());
+            model.addAttribute("courses",createdCourses);
+            return "cabinet :: participatingCoursesList";
+        }
         model.addAttribute("currentUser",currentUserEntity);
         return "cabinet";
     }

@@ -1,6 +1,6 @@
 package com.example.mainservice.Service.impl;
 
-import com.example.mainservice.Entity.UserToken;
+import com.example.mainservice.Model.UserToken;
 import com.example.mainservice.Repository.UserTokenRepository;
 import com.example.mainservice.Service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;

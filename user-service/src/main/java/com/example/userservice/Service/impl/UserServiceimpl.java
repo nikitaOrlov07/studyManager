@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -25,7 +26,7 @@ public class UserServiceimpl implements UserService {
     @Autowired
     private UserEntityRepository userRepository;
     @Autowired
-    private KafkaTemplate<String,UserEntityDto> kafkaTemplate;
+    private KafkaTemplate<String,HashMap<String,UserEntityDto>> kafkaTemplate;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -54,7 +55,9 @@ public class UserServiceimpl implements UserService {
         userEntity.setRegistrationDate(date.format(formatter));
         // Save user
         userRepository.save(userEntity);
-        kafkaTemplate.send("notificationTopic",UserEntityMapper.userEntityToUserEntityDto(userEntity));
+        HashMap<String,UserEntityDto> kafkaData = new HashMap<String, UserEntityDto>();
+        kafkaData.put("register", UserEntityMapper.userEntityToUserEntityDto(userEntity));
+        kafkaTemplate.send("notificationTopic",kafkaData);
     }
 
     @Override

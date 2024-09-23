@@ -17,17 +17,20 @@
     <div id="error" th:if="${param.error}" class="alert alert-danger">
         An error occurred.
     </div>
-    <form class="search-form" action="/courses/findCourses" method="get">
-        <select name="type" th:value="${param.type}">
-            <option value="title" th:selected="${param.type == 'title'}">Search by Title</option>
-            <option value="identifier" th:selected="${param.type == 'identifier'}">Search by Identifier</option>
+    <form id="searchForm" class="search-form" action="/courses/findCourses" method="get">
+        <select id="searchType" name="type">
+            <option value="title">Search by Title</option>
+            <option value="identifier">Search by Identifier</option>
         </select>
         <input type="text" name="searchBar" placeholder="Enter search term" th:value="${param.searchBar}">
         <button type="submit">Search</button>
     </form>
 
     <h1>Available Courses</h1>
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4" style="width: 100%;max-height: 800px; overflow-y: auto;">
+    <div th:if="${courses == null or courses.isEmpty()}" class="alert alert-success">
+        Course list is empty
+    </div>
+    <div th:if="${courses != null and !courses.isEmpty()}" class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4" style="width: 100%;max-height: 800px; overflow-y: auto;">
         <div class="col" th:each="course : ${courses}">
             <div class="card h-100">
                 <div class="card-body">
@@ -42,11 +45,32 @@
             </div>
         </div>
     </div>
-    <script>
+    <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function() {
             hideAlertAfterDelay('notAllowedMessage');
             hideAlertAfterDelay('error');
+
+            // Get the search type from URL or localStorage
+            var searchType = new URLSearchParams(window.location.search).get('type') || localStorage.getItem('searchType') || 'title';
+
+            // Set the selected option
+            document.getElementById('searchType').value = searchType;
+
+            // Save the search type when form is submitted
+            document.getElementById('searchForm').addEventListener('submit', function() {
+                var selectedType = document.getElementById('searchType').value;
+                localStorage.setItem('searchType', selectedType);
+            });
         });
+
+        function hideAlertAfterDelay(id) {
+            var element = document.getElementById(id);
+            if (element) {
+                setTimeout(function() {
+                    element.style.display = 'none';
+                }, 5000);
+            }
+        }
     </script>
 </div>
 </body>

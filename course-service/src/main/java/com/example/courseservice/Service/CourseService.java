@@ -29,5 +29,7 @@ public interface CourseService {
 
     Course findByTitle(String courseTitle);
 
-    List<CourseResponse> searchCourses(String courseTitle, Long authorId);
+    List<CourseResponse> searchCreatedCourses(String courseTitle, Long authorId);
+
+    List<CourseResponse> searchParticipatedCourses(String courseTitle, Long userId);
 }
