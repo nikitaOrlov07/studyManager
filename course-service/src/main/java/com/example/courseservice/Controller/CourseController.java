@@ -117,7 +117,7 @@ public class CourseController {
     @GetMapping("/search/{type}")
     public List<CourseResponse> searchCourses(@PathVariable String type,
                                               @RequestParam(value = "courseTitle") String courseTitle ,
-                                              @RequestParam(value = "authorId") Long userId)
+                                              @RequestParam(value = "userId") Long userId)
     {
         log.info("CourseServive \"searchUsersCourses\" controller method is working with parameters: courseTitle: {} and authorId: {}",courseTitle,userId);
         List<CourseResponse> courseResponses = new ArrayList<>();

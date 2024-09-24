@@ -105,43 +105,33 @@ public class MainController {
     }
     // Cabinet Page
     @GetMapping("/cabinet")
-    public String getCabinetPage(@RequestParam(required = false ,value = "courseTitle") String courseTitle, // for course creator -> find course by title
-                                 @RequestParam(required = false,value = "userTitle") String userTitle,
-                                 Model model) // for Admin -> find user by title
-    {
+    public String getCabinetPage(@RequestParam(required = false, value = "createdCourseTitle") String createdCourseTitle,
+                                 @RequestParam(required = false, value = "participatingCourseTitle") String participatingCourseTitle,
+                                 @RequestParam(required = false, value = "userTitle") String userTitle,
+                                 Model model) {
         UserEntityDto currentUserEntity = userService.findUserByUsername(SecurityUtil.getSessionUser());
-        if(currentUserEntity == null)
-        {
-            return "redirect:/home?notAllowed"; // if user is unauthorised -> he can`t reach cabinet page
+        if (currentUserEntity == null) {
+            return "redirect:/home?notAllowed";
         }
 
-
-        if(currentUserEntity.getRole().equals("ADMIN")) {
-            List<UserEntityDto> foundUsers =  userService.findUsersByUsernames(userTitle);
-            log.info("found users list size is: " + foundUsers.size());
-            model.addAttribute("foundUsers",foundUsers);
-            return "cabinet :: usersList"; // update only userList fragment?
+        if (currentUserEntity.getRole().equals("ADMIN")) {
+            List<UserEntityDto> foundUsers = userService.findUsersByUsernames(userTitle);
+            model.addAttribute("foundUsers", foundUsers);
         }
 
-        List<Course> createdCourses= null;
-        if(!currentUserEntity.getCreatedCoursesIds().isEmpty())
-        {
-            createdCourses = courseService.searchCreatedCoursesByTitleAndAuthor(courseTitle,currentUserEntity.getId());
-            log.info("found created courses list size is: " + createdCourses.size());
-            model.addAttribute("courses",createdCourses);
-            return "cabinet :: createdCoursesList";
+        List<Course> createdCourses = null;
+        if (!currentUserEntity.getCreatedCoursesIds().isEmpty()) {
+            createdCourses = courseService.searchCreatedCoursesByTitleAndAuthor(createdCourseTitle, currentUserEntity.getId());
+            model.addAttribute("createdCourses", createdCourses);
         }
-        List<Course> participatingCourses= null;
-        if(!currentUserEntity.getParticipatingCourses().isEmpty())
-        {
-            participatingCourses = courseService.searchParticipatedCoursesByTitleAndUserId(courseTitle,currentUserEntity.getId());
-            log.info("find participated courses list size is: " + createdCourses.size());
-            model.addAttribute("courses",createdCourses);
-            return "cabinet :: participatingCoursesList";
+
+        List<Course> participatingCourses = null;
+        if (!currentUserEntity.getParticipatingCourses().isEmpty()) {
+            participatingCourses = courseService.searchParticipatedCoursesByTitleAndUserId(participatingCourseTitle, currentUserEntity.getId());
+            model.addAttribute("participatedCourses", participatingCourses);
         }
-        model.addAttribute("currentUser",currentUserEntity);
+
+        model.addAttribute("currentUser", currentUserEntity);
         return "cabinet";
     }
-
-
 }

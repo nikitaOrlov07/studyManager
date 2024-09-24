@@ -307,6 +307,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional
     public List<CourseResponse> searchParticipatedCourses(String courseTitle, Long userId) {
         List<Course> courses = (courseTitle == null || courseTitle.isEmpty())
                 ? courseRepository.findAllByInvolvedUserIdsContaining(userId)

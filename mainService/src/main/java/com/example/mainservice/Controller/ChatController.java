@@ -68,7 +68,7 @@ public class ChatController {
         return "chat";
     }
     @GetMapping("/findOrCreateChat")
-    public String findOrCreateChat(@RequestParam(required = false) Long secondUserId) throws Exception {
+    public String findOrCreateChat(@RequestParam Long secondUserId) throws Exception {
         log.info("Main Service \"findOrCreateChat\" controller method is working");
         UserEntityDto currentUser = userService.findUserByUsername(SecurityUtil.getSessionUser());
         if (currentUser == null)
