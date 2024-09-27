@@ -29,4 +29,7 @@ public interface UserEntityRepository extends JpaRepository<UserEntity,Long> {
     List<UserEntity> findAllByHomeworksIdsContaining(Long homeworkId);
     //  Find homework in "completingHomeworks" list
     List<UserEntity> findAllByCompletedHomeworksIdsContaining(Long homeworkId);
+
+    // Method for course deleting
+    List<UserEntity> findAllByParticipatingCoursesContaining(Long courseId);
 }

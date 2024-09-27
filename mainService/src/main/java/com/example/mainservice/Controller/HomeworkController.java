@@ -38,7 +38,7 @@ public class HomeworkController {
     @GetMapping("/create/course/{courseId}")
     public String createHomeworkPage(@PathVariable Long courseId,
                                      Model model) throws Exception {
-        Course course = viewService.findCourse(courseId);
+        Course course = courseService.findCourse(courseId);
         String username = SecurityUtil.getSessionUser();
         if(course == null || username == null || username.isEmpty())
         {
@@ -224,8 +224,8 @@ public class HomeworkController {
                                Model model) throws Exception {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("involvedUsers", userService.findUsersByIds(viewService.findCourse(courseId).getInvolvedUserIds()));
-            model.addAttribute("course", viewService.findCourse(courseId));
+            model.addAttribute("involvedUsers", userService.findUsersByIds(courseService.findCourse(courseId).getInvolvedUserIds()));
+            model.addAttribute("course", courseService.findCourse(courseId));
             return "homeworkCreation";
         }
 

@@ -52,7 +52,10 @@ public class CourseController {
             return e.getMessage();
         }
         // file saving
-        log.info("file size: "+ files.size());
+        if(files == null || files.isEmpty())
+            log.info("File list is empty");
+        else
+            log.info("Files size :" + files.size());
         if(files != null) {
             for (MultipartFile file : files ) {
                 if (!file.isEmpty()) {
@@ -66,10 +69,7 @@ public class CourseController {
         }
         return "course was created successfully";
     }
-    // update logic
-    /*
-    
-     */
+
     // For Detail page working
     @GetMapping("/{courseId}")
     @ResponseStatus(HttpStatus.OK)
@@ -80,18 +80,6 @@ public class CourseController {
             throw new ResourceNotFoundException("Course with ID " + courseId + " not found.");
         }
         return courseResponse;
-    }
-    // Delete Course logic
-    @PostMapping("/delete/{courseId}")
-    @ResponseStatus(HttpStatus.OK)
-    public String deleteCourse(@PathVariable Long courseId) {
-        log.info("deleteCourse Controller method is working");
-        // HTTP request to userService and delete this course  from users courses
-        /*
-
-         */
-        courseService.deleteCourse(courseId);
-      return "course was successfully deleted";
     }
     //  Search logic
     @GetMapping ("/search")
@@ -130,6 +118,27 @@ public class CourseController {
             courseResponses = courseService.searchParticipatedCourses(courseTitle,userId);
         }
         return courseResponses;
+    }
+    // Delete Course logic
+    @PostMapping("/delete")
+    public Boolean deleteCourse(@RequestParam Long courseId)
+    {
+        log.info("Course service \"deleteCourse\" controller method is working for course with id: " + courseId);
+
+            Boolean result = courseService.deleteCourse(courseId);
+            if(true == result)
+                log.info("Course was successfully deleted");
+            else
+                log.error("Error occurred deleting course");
+
+            return  result;
+
+        /*
+        catch (Exception e) {
+            log.error("Exception: {} occurred while deleting course with id {}", e, courseId);
+            return false;
+        }
+        */
     }
 
 

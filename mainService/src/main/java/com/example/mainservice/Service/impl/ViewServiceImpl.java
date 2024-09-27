@@ -44,24 +44,6 @@ public class ViewServiceImpl implements ViewService {
     }
 
 
-    @Override
-    public Course findCourse(Long courseId) throws Exception {
-        try {
-            return webClientBuilder.build()
-                    .get()
-                    .uri("http://course-service/courses/{courseId}", courseId)
-                    .retrieve()
-                    .bodyToMono(Course.class)
-                    .block();
-        } catch (WebClientResponseException e) {
-            log.error("Error fetching course with ID {}: {}", courseId, e.getMessage());
-            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                throw new Exception("Course with ID " + courseId + " not found.");
-            }
-            throw new RuntimeException("Error fetching course", e);
-        }
-    }
-
 
 
         /// For files

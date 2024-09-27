@@ -53,11 +53,11 @@ public class Homework {
     @JsonIgnore
     private List<Attachment> attachmentList = new ArrayList<>();
 
+
     // Student homework attachment
     @OneToMany(mappedBy = "homework", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<StudentHomeworkAttachment> studentAttachments = new ArrayList<>();
-
     // Relationship with Course
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "course_id") // This will create a foreign key in the Homework table

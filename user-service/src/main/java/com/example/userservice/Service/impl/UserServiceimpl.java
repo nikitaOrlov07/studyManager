@@ -113,10 +113,21 @@ public class UserServiceimpl implements UserService {
         }
         else if(action.equals("delete"))
         {
+            log.info("User delete course service logic is working");
             if(type.equals("courses"))
             {
                 userEntity.getCreatedCoursesIds().remove(id);
-                log.info("User delete course");
+                List<UserEntity> participatingUsers = userRepository.findAllByParticipatingCoursesContaining(id);
+                if(participatingUsers != null && !participatingUsers.isEmpty())
+                {
+                    log.info("Deleting course participating user size is :" + participatingUsers.size());
+                    for(UserEntity participatingUser : participatingUsers)
+                    {
+                        participatingUser.getParticipatingCourses().remove(id);
+                        userRepository.save(participatingUser);
+                    }
+                }
+                log.info("Deleted course information cleared");
             }
             if(type.equals("homeworks"))
             {

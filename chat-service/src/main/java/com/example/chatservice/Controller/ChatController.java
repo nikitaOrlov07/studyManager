@@ -37,12 +37,9 @@ public class ChatController {
     }
 
     @PostMapping("/saveChat")
-    public ResponseEntity<Long> saveChat(@RequestParam(value = "courseId", required = false) Long courseId,
-                                         Authentication authentication) {
-        UserEntityDto currentUser = (UserEntityDto) authentication.getPrincipal();
-        log.info("Username: "+currentUser.getUsername());
-        log.info("Users role: "+currentUser.getRole());
-        Long chatId = chatService.saveChat(courseId, currentUser.getId());
+    public ResponseEntity<Long> saveChat(@RequestParam(value = "courseId") Long courseId, @RequestParam(value = "currentId") Long currentId) {
+
+        Long chatId = chatService.saveChat(courseId, currentId);
         log.info("For course with id: {} was created chat with id: {}", courseId, chatId);
         return ResponseEntity.ok(chatId);
     }

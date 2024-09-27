@@ -27,7 +27,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/chats/findOrCreate").authenticated()
-                        .requestMatchers("/chats/saveChat").authenticated()
+                        .requestMatchers("/chats/saveChat").permitAll()
                         .requestMatchers("/chats/findChatById").authenticated()
                         .requestMatchers("/chats/**").authenticated()
                         .anyRequest().permitAll())

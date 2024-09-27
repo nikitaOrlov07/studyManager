@@ -7,6 +7,7 @@ import com.example.mainservice.Service.CourseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.MultipartBodyBuilder;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.io.IOException;
 import java.util.List;
@@ -123,5 +125,36 @@ public class CourseServiceImpl implements CourseService {
                 .block();
         return courses;
     }
+    @Override
+    public Course findCourse(Long courseId) throws Exception {
+        try {
+            return webClientBuilder.build()
+                    .get()
+                    .uri("http://course-service/courses/{courseId}", courseId)
+                    .retrieve()
+                    .bodyToMono(Course.class)
+                    .block();
+        } catch (WebClientResponseException e) {
+            log.error("Error fetching course with ID {}: {}", courseId, e.getMessage());
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                throw new Exception("Course with ID " + courseId + " not found.");
+            }
+            throw new RuntimeException("Error fetching course", e);
+        }
+    }
 
+    @Override
+    public Boolean deleteCourse(Long courseId) {
+        return  webClientBuilder.build()
+                .post()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("course-service")
+                        .path("courses/delete")
+                        .queryParam("courseId", courseId)
+                        .build())
+                .retrieve()
+                .bodyToMono(Boolean.class)
+                .block();
+    }
 }

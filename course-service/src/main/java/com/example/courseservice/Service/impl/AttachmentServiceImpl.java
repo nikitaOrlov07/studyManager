@@ -1,6 +1,5 @@
 package com.example.courseservice.Service.impl;
 
-import com.example.courseservice.Config.exceptions.ResourceNotFoundException;
 import com.example.courseservice.Dto.UserEntity.UserEntityDto;
 import com.example.courseservice.Dto.UserEntity.UserEntityResponse;
 import com.example.courseservice.Model.Attachment;
@@ -10,6 +9,7 @@ import com.example.courseservice.Repository.AttachmentRepository;
 import com.example.courseservice.Repository.CourseRepository;
 import com.example.courseservice.Repository.HomeworkRepository;
 import com.example.courseservice.Service.AttachmentService;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -112,30 +111,31 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Transactional
-    public void deleteFile(Attachment attachment) {
+    public Boolean deleteFile(Attachment attachment) {
         if (attachment == null) {
-            return;
+            return false;
         }
 
-        // Отвязываем Attachment от Course
-        Course course = attachment.getCourse();
-        if (course != null) {
-            course.getAttachments().remove(attachment);
+        // detach  Attachment and Course entities
+        if (attachment.getCourse() != null) {
+            Course course = courseRepository.findById(attachment.getCourse().getId()).get();
             attachment.setCourse(null);
+            course.getAttachments().remove(attachment);
             courseRepository.save(course);
         }
 
-        // Отвязываем Attachment от Homework
-        Homework homework = attachment.getHomework();
-        if (homework != null) {
+        // Detach Attachment and Homework entities
+
+        if (attachment.getHomework() != null) {
+            Homework homework = homeworkRepository.findById(attachment.getHomework().getId()).get();
             homework.getAttachmentList().remove(attachment);
             attachment.setHomework(null);
             homeworkRepository.save(homework);
         }
 
-        // Удаляем сам Attachment
+        // Delete attachment from database
         attachmentRepository.delete(attachment);
+
+        return  true;
     }
-
-
 }

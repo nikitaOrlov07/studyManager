@@ -18,5 +18,5 @@ public interface AttachmentService {
 
     boolean canMakeOperationsWithAttachment(UserEntityResponse userEntityDto, Attachment attachment);
 
-    void deleteFile(Attachment attachment);
+    Boolean deleteFile(Attachment attachment);
 }

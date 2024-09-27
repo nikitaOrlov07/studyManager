@@ -23,6 +23,9 @@
     </style>
 </head>
 <body class="bg-gray-100" layout:fragment="body">
+    <div id="courseDeleted" th:if="${param.courseDeleted}" class="alert alert-success">
+    Course was successfully deleted
+    </div>
 <div class="container mx-auto px-5 py-8">
     <header class="bg-white shadow rounded-lg p-6 mb-8">
         <h1 class="text-3xl font-bold text-gray-800">User Cabinet</h1>
@@ -163,6 +166,10 @@
                 }
             });
         });
+    });
+
+        document.addEventListener('DOMContentLoaded', function() {
+        hideAlertAfterDelay('courseDeleted');
     });
 </script>
 </body>

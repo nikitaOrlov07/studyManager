@@ -31,6 +31,9 @@
                 <p><strong>Registration Date:</strong> <span th:text="${courseAuthor.registrationDate}">Registration Date</span></p>
                 <a th:if="${user != null and user.getId() != courseAuthor.getId()}" th:href="@{/chats/findOrCreateChat(secondUserId=${courseAuthor.id})}" class="btn-chat">Chat with Author</a>
                 <a th:if="${user != null and (course.getInvolvedUserIds().contains(user.id) or user.getRole().equals('ADMIN') or course.authorId.equals(user.id))}" th:href="@{/chats/{chatId}(chatId=${course.getChatId()})}" class="btn-chat">Course chat</a>
+                <form th:if="${user != null and (courseAuthor.equals(user) or user.getRole().equals('ADMIN'))}" th:action="@{/courses/delete/{courseId}(courseId=${course.getId()})}" method="post" onsubmit="return confirm('Are you sure you want to delete this course?');">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
             </div>
 
             <div th:if="${course.tags != null and !course.tags.isEmpty()}" class="mt-4">

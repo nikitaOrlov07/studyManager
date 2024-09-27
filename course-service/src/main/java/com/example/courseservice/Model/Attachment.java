@@ -48,6 +48,6 @@ public class Attachment {
     @JoinColumn(name = "homework_id", referencedColumnName = "id")
     private Homework homework;
 
-    private String accessType; // can be open or private
+    private String accessType; // can be course , homework , student Attachment
 
 }

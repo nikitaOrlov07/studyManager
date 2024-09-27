@@ -14,4 +14,8 @@ public interface CourseService {
     List<Course> searchCreatedCoursesByTitleAndAuthor(String courseTitle, Long id);
 
     List<Course> searchParticipatedCoursesByTitleAndUserId(String courseTitle, Long id);
+
+     Course findCourse(Long courseId) throws Exception;
+
+     Boolean deleteCourse(Long id);
 }

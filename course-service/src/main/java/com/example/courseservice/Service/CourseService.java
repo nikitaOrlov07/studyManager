@@ -16,7 +16,7 @@ public interface CourseService {
 
     String uploadFile(MultipartFile file, Long id, String author) throws Exception;
 
-    void deleteCourse(Long courseId);
+    Boolean deleteCourse(Long courseId);
 
 
     List<Course> getCourseByIds(List<Long> courseIds);

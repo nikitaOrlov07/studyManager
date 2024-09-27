@@ -9,13 +9,17 @@ import com.example.courseservice.Mappers.CourseMapper;
 import com.example.courseservice.Mappers.UsersMapper;
 import com.example.courseservice.Model.Attachment;
 import com.example.courseservice.Model.Course;
+import com.example.courseservice.Model.Homework;
 import com.example.courseservice.Repository.CourseRepository;
 import com.example.courseservice.Service.AttachmentService;
 import com.example.courseservice.Service.CourseService;
+import com.example.courseservice.Service.HomeworkService;
 import com.example.courseservice.Service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -39,6 +43,10 @@ public class CourseServiceImpl implements CourseService {
     private final AttachmentService attachmentService;
     private final WebClient.Builder webClientBuilder; // for HTTP requests
     private final UserService userService;
+
+    @Lazy // lazy initialization to prevent circular references
+    @Autowired
+    private  HomeworkService homeworkService;
 
     @Override
     public List<Course> getAllCourses() {
@@ -181,15 +189,6 @@ public class CourseServiceImpl implements CourseService {
         return "file successfully uploaded";
     }
 
-    // Course delete logic -> working
-    @Override
-    public void deleteCourse(Long courseId) {
-        Course course = courseRepository.findById(courseId).get();
-        if(course == null)
-            throw new ResourceNotFoundException("Course with ID " + courseId + " not found.");
-        courseRepository.delete(course);
-    }
-
     @Override
     public List<Course> getCourseByIds(List<Long> courseIds) {
         List<Course> courses = courseIds.stream()
@@ -326,5 +325,52 @@ public class CourseServiceImpl implements CourseService {
         courseRepository.save(course);
     }
 
+    // Course delete logic -> working
+    @Override
+    @Transactional
+    public Boolean deleteCourse(Long courseId) {
+        Course   course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("Course not found"));
+        if(course == null)
+            throw new ResourceNotFoundException("Course with ID " + courseId + " not found.");
+        // Delete all course homeworks
+        log.info("Course files size before homework delete: "+ course.getAttachments().size());
+        List<Homework> homeworks = new ArrayList<>(course.getHomeworks());
+        if(homeworks != null && !homeworks.isEmpty()) {
+            for (Homework homework : homeworks) {
+                homeworkService.deleteHomework(homework.getId());  // homework is removed from the course list in the homeworkService
+            }
+        }
+        // Update course from database
+        course = courseRepository.findById(course.getId()).orElseThrow(() -> new ResourceNotFoundException("Course not found"));
+        log.info("Course files size after homework delete: "+ course.getAttachments().size());
 
+        if(course.getHomeworks().isEmpty())
+            log.info("Course homeworks was successfully deleted");
+        else {
+            log.error("Error while deleting course homeworks");
+            return false;
+        }
+        // Delete course attachments
+        List<Attachment> courseAttachments = new ArrayList<>(course.getAttachments());
+
+        if (courseAttachments != null && !courseAttachments.isEmpty()) {
+            for (Attachment attachment : courseAttachments) {
+                Boolean result = attachmentService.deleteFile(attachment);
+                if (result) {
+                    log.info("Attachment successfully deleted");
+                } else {
+                    log.info("Error while deleting attachment");
+                }
+            }
+        }
+
+        course = courseRepository.findById(course.getId()).orElseThrow(() -> new ResourceNotFoundException("Course not found"));
+
+        // Clear course information from userService
+        userService.updateUserItems("courses","delete",course.getId(),course.getAuthorId());
+        // Delete course from database
+        courseRepository.delete(course);
+
+        return true;
+    }
 }

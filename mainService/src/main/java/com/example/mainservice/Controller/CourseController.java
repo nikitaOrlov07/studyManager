@@ -1,8 +1,11 @@
 package com.example.mainservice.Controller;
 
+import com.example.mainservice.Dto.User.UserEntityDto;
+import com.example.mainservice.Dto.course.Course;
 import com.example.mainservice.Dto.course.CourseCreationRequest;
 import com.example.mainservice.Security.SecurityUtil;
 import com.example.mainservice.Service.CourseService;
+import com.example.mainservice.Service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +25,7 @@ import java.util.List;
 public class CourseController {
 
     private final CourseService courseService;
+    private final UserService userService;
 
     // Create Course
     @GetMapping("/create")
@@ -45,7 +49,10 @@ public class CourseController {
             return "course-create";
         }
         log.info("Course save controller is working");
-        log.info("Files size :" + files.size());
+        if(files == null || files.isEmpty())
+            log.info("File list is empty");
+        else
+            log.info("Files size :" + files.size());
         String result = courseService.createCourse(request, files);
         if(result.equals("Course with title " + request.getTitle() + " already exists"))
         {
@@ -73,5 +80,31 @@ public class CourseController {
 
         return "redirect:/courses/"+courseId+"?success"+action; // action can be join or leave
     }
-
+    @PostMapping("/delete/{courseId}")
+    public String deleteCourse(@PathVariable Long courseId) throws Exception {
+        log.info("Main Service \"deleteCourse\" controller method is working");
+        Course course = courseService.findCourse(courseId);
+        UserEntityDto userEntityDto = userService.findUserByUsername(SecurityUtil.getSessionUser());
+        if(userEntityDto == null)
+        {
+            log.error("Unauthorised user trying to reach \"deleteCourse\" logic");
+            return "redirect:/home?notAllowed";
+        }
+        if(!userEntityDto.getCreatedCoursesIds().contains(course.getId()) && !userEntityDto.getRole().equals("ADMIN"))
+        {
+            log.error("User with id : {} tries to delete a course with id {} , that wasn't created by him ",userEntityDto.getId(),courseId);
+            return "redirect:/home?notAllowed";
+        }
+        Boolean result = courseService.deleteCourse(course.getId());
+        if(true == result)
+        {
+            log.info("Course was successfully deleted");
+            return "redirect:/cabinet?courseDeleted";
+        }
+        else
+        {
+            log.error("Error occurred while deleting course");
+            return "redirect:/home?error";
+        }
+    }
 }

@@ -52,7 +52,7 @@ public class MainController {
                              Model model) throws Exception
     {
         // Get course information
-        Course course = viewService.findCourse(courseId);
+        Course course = courseService.findCourse(courseId);
         log.info("CourseId is: " + course.getId());
         model.addAttribute("course", course);
         // Find involved users
