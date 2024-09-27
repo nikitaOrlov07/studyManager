@@ -25,4 +25,6 @@ public interface UserService {
     boolean changeChatIds(List<Long> usersIds,Long chatId, String operationType);
 
     List<UserEntityDto> searchUsersByTitle(String query);
+
+    Boolean deleteHomework(Long homeworkId);
 }

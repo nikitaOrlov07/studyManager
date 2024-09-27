@@ -12,4 +12,6 @@ public interface UserService {
     void updateUserItems(String type, String action, Long id, Long userId);
 
     UserEntityResponse findUsersByUsername(String username);
+
+    Boolean deleteHomework(Long id);
 }

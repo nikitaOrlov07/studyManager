@@ -36,7 +36,7 @@ public class Controller {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     @Autowired
-    private KafkaTemplate<String, HashMap<String,UserEntityDto>> kafkaTemplate;
+    private KafkaTemplate<String, HashMap<String, UserEntityDto>> kafkaTemplate;
 
 
     @GetMapping("/get")
@@ -75,12 +75,11 @@ public class Controller {
         }
         Boolean result = passwordEncoder.matches(loginRequestDto.getPassword(), user.getPassword());
         log.info("Password correct: " + result);
-        if(true == result)
-        {
+        if (true == result) {
             log.info("Start sending kafka message");
-            HashMap<String,UserEntityDto> kafkaData = new HashMap<String, UserEntityDto>();
-            kafkaData.put("login",UserEntityMapper.userEntityToUserEntityDto(user));
-            kafkaTemplate.send("notificationTopic",kafkaData);
+            HashMap<String, UserEntityDto> kafkaData = new HashMap<String, UserEntityDto>();
+            kafkaData.put("login", UserEntityMapper.userEntityToUserEntityDto(user));
+            kafkaTemplate.send("notificationTopic", kafkaData);
         }
         return result;
     }
@@ -116,37 +115,53 @@ public class Controller {
     public Boolean updateItemsInformation(@PathVariable("type") String type,     // type can be homework or course
                                           @PathVariable("id") Long id,
                                           @PathVariable("action") String action, // action can be "create","update", "submit" , "check"
-                                          @RequestParam("userId") Long userId)
-    {
+                                          @RequestParam("userId") Long userId) {
         log.info("createOrDeleteItems controller method is working");
 
-        log.info("Type: "+type);
-        log.info("Action: "+ action);
-        log.info("UserId: "+ userId);
+        log.info("Type: " + type);
+        log.info("Action: " + action);
+        log.info("UserId: " + userId);
         log.info("Item id: " + id);
 
-        userService.updateCreatedItems(action,type,id,userId);
+        userService.updateCreatedItems(action, type, id, userId);
         return true;
     }
+
     @PostMapping("/assignHomeworks")
     public void assignHomework(@RequestParam("usersId") List<Long> userEntities,
                                @RequestParam("homeworkId") Long homeworkId,
                                @RequestParam("type") String type) // type can be submitted or assigned
     {
-      log.info("assignHomework controller method is working");
-      userService.assignHomeworks(userEntities, homeworkId , type);
+        log.info("assignHomework controller method is working");
+        userService.assignHomeworks(userEntities, homeworkId, type);
     }
+
     @PostMapping("/chats/addChatsIds/{operationType}")
-    public boolean addChatId(@PathVariable(value="operationType",required = false) String operationType, @RequestParam(value = "usersIds", required = false) List<Long> userIds ,@RequestParam(value = "chatId",required = false) Long chatId )
-    {
+    public boolean addChatId(@PathVariable(value = "operationType", required = false) String operationType, @RequestParam(value = "usersIds", required = false) List<Long> userIds, @RequestParam(value = "chatId", required = false) Long chatId) {
         log.info("\"addChatId\" Controller method is working");
-        return userService.changeChatIds(userIds,chatId,operationType);
+        return userService.changeChatIds(userIds, chatId, operationType);
     }
+
     // Method for admin cabinet page for "finding users by username"
     @GetMapping("/searchUsersByQuery")
-    public List<UserEntityDto> searchUsersByTitle(@RequestParam String query)
-    {
+    public List<UserEntityDto> searchUsersByTitle(@RequestParam String query) {
         log.info("\"searchUsersByTitle\" Controller method is working");
         return userService.searchUsersByTitle(query);
+    }
+
+    // delete homework from user information
+    @PostMapping("/homeworks/delete/{homeworkId}")
+    public Boolean deleteHomework(@PathVariable Long homeworkId)
+    {
+        log.info("User Service\"deleteHomework\" Controller method is working");
+        Boolean result = userService.deleteHomework(homeworkId);
+        if(true == result)
+        {
+            log.info("homework was successfully deleted from users information");
+        }
+        else {
+            log.error("error occurred while deleting homework from users information");
+        }
+        return result;
     }
 }

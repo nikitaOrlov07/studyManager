@@ -321,5 +321,10 @@ public class CourseServiceImpl implements CourseService {
         return  courses.stream().map(CourseMapper::getCourseResponseFromCourse).collect(Collectors.toList());
     }
 
+    @Override
+    public void saveEntity(Course course) {
+        courseRepository.save(course);
+    }
+
 
 }

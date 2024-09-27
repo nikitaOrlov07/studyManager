@@ -201,5 +201,35 @@ public class UserServiceimpl implements UserService {
         }
     }
 
-
+    @Override
+    public Boolean deleteHomework(Long homeworkId) {
+        // Find in created homeworks
+        UserEntity authorEntity = userRepository.findByCreatedHomeworksIdsContaining(homeworkId);
+        authorEntity.getCreatedHomeworksIds().remove(homeworkId);
+        userRepository.save(authorEntity);
+        // Find in homeworks ids
+        List<UserEntity> userEntities = userRepository.findAllByHomeworksIdsContaining(homeworkId);
+        if(userEntities != null && !userEntities.isEmpty())
+        {
+            for(UserEntity userEntity: userEntities)
+            {
+                log.info("Size of users who need to do homework with id: {} is : {}",homeworkId, userEntities.size());
+                userEntity.getHomeworksIds().remove(homeworkId);
+                userRepository.save(userEntity);
+            }
+        }
+        // Find in completing homeworks
+        userEntities = userRepository.findAllByCompletedHomeworksIdsContaining(homeworkId);
+        if(userEntities != null && !userEntities.isEmpty())
+        {
+            for(UserEntity userEntity: userEntities)
+            {
+                log.info("Size of users who complete homework with id: {} is : {}",homeworkId, userEntities.size());
+                userEntity.getCompletedHomeworksIds().remove(homeworkId);
+                userRepository.save(userEntity);
+            }
+        }
+        log.info("homework with id {} was deleted from all users lists",homeworkId);
+        return true;
+    }
 }

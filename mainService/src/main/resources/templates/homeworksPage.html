@@ -22,6 +22,9 @@
 
         <!-- Teacher View -->
         <div th:if="${pageType == 'teacher'}">
+            <div th:if="${param.homeworkDeleted}" class="alert alert-success">
+                The homework was successfully deleted
+            </div>
             <div class="filter-buttons">
                 <button th:class="${type == 'All'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks/teacherPage?type=All'">All Homeworks</button>
                 <button th:class="${type == 'Checked'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks/teacherPage?type=Checked'">Checked</button>

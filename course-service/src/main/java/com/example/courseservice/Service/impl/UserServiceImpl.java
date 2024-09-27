@@ -52,7 +52,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserEntityResponse findUsersByUsername(String username) {
-        log.info("MainService \"findUserByUsername \" service method is working");
         UserEntityResponse userEntityResponse = webClientBuilder.build()
                 .get()
                 .uri("http://user-service/users/"+username)
@@ -61,6 +60,20 @@ public class UserServiceImpl implements UserService {
                 .block();
 
         return userEntityResponse;
+    }
+
+    @Override
+    public Boolean deleteHomework(Long homeworkId) {
+        return webClientBuilder.build()
+                .post()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("user-service")
+                        .path("/users/homeworks/delete/"+homeworkId)
+                        .build())
+                .retrieve()
+                .bodyToMono(Boolean.class)
+                .block();
     }
 
 }

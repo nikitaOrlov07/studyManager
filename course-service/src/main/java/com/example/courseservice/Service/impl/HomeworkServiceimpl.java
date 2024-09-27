@@ -1,5 +1,6 @@
 package com.example.courseservice.Service.impl;
 
+import com.example.courseservice.Config.exceptions.ResourceNotFoundException;
 import com.example.courseservice.Dto.Homework.Enums.HomeworkStatus;
 import com.example.courseservice.Dto.Homework.HomeworkRequest;
 import com.example.courseservice.Dto.Homework.HomeworkResponse;
@@ -363,6 +364,7 @@ import java.util.stream.Collectors;
             return "Student attachment successfully checked";
         }
 
+
         @Override
         @Transactional(readOnly = true)
         public List<HomeworkResponse> getHomeworks(Long studentId, String type) {
@@ -409,4 +411,47 @@ import java.util.stream.Collectors;
                     .map(mapper::convertToHomeworkResponse)
                     .collect(Collectors.toList());
         }
+
+        @Override
+        @Transactional
+        public Boolean deleteHomework(Long homeworkId) {
+            Homework homework = homeworkRepository.findById(homeworkId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Homework not found"));
+
+            Course course = homework.getCourse();
+            if (course != null) {
+                course.getHomeworks().remove(homework);
+                homework.setCourse(null);
+                log.info("Homework course information removed");
+            }
+
+            for (StudentHomeworkAttachment attachment : new ArrayList<>(homework.getStudentAttachments())) {
+                studentHomeworkAttachmentRepository.delete(attachment);
+            }
+            homework.getStudentAttachments().clear();
+
+            if(homework.getStudentAttachments().isEmpty())
+                log.info("Successfully delete student attachments");
+            else
+                log.error("Failed to delete student attachments");
+
+
+            for (Attachment attachment : new ArrayList<>(homework.getAttachmentList())) {
+                attachmentService.deleteFile(attachment);
+            }
+
+            homework.getAttachmentList().clear();
+            if(homework.getAttachmentList().isEmpty())
+                log.info("Successfully delete all homework attachments");
+            else
+                log.error("Failed to delete homework attachments");
+
+            userService.deleteHomework(homeworkId);
+            homeworkRepository.saveAndFlush(homework); // Saves the entity in the database and immediately calls the flush() operation to synchronise the state of the entity with the database.
+            homeworkRepository.flush(); // Forces all changes that have been made to managed entities (within the current transaction) to be written to the database.
+            homeworkRepository.delete(homework);
+
+            return true;
+        }
+
     }

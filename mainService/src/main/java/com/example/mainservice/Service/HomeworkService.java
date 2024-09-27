@@ -21,4 +21,6 @@ public interface HomeworkService {
      String checkStudentAttachment(Long homeworkId, Long studentAttachmentId , Integer mark , String message , String status);
 
     StudentHomeworkAttachmentDto findStudentAttachmentsByHomeworkAndStudentId(Long homeworkId, Long userId);
+
+    Boolean deleteHomework(Long homeworkId);
 }

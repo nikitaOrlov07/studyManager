@@ -32,4 +32,6 @@ public interface CourseService {
     List<CourseResponse> searchCreatedCourses(String courseTitle, Long authorId);
 
     List<CourseResponse> searchParticipatedCourses(String courseTitle, Long userId);
+
+    void saveEntity(Course course);
 }

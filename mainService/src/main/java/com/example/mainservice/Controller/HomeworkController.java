@@ -167,6 +167,18 @@ public class HomeworkController {
     public String getHomeworkDetailPageForTeacher(@PathVariable Long homeworkId,
                                                   Model model)
     {
+        String username = SecurityUtil.getSessionUser();
+        if(username == null || username.isEmpty())
+        {
+            log.error("Not authenticated user trying to reach teacher page");
+            return "redirect:/notAllowed";
+        }
+        UserEntityDto userEntityDto = userService.findUserByUsername(username);
+        if(userEntityDto == null || !userEntityDto.getCreatedHomeworksIds().contains(homeworkId))
+        {
+            log.error("User cant reach teacher detail page of homework with id {} " ,homeworkId);
+            return "redirect:/home?notAllowed";
+        }
         HomeworkDto homeworkDto = viewService.findHomeworkByHomeworkId(homeworkId);
         List<StudentHomeworkAttachmentDto> studentsAttachments = homeworkService.findStudentsAttachmentsByHomeworkId(homeworkId);
         List<UserEntityDto> notSubmittedUsers = userService.findUsersByIds(homeworkDto.getUserEntitiesId());
@@ -185,6 +197,7 @@ public class HomeworkController {
         model.addAttribute("homeworkAttachments",studentsAttachments);
         model.addAttribute("pageType","teacher");
         model.addAttribute("notSubmittedUsers",notSubmittedUsers);
+        model.addAttribute("user",userEntityDto);
 
         return "homeworkDetailPage";
     }
@@ -262,6 +275,31 @@ public class HomeworkController {
         log.info("Attachment was uploaded successfully");
 
         return "redirect:/homeworks/"+studentAttachmentRequest.getHomeworkId();
+    }
 
+    // Delete homework (only for homework author)
+    @GetMapping("/delete/{homeworkId}")
+    public String  deleteHomework(@PathVariable Long homeworkId)
+    {
+        log.info("Main Service \"deleteHomework\" Controller method is working with homework id : {}");
+        String username = SecurityUtil.getSessionUser();
+        if(username == null || username.isEmpty())
+        {
+            log.error("User is not logged in");
+            return "redirect:/home?notAllowed";
+        }
+        UserEntityDto currentUser = userService.findUserByUsername(username);
+        if(currentUser == null || !currentUser.getCreatedHomeworksIds().contains(homeworkId))
+        {
+            log.error("Not author trying to delete homework with id : {}",homeworkId);
+            return "redirect:/home?notAllowed";
+        }
+        Boolean result = homeworkService.deleteHomework(homeworkId);
+        if(true != result)
+        {
+            log.error("Error while deleting homework with id : {}",homeworkId);
+            return "redirect:/home?error";
+        }
+        return "redirect:/homeworks/teacherPage?homeworkDeleted";
     }
 }

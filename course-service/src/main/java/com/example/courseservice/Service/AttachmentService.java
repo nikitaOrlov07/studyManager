@@ -17,4 +17,6 @@ public interface AttachmentService {
     Attachment getAttachment(Long fileId) throws Exception;
 
     boolean canMakeOperationsWithAttachment(UserEntityResponse userEntityDto, Attachment attachment);
+
+    void deleteFile(Attachment attachment);
 }

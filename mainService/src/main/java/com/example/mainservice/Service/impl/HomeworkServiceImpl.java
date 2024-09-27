@@ -237,5 +237,19 @@ public class HomeworkServiceImpl implements HomeworkService {
 
         return multipartData;
     }
+    @Override
+    public Boolean deleteHomework(Long homeworkId) {
+        log.info("Trying to delete homework with id: "+ homeworkId);
+        return webClientBuilder.build()
+                .post()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("course-service")
+                        .path("/homeworks/delete/"+homeworkId)
+                        .build())
+                .retrieve()
+                .bodyToMono(Boolean.class)
+                .block();
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.example.courseservice.Controller;
 
+import com.example.courseservice.Config.exceptions.ResourceNotFoundException;
 import com.example.courseservice.Dto.Homework.HomeworkRequest;
 import com.example.courseservice.Dto.Homework.HomeworkResponse;
 import com.example.courseservice.Dto.Homework.Enums.StudentAttachmentStatus;
@@ -156,5 +157,29 @@ public class HomeworkController {
     {
         log.info("Course Service \"findStudentAttachmentById \" controller method is working");
         return studentAttachmentService.findStudentAttachmentById(studentAttachmentId);
+    }
+    // Delete homework
+    @PostMapping("/delete/{homeworkId}")
+    public Boolean deleteHomework(@PathVariable("homeworkId") Long homeworkId)
+    {
+        log.info("Course Service \"deleteHomework \" controller method is working");
+
+        try {
+            Boolean result = homeworkService.deleteHomework(homeworkId);
+            if(result)
+            {
+                log.info("Homework with id {} was deleted successfully" , homeworkId);
+            }
+            else
+                log.error("Error occurred while deleting homework with id :" + homeworkId);
+
+            return result;
+        }
+        catch (ResourceNotFoundException e)
+        {
+            log.error("Error occurred while deleting homework:  "+ e.getMessage());
+            return false;
+        }
+
     }
 }
