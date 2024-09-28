@@ -6,6 +6,8 @@ import com.example.mainservice.Service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TokenServiceImpl implements TokenService {
     @Autowired
@@ -13,7 +15,16 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public String findTokenByUsername(String username) throws Exception {
-        UserToken userToken = tokenRepository.findUserTokenByUsername(username).orElseThrow(() -> new Exception("User not found"));
-        return userToken.getToken();
+        List<UserToken> userTokens = tokenRepository.findUserTokensByUsername(username);
+        if (userTokens.isEmpty()) {
+            throw new Exception("User not found");
+        }
+
+        // Sort tokens by time of last entry (in descending order)
+        userTokens.sort((a, b) -> b.getLastLoginTime().compareTo(a.getLastLoginTime()));
+
+        // Return the token of the most recent session
+        return userTokens.get(0).getToken();
     }
+
 }

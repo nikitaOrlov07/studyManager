@@ -463,4 +463,16 @@ import java.util.stream.Collectors;
             return true;
         }
 
+        @Override
+        @Transactional
+        public List<HomeworkResponse> getHomeworksByCourseId(Long courseId) {
+            // Find Course Entity
+            Course course = courseService.findCourseById(courseId);
+            List<Homework> homeworks = homeworkRepository.findAllByCourse(course);
+            if(homeworks == null || homeworks.isEmpty())
+                return  null;
+
+            return homeworks.stream().map(mapper :: convertToHomeworkResponse).collect(Collectors.toList());
+        }
+
     }

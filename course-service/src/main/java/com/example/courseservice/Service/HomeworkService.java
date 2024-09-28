@@ -33,4 +33,6 @@ public interface HomeworkService {
     String checkHomework(Long studentAttachmentId, Integer mark, String message, String status);
 
     Boolean deleteHomework(Long homeworkId);
+
+    List<HomeworkResponse> getHomeworksByCourseId(Long courseId);
 }

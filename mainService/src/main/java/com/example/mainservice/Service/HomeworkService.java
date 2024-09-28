@@ -18,9 +18,12 @@ public interface HomeworkService {
 
     Boolean uploadStudentAttachment(StudentAttachmentRequest studentAttachmentRequest, List<MultipartFile> files) throws IOException;
 
-     String checkStudentAttachment(Long homeworkId, Long studentAttachmentId , Integer mark , String message , String status);
+    String checkStudentAttachment(Long homeworkId, Long studentAttachmentId , Integer mark , String message , String status);
 
     StudentHomeworkAttachmentDto findStudentAttachmentsByHomeworkAndStudentId(Long homeworkId, Long userId);
 
     Boolean deleteHomework(Long homeworkId);
+
+
+    List<HomeworkDto> findHomeworksByCourseId(Long id);
 }

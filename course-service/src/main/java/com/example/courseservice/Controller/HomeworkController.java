@@ -131,6 +131,18 @@ public class HomeworkController {
 
         return homeworkService.findHomeworksByAuthorAndStatusAndCourseIdAndCourseTitle(authorId , homeworkStatus,courseTitle,homeworkTitle);
     }
+    // Get homeworks by course id
+    @GetMapping("/getHomeworksByCourseId")
+    public List<HomeworkResponse> getHomeworksByCourseId(@RequestParam("courseId") Long courseId)
+    {
+        log.info("Course service \"getHomeworksByCourseId\" controller method is working for course with id: "+ courseId);
+        List<HomeworkResponse> homeworks = homeworkService.getHomeworksByCourseId(courseId);
+        if(homeworks == null || homeworks.isEmpty())
+            log.info("Finding homeworks list is empty");
+        else
+            log.info("Finding homeworks list size is : "+ homeworks.size());
+        return homeworks;
+    }
 
 
     /// StudentAttachments
@@ -158,6 +170,7 @@ public class HomeworkController {
         log.info("Course Service \"findStudentAttachmentById \" controller method is working");
         return studentAttachmentService.findStudentAttachmentById(studentAttachmentId);
     }
+
     // Delete homework
     @PostMapping("/delete/{homeworkId}")
     public Boolean deleteHomework(@PathVariable("homeworkId") Long homeworkId)

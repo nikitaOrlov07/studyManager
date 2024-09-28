@@ -137,18 +137,31 @@ footer {
 .author-info p {
     margin-bottom: 10px;
 }
-.btn-chat {
-    background-color: #6c757d;
-    color: white;
-    padding: 8px 15px;
+.card {
+    background-color: white;
     border-radius: 5px;
-    text-decoration: none;
-    transition: background-color 0.3s ease;
-    display: inline-block;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.card h3 {
+    margin-top: 0;
+}
+.card .status {
+    font-weight: bold;
     margin-top: 10px;
 }
-.btn-chat:hover {
-    background-color: #5a6268;
-    text-decoration: none;
+.card button {
+    background-color: #4CAF50;
     color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+.homework-list-container {
+    max-height: 800px;
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid #ccc;
 }

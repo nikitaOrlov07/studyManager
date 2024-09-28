@@ -6,6 +6,7 @@
 <head>
     <title>Homeworks</title>
     <link rel="stylesheet" th:href="@{/css/homeworksPage.css}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css">
 </head>
 <body>
 <div layout:fragment="body">
@@ -18,11 +19,18 @@
             <button th:class="${type == 'Submitted'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks?type=Submitted'">Submitted</button>
             <button th:class="${type == 'Checked'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks?type=Checked'">Checked</button>
             <button th:class="${type == 'Rejected'} ? 'btn btn-primary' : 'btn btn-secondary'" onclick="location.href='/homeworks?type=Rejected'">Rejected</button>
+            <a th:if="${user != null and !user.createdHomeworksIds.isEmpty()}"
+               th:href="@{/homeworks/teacherPage}"
+               class="btn btn-success mt-3 d-flex align-items-center justify-content-center"
+               style="font-weight: bold; font-size: 16px;">
+                <i class="bi bi-person-check me-2"></i> <!-- Bootstrap icon -->
+                Teacher Page
+            </a>
         </div>
 
         <!-- Teacher View -->
         <div th:if="${pageType == 'teacher'}">
-            <div th:if="${param.homeworkDeleted}" class="alert alert-success">
+            <div id="homeworkDeleted" th:if="${param.homeworkDeleted}" class="alert alert-success">
                 The homework was successfully deleted
             </div>
             <div class="filter-buttons">
@@ -35,6 +43,13 @@
                 <input type="text" id="homeworkTitle" placeholder="Homework Title">
                 <button onclick="submitSearch()" class="btn btn-primary">Search</button>
             </div>
+            <a th:if="${user != null}"
+               th:href="@{/homeworks}"
+               class="btn btn-success mt-3 d-flex align-items-center justify-content-center"
+               style="font-weight: bold; font-size: 16px;">
+                <i class="bi bi-person-check me-2"></i> <!-- Bootstrap icon -->
+                Homeworks
+            </a>
             <form id="searchForm" class="search-form" action="/homeworks/teacherPage" method="get"></form>
         </div>
 
@@ -94,6 +109,10 @@
                 // If both inputs are empty, prevent form submission
                 return courseTitle || homeworkTitle;
             }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                hideAlertAfterDelay('homeworkDeleted');
+            });
         </script>
 
 

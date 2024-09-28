@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import nl.basjes.parse.useragent.UserAgent;
 import nl.basjes.parse.useragent.UserAgentAnalyzer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -99,14 +100,14 @@ public class AuthController {
         // Get User-Agent string
         String userAgentString = request.getHeader("User-Agent");
 
-        // Initialize UserAgentAnalyzer (consider making this a bean for better performance)
+        // Initialize UserAgentAnalyzer
         UserAgentAnalyzer uaa = UserAgentAnalyzer.newBuilder()
                 .hideMatcherLoadStats()
                 .withCache(10000)
                 .build();
 
         // Parse User-Agent
-        nl.basjes.parse.useragent.UserAgent userAgent = uaa.parse(userAgentString);
+        UserAgent userAgent = uaa.parse(userAgentString);
 
         // Extract device information
         String deviceBrand = userAgent.getValue("DeviceBrand");
@@ -142,8 +143,30 @@ public class AuthController {
     public String logoutUser(HttpServletRequest request, HttpServletResponse response) {
         String username = SecurityUtil.getSessionUser();
         if (username != null) {
+            // Get User-Agent string
+            String userAgentString = request.getHeader("User-Agent");
+
+
+            //// Extract current user Device information using User-agent object
+            // Initialize UserAgentAnalyzer -> class that is used to analyse and parse the User-Agent string
+            UserAgentAnalyzer uaa = UserAgentAnalyzer.newBuilder()
+                    .hideMatcherLoadStats()
+                    .withCache(10000)
+                    .build();
+
+            // Parse User-Agent
+            UserAgent userAgent = uaa.parse(userAgentString); // the parse method parses the userAgentString and creates a UserAgent object that represents the result of the parsing. This object contains all parsed data such as device name, device brand, operating system and browser.
+
+            String deviceBrand = userAgent.getValue("DeviceBrand");
+            String deviceName = userAgent.getValue("DeviceName");
+            String operatingSystem = userAgent.getValue("OperatingSystemName");
+            String browserName = userAgent.getValue("AgentName");
+
+            // Combine information to create a device identifier
+            String deviceInfo = String.format("%s %s (%s, %s)", deviceBrand, deviceName, operatingSystem, browserName);
+
             // Delete token logic by device and location
-            authService.deleteUserToken(username,request.getRemoteAddr());
+            authService.deleteSpecificUserToken(username,request.getRemoteAddr(),deviceInfo);
             // To clear the security context (SecurityContextHolder). The logout method terminates the current authentication session by removing authentication data from the security context, and logs out of the system.
             new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
             // The user session is invalidated, which means it will be invalidated. Calling request.getSession(false) returns the current session if it exists, or null if there is no session. If a session is found, session.invalidate() is called, which invalidates the session by destroying all of its attributes.

@@ -252,4 +252,21 @@ public class HomeworkServiceImpl implements HomeworkService {
                 .block();
     }
 
+    @Override
+    public List<HomeworkDto> findHomeworksByCourseId(Long courseId) {
+        log.info("Main service method for finding homeworks by courseId: "+ courseId);
+        return webClientBuilder.build()
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host("course-service")
+                        .path("/homeworks/getHomeworksByCourseId")
+                        .queryParam("courseId",courseId)
+                        .build())
+                .retrieve()
+                .bodyToFlux(HomeworkDto.class)
+                .collectList()
+                .block();
+    }
+
 }

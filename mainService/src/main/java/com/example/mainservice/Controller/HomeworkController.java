@@ -90,6 +90,7 @@ public class HomeworkController {
 
         model.addAttribute("pageType","teacher"); // for view
         model.addAttribute("homeworks",createdHomeworks);
+        model.addAttribute("user",userEntityDto);
 
       return "homeworksPage";
 

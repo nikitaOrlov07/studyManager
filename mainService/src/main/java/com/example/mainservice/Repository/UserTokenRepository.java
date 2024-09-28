@@ -12,9 +12,8 @@ import java.util.Optional;
 @Repository
 public interface UserTokenRepository extends JpaRepository<UserToken, Long> {
 
-    UserToken findUserTokenByUsernameAndIpAddress(String username, String ipAddress);
+    List<UserToken> findUserTokensByUsernameAndIpAddress(String username, String ipAddress);
 
     UserToken findByUsernameAndDeviceTypeAndIpAddress(String username, String deviceType, String ipAddress);
     List<UserToken> findByExpirationTimeBefore(LocalDateTime localDateTime);
-    Optional<UserToken> findUserTokenByUsername(String username);
-}
+    List<UserToken> findUserTokensByUsername(String username);}

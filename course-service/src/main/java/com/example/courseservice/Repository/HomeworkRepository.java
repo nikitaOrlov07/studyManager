@@ -17,17 +17,17 @@ public interface HomeworkRepository extends JpaRepository<Homework,Long>, JpaSpe
     // Query to find all Homework where the userEntitiesId list contains the given studentId
 
 
-
     List<Homework> findAllByUserEntitiesIdContaining(Long studentId);
 
     // Find homeworks for students by status and studentId
     List<Homework> findBySubmitHomeworkUserEntitiesIdContaining(Long userId);
+
     List<Homework> findByGradedHomeworkUserEntitiesIdContaining(Long userId);
+
     List<Homework> findByRejectedHomeworkUserEntitiesIdContaining(Long userId);
+
     List<Homework> findByAcceptedHomeworkEntitiesIdContaining(Long userId);
 
-    // Find homeworks for  teacher by their id and homework status
-    List<Homework> findByAuthorIdAndStatusAndCourse(Long authorId, HomeworkStatus status, Course course); // if status value is null -> Spring will search only by authorId
-
-    Homework findByTitle(String title);
+    // Find homeworks by Course
+    List<Homework> findAllByCourse(Course course);
 }

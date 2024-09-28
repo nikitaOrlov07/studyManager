@@ -1,12 +1,10 @@
 package com.example.mainservice.Controller;
 
+import com.example.mainservice.Dto.Homeworks.HomeworkDto;
 import com.example.mainservice.Dto.User.UserEntityDto;
 import com.example.mainservice.Dto.course.Course;
 import com.example.mainservice.Security.SecurityUtil;
-import com.example.mainservice.Service.AuthService;
-import com.example.mainservice.Service.CourseService;
-import com.example.mainservice.Service.UserService;
-import com.example.mainservice.Service.ViewService;
+import com.example.mainservice.Service.*;
 import com.example.mainservice.Service.impl.JwtDecoderImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +27,7 @@ public class MainController {
     final private AuthService authService;
     final private JwtDecoderImpl jwtDecoder;
     final private CourseService courseService;
+    final private HomeworkService homeworkService;
 
 
     @GetMapping("/home")
@@ -40,7 +39,7 @@ public class MainController {
         log.info("mainPage controller is working");
         List<Course> courses = viewService.getCourses();
         if(SecurityUtil.getSessionUser() != null && !SecurityUtil.getSessionUser().isEmpty()) {
-           UserEntityDto userEntityDto = jwtDecoder.decodeToken(authService.getUserTokenByIpAdressAndUsername(ipAddress,SecurityUtil.getSessionUser()).getToken());
+           UserEntityDto userEntityDto = jwtDecoder.decodeToken(authService.getUserTokenByIpAddressAndUsername(ipAddress,SecurityUtil.getSessionUser()).getToken());
            log.info("User: "+ userEntityDto.getUsername()+ " was logged in");
            log.info("User role is "+userEntityDto.getRole());
         }
@@ -82,6 +81,16 @@ public class MainController {
         UserEntityDto courseAuthor =  userService.findUserById(course.getAuthorId());
 
         model.addAttribute("courseAuthor",courseAuthor);
+
+        // Find homeworks by courseId
+        List<HomeworkDto> courseHomeworks = homeworkService.findHomeworksByCourseId(course.getId());
+        if(courseHomeworks == null && courseHomeworks.isEmpty())
+            log.info("Course homeworkList is empty");
+        else
+            log.info("Course homeworkList size is : "+ courseHomeworks.size());
+
+        model.addAttribute("homeworks",courseHomeworks);
+
         return "detailPage";
     }
 

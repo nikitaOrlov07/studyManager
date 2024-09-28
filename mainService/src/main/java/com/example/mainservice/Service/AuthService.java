@@ -6,7 +6,6 @@ import com.example.mainservice.Model.UserToken;
 public interface AuthService {
     String login(LoginRequest loginRequest);
 
-    UserToken getUserTokenByIpAdressAndUsername(String ipAddress, String sessionUser);
-
-    void deleteUserToken(String username, String remoteAddr);
+    UserToken getUserTokenByIpAddressAndUsername(String ipAddress, String sessionUser);
+    void deleteSpecificUserToken(String username, String ipAddress, String deviceType);
 }

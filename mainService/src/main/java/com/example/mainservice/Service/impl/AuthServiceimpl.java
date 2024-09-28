@@ -98,25 +98,25 @@ public class AuthServiceimpl implements AuthService {
     }
 
     @Override
-    public UserToken getUserTokenByIpAdressAndUsername(String ipAddress, String sessionUser) {
-        return userTokenRepository.findUserTokenByUsernameAndIpAddress(sessionUser,ipAddress);
+    public UserToken getUserTokenByIpAddressAndUsername(String ipAddress, String sessionUser) {
+        List<UserToken> tokens = userTokenRepository.findUserTokensByUsernameAndIpAddress(sessionUser, ipAddress);
+        if(tokens == null || tokens.isEmpty())
+            log.warn("Token list is empty for username: {} with ip address: {}",sessionUser,ipAddress);
+        else
+            log.info("Token list for user : {} with ip address : {} has {} size" , sessionUser,ipAddress, tokens.size());
+
+        return tokens.isEmpty() ? null : tokens.get(0);
     }
 
     @Override
-    public void deleteUserToken(String username, String remoteAddr) {
-        UserToken userToken = getUserTokenByIpAdressAndUsername(remoteAddr, username);
+    public void deleteSpecificUserToken(String username, String ipAddress, String deviceType) {
+        log.info("Deleting specific user token for user: {} from IP: {} and device: {}", username, ipAddress, deviceType);
+        UserToken userToken = userTokenRepository.findByUsernameAndDeviceTypeAndIpAddress(username, deviceType, ipAddress);
         if (userToken != null) {
-            userToken.setSessionCount(userToken.getSessionCount() - 1);
-            if (userToken.getSessionCount() <= 0) {
-                userTokenRepository.delete(userToken);
-                log.info("User token deleted for user: {} from IP: {}", username, remoteAddr);
-            } else {
-                userTokenRepository.save(userToken);
-                log.info("Session count decremented for user: {} from IP: {}. Remaining sessions: {}",
-                        username, remoteAddr, userToken.getSessionCount());
-            }
+            userTokenRepository.delete(userToken);
+            log.info("User token deleted for user: {} from IP: {} and device: {}", username, ipAddress, deviceType);
         } else {
-            log.warn("No token found for username: {} and IP: {}", username, remoteAddr);
+            log.warn("No token found for username: {}, IP: {}, and device: {}", username, ipAddress, deviceType);
         }
     }
     @Scheduled(fixedRate = 3600000) // Run every hour
