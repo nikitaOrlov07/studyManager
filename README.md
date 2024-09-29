@@ -39,7 +39,7 @@
    - **Role**: Send notifications related to user activity.
    - **Features**:
      - **Asynchronous communication** with User Service using **Apache Kafka**.
-     - Sends notifications when users register or update their profiles.
+     - Sends notifications when users register or login into  their profiles.
 
 ### 7. **Discovery Service**
    - **Role**: Dynamic discovery and interaction between microservices.
@@ -108,7 +108,38 @@ Access Grafana at http://localhost:3000 for logs, metrics, and tracing.
 - **Zookeeper** (Kafka cluster management)
 - **Kafka Broker** (message broker)
 - **Redis** (centralized session storage)
-- **UserService database** (database, which contains detailed information about the user)
-- **CourseService database** (database, which contains detailed information about courses , homeworks)
-- **ChatService database** (database, which contains detailed information about the chats and messages)
-- **MainService database** (database, which contains users jwt tokens)
+
+## Screenshots
+
+### Main Page 
+![image](https://github.com/user-attachments/assets/1fb2c15e-d552-4b3d-9e77-16c03993d4dd)
+
+### Detail page for course author
+![image](https://github.com/user-attachments/assets/82a5207a-f241-4da1-849d-a9bf53a1d374)
+
+### Chat Page
+![image](https://github.com/user-attachments/assets/cbb55b1c-507e-445e-b148-01fa82dd2f81)
+
+### Login and Registry pages
+![image](https://github.com/user-attachments/assets/ef6a400b-cd01-484e-b733-bb97fc7fda18)
+
+### Homeworks Page (for students)
+![image](https://github.com/user-attachments/assets/2e0ca25a-2ce6-4ba1-a54e-3fde1f27b196)
+
+### Homeworks Page (for teachers)
+![image](https://github.com/user-attachments/assets/df4d31b1-315b-4cd3-86a5-5d61376ebf74)
+
+### Homework detail page (for student)
+![image](https://github.com/user-attachments/assets/514a296d-53d6-4862-9580-effe247bb266)
+
+### Homework detail page (for teacher)
+![image](https://github.com/user-attachments/assets/7f448cbf-3ce7-41ad-937a-133d77883be4)
+
+### Create page for course 
+![image](https://github.com/user-attachments/assets/820e9a3c-0b9f-444a-a402-ab5b36ac9883)
+
+### Create page for homeworks
+![image](https://github.com/user-attachments/assets/cf5288da-6309-4783-9d15-3e125bd7a291)
+
+
+
