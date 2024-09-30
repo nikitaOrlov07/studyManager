@@ -74,7 +74,7 @@
 - **JWT Tokens** and **Sessions**: Security measures for authentication and user session management.
 - **Discovery Service**: For microservice registration and dynamic discovery.
 - **Java, CSS, JavaScript, HTML**: Core technologies for application development.
-- **Docker Containers** 
+- **Docker Containers**: Streamline the deployment and management of various services in my project.  
 
 ---
 
