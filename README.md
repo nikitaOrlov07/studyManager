@@ -74,6 +74,7 @@
 - **JWT Tokens** and **Sessions**: Security measures for authentication and user session management.
 - **Discovery Service**: For microservice registration and dynamic discovery.
 - **Java, CSS, JavaScript, HTML**: Core technologies for application development.
+- **Docker Containers**: 
 
 ---
 
@@ -130,7 +131,7 @@ Access Grafana at http://localhost:3000 for logs, metrics, and tracing.
 ![image](https://github.com/user-attachments/assets/df4d31b1-315b-4cd3-86a5-5d61376ebf74)
 
 ### Homework detail page (for student)
-![image](https://github.com/user-attachments/assets/514a296d-53d6-4862-9580-effe247bb266)
+![image](https://github.com/user-attachments/assets/9d2133b2-8c05-4b9d-8403-15ccc9203803)
 
 ### Homework detail page (for teacher)
 ![image](https://github.com/user-attachments/assets/7f448cbf-3ce7-41ad-937a-133d77883be4)
