@@ -290,7 +290,7 @@ public class HomeworkController {
             return "redirect:/home?notAllowed";
         }
         UserEntityDto currentUser = userService.findUserByUsername(username);
-        if(currentUser == null || !currentUser.getCreatedHomeworksIds().contains(homeworkId))
+        if(currentUser == null || (!currentUser.getCreatedHomeworksIds().contains(homeworkId) && !currentUser.getRole().equals("Admin")))
         {
             log.error("Not author trying to delete homework with id : {}",homeworkId);
             return "redirect:/home?notAllowed";

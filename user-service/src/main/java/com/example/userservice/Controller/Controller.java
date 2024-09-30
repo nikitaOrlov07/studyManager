@@ -41,6 +41,7 @@ public class Controller {
 
     @GetMapping("/get")
     public UserEntityDto getUserByUserId(@RequestParam Long userId) {
+        log.info("UserService \"getUserByUserId\" controller method is working");
         return userService.findUserById(userId);
     }
 

@@ -20,7 +20,7 @@
                 <p class="text-muted">Start Date: <span th:text="${homework.startDate}">2024-03-16</span></p>
 
                 <!-- Button to trigger modal -->
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                <button th:if="${user != null and (user.role.equals('Admin') or user.createdHomeworksIds.contains(homework.id))}" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
                     Delete homework
                 </button>
             </div>
